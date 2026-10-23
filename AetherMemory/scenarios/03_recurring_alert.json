@@ -1,0 +1,16 @@
+{
+  "name": "03_recurring_alert",
+  "origin": "Decision 3: a memory that keeps coming back is a signal to fix the cause for good",
+  "start": "2026-10-01T09:00:00Z",
+  "memories": [
+    {"id": "stale_alloc", "title": "Context allocation left stale after switching models", "body": "Switching backends kept the old context size. Reset it per deployment.", "kind": "safety warning", "category": "Alert", "tags": ["context allocation", "model switch"]}
+  ],
+  "steps": [
+    {"day": 1, "do": "recall", "tags": ["model switch"], "expect_surface": ["stale_alloc"]},
+    {"day": 1, "do": "load", "ids": ["stale_alloc"]},
+    {"day": 5, "do": "load", "ids": ["stale_alloc"]},
+    {"day": 8, "do": "recall", "tags": ["model switch"], "expect_surface": ["stale_alloc"], "note": "Pulled twice: not yet recurring."},
+    {"day": 9, "do": "load", "ids": ["stale_alloc"]},
+    {"day": 10, "do": "recall", "tags": ["model switch"], "expect_recurring": ["stale_alloc"], "note": "Pulled three times: flagged RECURRING, consider a permanent fix."}
+  ]
+}

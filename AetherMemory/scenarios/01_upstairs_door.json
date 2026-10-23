@@ -1,0 +1,24 @@
+{
+  "name": "01_upstairs_door",
+  "origin": "Michel's example (2026-10-06): a one-week assignment upstairs; the alarm warning must outlive the project",
+  "start": "2026-10-06T09:00:00Z",
+  "agent": "test-agent",
+  "memories": [
+    {"id": "project", "title": "UI Brand Revamp", "body": "One-week project helping the team upstairs with a brand revamp.", "kind": "project fact", "tags": ["ui brand revamp", "upstairs"], "switch_in_days": 7},
+    {"id": "location", "title": "Location of the upstairs team", "body": "Third floor, east wing, second door on the left.", "kind": "project fact", "tags": ["location", "upstairs"], "switch_in_days": 7},
+    {"id": "door_code", "title": "Door code", "body": "Code 4471 opens the upstairs door.", "kind": "project fact", "tags": ["door code", "upstairs"], "switch_in_days": 7},
+    {"id": "warning", "title": "Door alarm warning", "body": "Every door in the building alarms if a code is entered wrong twice in a row.", "kind": "safety warning", "category": "Alert", "tags": ["door code", "alarm", "doors"], "switch_in_days": 7}
+  ],
+  "links": [
+    {"a": "project", "b": "location", "relation": "context", "strength": 0.9},
+    {"a": "location", "b": "door_code", "relation": "context", "strength": 0.9},
+    {"a": "door_code", "b": "warning", "relation": "context", "strength": 0.9}
+  ],
+  "steps": [
+    {"day": 2, "do": "recall", "tags": ["ui brand revamp"], "expect_surface": ["project", "location", "door_code", "warning"], "note": "During the week, one pull brings up the whole structure."},
+    {"day": 3, "do": "recall", "tags": ["alarm"], "expect_surface": ["warning", "door_code"], "note": "Pulling the warning also brings its live context."},
+    {"day": 10, "do": "recall", "tags": ["upstairs"], "expect_absent": ["project", "location", "door_code"], "note": "After the project, the path information has sunk."},
+    {"day": 10, "do": "recall", "tags": ["alarm"], "expect_surface": ["warning"], "expect_absent": ["door_code", "location", "project"], "note": "The warning comes up alone, without its stale baggage."},
+    {"day": 30, "do": "recall", "tags": ["doors"], "expect_surface": ["warning"], "note": "A month later the warning is still available."}
+  ]
+}

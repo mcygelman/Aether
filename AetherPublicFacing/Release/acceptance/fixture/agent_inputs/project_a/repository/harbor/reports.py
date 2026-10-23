@@ -1,0 +1,1 @@
+"""Settlement report extension point."""

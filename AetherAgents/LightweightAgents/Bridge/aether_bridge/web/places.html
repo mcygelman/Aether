@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Places &amp; libraries · Aether</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3}body{max-width:950px;margin:2rem auto;padding:0 1rem}
+a{color:#a9ddd4}h1{font-size:1.8rem}h2{font-size:1.2rem}.panel{background:#172630;border:1px solid #39505e;border-radius:10px;padding:1rem;margin:1rem 0}
+label{display:block;margin:.8rem 0 .3rem}input,textarea{box-sizing:border-box;width:100%;font:inherit;padding:.6rem;background:#101820;color:inherit;border:1px solid #6e8c9a;border-radius:5px}
+button{font:inherit;padding:.65rem 1rem;margin:.6rem .5rem 0 0;border:0;border-radius:5px;background:#a5d7ce;color:#102820;cursor:pointer}button:disabled{opacity:.5;cursor:wait}
+.muted{color:#adc0cb}p{line-height:1.5}pre{white-space:pre-wrap;overflow-wrap:anywhere}#notice{color:#ffe39b}li{margin:.65rem 0}summary{cursor:pointer}
+</style></head><body>
+<nav><a href="/">Mission Control</a> · <a href="/projects/atelier">Atelier conversation</a></nav>
+<h1>Places &amp; libraries</h1>
+<p>Connect this machine to a workplace. A place hosts its minds here; their notes and files travel through the shared folder.</p>
+<p id="notice" role="status" aria-live="polite"></p>
+<section class="panel"><h2>1. Join a workplace</h2>
+<label for="share">Shared workplace folder, as this machine sees it</label><input id="share" placeholder="\\server\share\librarian-lunch">
+<label for="name">This place's name</label><input id="name" placeholder="machine1">
+<p class="muted">Use the same folder on both machines and a different place name on each. For the lunch check, choose a new subfolder so previous commissions stay separate.</p>
+<details><summary>Existing minds and deployment profiles</summary>
+<label for="homes">Homes hosted here — one local folder per line (empty is fine for an operator place)</label><textarea id="homes" rows="3"></textarea>
+<label for="profiles">Runtime profiles file</label><input id="profiles">
+</details><button id="join">Save connection</button></section>
+<section class="panel"><h2>2. Prepare the lunch librarian — on the second machine only</h2>
+<p>This creates a test librarian with its own cartridge and one known document in the <strong>lunch-check</strong> collection. It does not call or load a model. Existing resident minds are untouched.</p>
+<label for="endpoint">LM Studio server URL</label><input id="endpoint" value="http://127.0.0.1:1235/v1">
+<label for="model">Model identifier currently served by LM Studio</label><input id="model" value="qwen3.6-35b-a3b-mtp">
+<p class="muted">These are suggestions from last night's setup. Check the server port and model in LM Studio before starting. This quick setup uses a local server without an API key.</p>
+<button id="prepare">Prepare librarian</button></section>
+<section class="panel"><h2>3. Make this place available</h2>
+<p id="local">Loading…</p>
+<p>Starting makes this place process waiting commissions in the connected workplace. Stop lets the turn already in progress finish.</p>
+<button id="start">Start this place</button><button id="stop">Stop this place</button>
+<h3>Places on this workplace</h3><ul id="places"></ul><p id="library"></p><details><summary>Activity and connection details</summary><pre id="activity"></pre><p id="settings"></p></details></section>
+<section class="panel"><h2>4. Ask in the Atelier</h2>
+<p>Once the library place is available, open a new commission on the main machine and send this request:</p>
+<pre id="letter">Please find and lend the guide to the library connection check. Explain why it fits, quote its verification phrase, and attach the lent document so I can open it here. Budget: 12 model calls.</pre>
+<button id="copy">Copy request</button> <a href="/projects/atelier?request=library">Open library conversation</a>
+<p>Expect a reply from Lunch Librarian with the second place's name and a downloadable file containing <strong>LUNCH-LIBRARY-01</strong>. Then say “Accepted. Please leave your closing words, then rest.” Stop both places when finished.</p>
+</section>
+<script>
+const $=id=>document.getElementById(id);let busy=false;
+async function api(action,body){const options={cache:'no-store'};if(body!==undefined){options.method='POST';options.headers={'Content-Type':'application/json'};options.body=JSON.stringify(body);}
+ const response=await fetch('/api/places'+action,options);const value=await response.json();if(!response.ok)throw Error(value.error||'The place could not answer.');return value;}
+function render(v,fill=false){const c=v.config||{};
+ if(fill){$('share').value=c.share||'';$('name').value=c.name||(v.host||'').toLowerCase().replace(/[^a-z0-9_-]/g,'-');$('homes').value=(c.homes||[]).join('\n');$('profiles').value=c.profiles||'';}
+ $('local').textContent=v.running?(v.stopping?'Finishing the current turn, then stopping.':'This place is running.'):'This place is stopped.';
+ if(v.error)$('local').textContent+=' Last error: '+v.error;
+ $('places').replaceChildren();for(const p of v.places||[]){const li=document.createElement('li');li.textContent=p.name+' — '+(p.alive?'available':p.stopped?'stopped':'not recently heard from')+' — '+(p.host||'')+' — minds: '+((p.minds||[]).join(', ')||'operator place');$('places').append(li);}
+ if(!(v.places||[]).length){const li=document.createElement('li');li.textContent='No place has announced itself yet.';$('places').append(li);}
+ $('activity').textContent=(v.messages||[]).join('\n');$('settings').textContent='Saved locally: '+v.settings;
+ $('library').textContent=v.library?'Lunch library: '+v.library.loans+' loan(s). '+(v.library.verified?'Ledger and collection files verify.':'Library verification reports a problem.'):'';
+ for(const id of ['join','prepare'])$(id).disabled=busy||v.running;
+ $('start').disabled=busy||v.running||!c.share;$('stop').disabled=busy||!v.running;}
+async function act(action,body,fill=false){if(busy)return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);$('notice').textContent='';
+ try{const v=await api(action,body);busy=false;render(v,fill);$('notice').textContent=action==='/join'?'Connection saved.':action==='/start'?'Place start requested.':action==='/stop'?'Stop requested; the current turn may still be finishing.':'Librarian prepared; no model was called.';
+ }catch(e){$('notice').textContent=e.message;busy=false;try{render(await api(''));}catch(_){}}
+ $('copy').disabled=false;}
+ $('join').onclick=()=>act('/join',{share:$('share').value,name:$('name').value,homes:$('homes').value.split('\n').map(s=>s.trim()).filter(Boolean),profiles:$('profiles').value},true);
+ $('prepare').onclick=()=>act('/prepare-library',{endpoint:$('endpoint').value,model:$('model').value},true);
+ $('start').onclick=()=>act('/start',{});$('stop').onclick=()=>act('/stop',{});
+ $('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('letter').textContent);$('notice').textContent='Request copied.';}catch(e){$('notice').textContent='Select and copy the request above.';}};
+ api('').then(v=>render(v,true)).catch(e=>$('notice').textContent=e.message);
+ setInterval(()=>{if(!busy)api('').then(v=>render(v)).catch(e=>$('notice').textContent=e.message);},3000);
+</script></body></html>

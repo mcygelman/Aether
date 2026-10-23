@@ -1,0 +1,16 @@
+{
+  "id": "mind_demo_lead_001",
+  "kind": "lead",
+  "name": "AtelierMaster",
+  "home": "minds/lead/home",
+  "deployment": "research",
+  "roots": {
+    "": "read",
+    "docs": "write"
+  },
+  "tags": [
+    "master",
+    "lead",
+    "orchestrator"
+  ]
+}

@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Campaign</title>
+<style>body{font:16px system-ui;background:#101820;color:#eef5f5;max-width:1050px;margin:2rem auto;padding:1rem}a{color:#79d5cd}button{padding:.6rem;margin:.3rem}
+section{border:1px solid #567;padding:1rem;margin:1rem 0}label{display:block;margin:.6rem 0 .2rem}input{font:inherit;padding:.5rem;width:100%;max-width:36rem;box-sizing:border-box;background:#18242e;color:#eef5f5;border:1px solid #759393}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.4rem .5rem;border-bottom:1px solid #345;vertical-align:top}caption{text-align:left;padding:.4rem 0}code{overflow-wrap:anywhere}
+#message{padding:1rem;border:1px solid #759393}#message:empty{display:none}:focus-visible{outline:3px solid #79d5cd;outline-offset:2px}li{margin:.5rem 0}.wrap{overflow-x:auto}
+.now{display:flex;flex-wrap:wrap;gap:1rem;align-items:baseline}.big{font-size:2rem;font-weight:700;margin:0}.label{color:#a9c4c4;font-size:.9rem;display:block}
+.condition{padding:.2rem .7rem;border:2px solid #79d5cd;border-radius:.4rem}.c-UNCERTAIN,.c-UNRECOGNIZED,.c-INTERRUPTED,.c-REFUSED{border-color:#f2a65a;color:#ffd0a0}.c-NEEDS_YOU{border-color:#f5e17a;color:#fff2b0}
+ol.stages{display:flex;flex-wrap:wrap;gap:.3rem;list-style:none;padding:0}ol.stages li{padding:.2rem .6rem;border:1px solid #345;margin:0}ol.stages li[aria-current]{border-color:#79d5cd;font-weight:700}</style>
+<nav aria-label="Mission Control"><a href="/">Mission Control</a> · <a href="/projects/roadmaps">Roadmaps</a></nav>
+<main>
+<h1>Campaign</h1>
+<p>Where the selected campaign is, and what it needs now. This page only reads: it is computed from the campaign's own records, listed with their digests below, so you can check it.</p>
+<div id="message" role="alert" aria-live="assertive"></div>
+<p id="status" role="status" aria-live="polite">Loading…</p>
+<section aria-labelledby="now-heading"><h2 id="now-heading">Now</h2>
+<div class="now"><div><span class="label">Campaign</span><p class="big" id="campaign">–</p></div>
+<div><span class="label">Stage</span><p class="big" id="stage">–</p></div>
+<div><span class="label">Condition</span><p class="big condition" id="condition">–</p></div></div>
+<ol class="stages" id="stages" aria-label="Stages"></ol>
+<p id="reason"></p>
+<p id="numbers"></p>
+<p id="amendment"></p>
+<div id="pool" aria-live="polite"></div>
+<button id="refresh" type="button">Refresh</button></section>
+<section aria-labelledby="actions-heading"><h2 id="actions-heading">What you can do</h2><ul id="actions"></ul></section>
+<section aria-labelledby="obligations-heading"><h2 id="obligations-heading">Unfinished obligations</h2>
+<p>Work still open that you must see before or at Close. The campaign is shown as Closed only when closure is recorded and this list is empty.</p>
+<p id="operator-questions"></p>
+<ul id="obligations"></ul></section>
+<section aria-labelledby="signals-heading"><h2 id="signals-heading">Why: the records that count</h2>
+<div class="wrap"><table><caption>Each current record, the status it holds, and what that means.</caption>
+<thead><tr><th scope="col">Store</th><th scope="col">Status</th><th scope="col">Condition</th><th scope="col">Stage</th><th scope="col">Record</th></tr></thead>
+<tbody id="signals"></tbody></table></div></section>
+<section aria-labelledby="sources-heading"><h2 id="sources-heading">Sources</h2>
+<p><a id="receipt-link" href="/projects/campaign-receipts">Open this campaign's receipt</a></p>
+<p>Every record file read, with its sha256.</p><ul id="sources"></ul></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const STAGES=['Prepare','Plan','Staff','Authorize','Run','Review','Close','Closed'];
+const KINDS={operator_question_open:'Needs you: open operator question',uncertain_effect:'Effect of unknown outcome',unrecognized_record:'Unrecognized record',run_not_terminal:'Run not finished',artifact_not_reviewed:'Artifact not reviewed',closure_dialogue_incomplete:'Closure dialogue not completed',interruption_obligation:'Interruption obligation',accepted_evidence_missing:'Accepted evidence missing'};
+const WORDS={NEEDS_YOU:'Needs you',RUNNING:'Running',WAITING:'Waiting',PAUSED:'Paused',INTERRUPTED:'Interrupted',UNCERTAIN:'Uncertain',REFUSED:'Refused',DONE:'Done',UNRECOGNIZED:'Unrecognized state'};
+function text(parent,tag,value){const e=document.createElement(tag);e.textContent=value;parent.append(e);return e;}
+function fail(message){$('message').textContent=message;}
+async function call(url){const r=await fetch(url,{cache:'no-store',credentials:'same-origin'});let v={};try{v=await r.json();}catch(e){v={error:'Unexpected response ('+r.status+')'};}if(!r.ok)throw Error(v.error||('Request failed ('+r.status+')'));return v;}
+function render(v){
+ $('receipt-link').href='/projects/campaign-receipts?id='+encodeURIComponent(v.campaign_id);
+ $('campaign').textContent=v.campaign_id||'–';$('stage').textContent=v.stage;
+ const c=$('condition');c.textContent=WORDS[v.condition]||v.condition;c.className='big condition c-'+v.condition;
+ $('reason').textContent=v.reason;
+ const n=v.numbers,b=v.budget||{};$('numbers').textContent=n?('Model calls '+(b.model_calls_used??0)+(b.model_calls_limit!=null?' of '+b.model_calls_limit:'')+'. Thinking minutes per atelier minute: '+(n.thinking_per_harness??'none yet')+'. Refusals per hundred calls: '+n.refusals_per_hundred+'. Approvals per sprint: '+n.approvals_per_sprint+'.'):'';
+ const am=$('amendment');am.replaceChildren();
+ for(const s of (v.signals||[]).filter(s=>s.family==='overseer_amendment')){text(am,'strong','Plan change: ');text(am,'code',String(s.literal));
+  text(am,'span',' ('+(WORDS[s.condition]||s.condition)+') '+(s.note||'')+' ');const a=text(am,'a','Open the conversation page');a.href='/projects/overseer?project_id='+encodeURIComponent(v.campaign_id);}
+ pool(v.pool_queries||[]);
+ const stages=$('stages');stages.replaceChildren();for(const s of (v.stages||STAGES)){const li=text(stages,'li',s);if(s===v.stage)li.setAttribute('aria-current','step');}
+ const actions=$('actions');actions.replaceChildren();
+ for(const a of v.actions){const li=document.createElement('li');const link=text(li,'a',a.label);link.href=a.href;actions.append(li);}
+ if(!v.actions.length)text(actions,'li','No action is offered for this state.');
+ const obligations=$('obligations');obligations.replaceChildren();
+ for(const o of v.obligations||[]){const li=document.createElement('li');text(li,'strong',KINDS[o.kind]||o.kind);
+  text(li,'span',' ('+(WORDS[o.condition]||o.condition)+'): ');text(li,'code',o.literal===null?'none':String(o.literal));
+  text(li,'span',' in ');text(li,'code',o.source||'');text(li,'span',' - '+(o.note||''));obligations.append(li);}
+ if(!(v.obligations||[]).length)text(obligations,'li','No obligation is open.');
+ const open=(v.obligations||[]).filter(o=>o.kind==='operator_question_open').length;const oq=$('operator-questions');oq.replaceChildren();
+ if(open){text(oq,'strong','Needs you: '+open+' open operator question'+(open>1?'s':'')+'. ');
+  const a=text(oq,'a','Answer them');a.href='/projects/operator-decisions?project_id='+encodeURIComponent(v.campaign_id);}
+ const body=$('signals');body.replaceChildren();
+ for(const s of v.signals||[]){const row=document.createElement('tr');text(row,'th',s.family).scope='row';
+  text(text(row,'td',''),'code',s.literal===null?'none':String(s.literal));text(row,'td',WORDS[s.condition]||s.condition);text(row,'td',s.stage);
+  text(text(row,'td',''),'code',s.source||'');body.append(row);}
+ const sources=$('sources');sources.replaceChildren();
+ for(const s of v.sources){const li=document.createElement('li');text(li,'code',s.path);text(li,'span',' · sha256 ');text(li,'code',s.sha256);sources.append(li);}
+ if(!v.sources.length)text(sources,'li','No record file was read.');}
+async function pool(queries){const box=$('pool');box.replaceChildren();
+ for(const q of queries){const p=document.createElement('p');text(p,'strong','Runtime pool ('+q.store+'): ');box.append(p);
+  try{const r=await fetch(q.prefix+'pool-inspect',{method:'POST',cache:'no-store',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(q.query)});
+   let d={};try{d=await r.json();}catch(e){d={error:'Unexpected response ('+r.status+')'};}
+   if(!r.ok)throw Error(d.error||('Pool projection unavailable ('+r.status+')'));
+   text(p,'span',String(d.status||'')+(d.recovery_mode?' · '+d.recovery_mode:'')+' · held: '+((d.held_reasons||[]).join('; ')||'none')+' · queued: '+((d.queued_reasons||[]).join('; ')||'none')+(d.generation_disposition?' · generation: '+d.generation_disposition:''));}
+  catch(e){text(p,'span','unavailable: '+e.message);}}}
+async function load(){const id=new URLSearchParams(location.search).get('id');
+ try{const v=await call('/api/campaign-state'+(id?('?id='+encodeURIComponent(id)):''));render(v);fail('');
+  $('status').textContent='Campaign '+v.campaign_id+': '+v.stage+', '+(WORDS[v.condition]||v.condition)+'.';}
+ catch(e){$('status').textContent='The campaign state could not be loaded.';fail(e.message);}}
+$('refresh').onclick=load;load();
+</script>

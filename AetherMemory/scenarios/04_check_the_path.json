@@ -1,0 +1,14 @@
+{
+  "name": "04_check_the_path",
+  "origin": "Claude's own mistake (2026-10-05): a DeepSeek task asked for tool_choice on a paid path that refuses it",
+  "start": "2026-10-05T14:15:00Z",
+  "agent": "claude",
+  "memories": [
+    {"id": "lesson", "title": "Check the required path supports what the task asks", "body": "Before delegating, confirm the route a task must use (e.g. the paid configured client) supports every requested control. The DeepSeek debrief asked for tool_choice on a path that refuses it; cost one implementer increment.", "kind": "standing lesson", "category": "Alert", "stratum": "Insight", "tags": ["delegation", "task design", "paid route", "debrief", "tool_choice"]},
+    {"id": "trivia", "title": "DeepSeek prices on 2026-10-05", "body": "$0.30/$0.006/$1.20 per million tokens (input/cached/output).", "kind": "project fact", "tags": ["deepseek", "pricing"], "switch_in_days": 3}
+  ],
+  "steps": [
+    {"day": 45, "do": "recall", "tags": ["delegation", "debrief"], "expect_surface": ["lesson"], "note": "Six weeks later, planning a new delegation still surfaces the lesson."},
+    {"day": 45, "do": "recall", "tags": ["deepseek"], "expect_absent": ["trivia"], "note": "Old price trivia has sunk."}
+  ]
+}

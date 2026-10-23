@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "config_version": "1.0",
+  "limits": {
+    "max_import_bytes": 1048576,
+    "context_limit": {
+      "min": 512,
+      "max": 262144,
+      "default": 8192
+    },
+    "output_limit": {
+      "min": 64,
+      "max": 32768,
+      "default": 2048
+    },
+    "request_timeout_seconds": {
+      "min": 1,
+      "max": 3600,
+      "default": 120
+    },
+    "run_timeout_seconds": {
+      "min": 1,
+      "max": 86400,
+      "default": 900
+    },
+    "tool_call_limit": {
+      "min": 0,
+      "max": 500,
+      "default": 25
+    }
+  },
+  "supported_tiers": [
+    "lightweight",
+    "ultralight"
+  ],
+  "supported_validator_versions": [
+    "ads-validator-1.1",
+    "ads-validator-1.2",
+    "ads-validator-1.3"
+  ]
+}

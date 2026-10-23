@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Design Studio (ADS) — Aether Cognitive Architecture</title>
+  <link rel="stylesheet" href="css/studio.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Brand Header -->
+  <header>
+    <div class="brand">
+      <h1>Agent Editor</h1>
+      <span class="badge">Draft Bundle v1</span>
+    </div>
+    <div class="header-status">
+      <span id="config-status-badge" class="status-pill offline" title="Active Governance Policy">Policy: Embedded Defaults (v1.0)</span>
+      <span id="draft-state-badge" class="status-pill offline">Template authoring · No live inference</span>
+      <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Aether Governed Multi-Agent System</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="identity">Identity Editor</button>
+    <button class="tab-btn" data-tab="preview">Tier-Aware Preview</button>
+    <button class="tab-btn" data-tab="roster">Mock Roster</button>
+    <button class="tab-btn" data-tab="strategy">Cognitive Strategies</button>
+    <button class="tab-btn" data-tab="export">Export & Validate</button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="content-area">
+    <div class="panel">
+      <a href="/">Back to Mission Control</a>
+      <p>Edit a sample or import your draft. Validate and download a template when ready. Publish it to a project before staffing begins, then use that project's staffing review and admission flow. The mock roster below is a preview.</p>
+      <button type="button" id="bridge-validate" class="btn btn-secondary">Validate template</button>
+      <button type="button" id="bridge-export" class="btn btn-primary">Download verified template ZIP</button>
+      <p id="bridge-status" role="status" aria-live="polite" style="white-space: pre-wrap">Bridge checks use the installed validation limits. Imported custom policies affect the draft preview only.</p>
+    </div>
+
+    <section class="panel" aria-labelledby="publication-title">
+      <h2 id="publication-title">Use this template in a project</h2>
+      <p>Choose a project and review the exact template to publish. Publication makes it a staffing candidate. Staffing review, approval and member admission are still required. Heavyweight creation is not available here.</p>
+      <label for="publication-project">Project</label>
+      <select id="publication-project" class="form-control"><option value="">Choose a project</option></select>
+      <label for="publication-id">Template ID (letters, digits, underscores or hyphens; start with a letter)</label>
+      <input id="publication-id" class="form-control" maxlength="64" placeholder="ResearchAnalyst" />
+      <label for="publication-tools">Available tools (comma separated; leave empty for none)</label>
+      <input id="publication-tools" class="form-control" placeholder="read_file" />
+      <label for="publication-actions">Available actions (comma separated; leave empty for none)</label>
+      <input id="publication-actions" class="form-control" placeholder="read" />
+      <p>These are explicit availability declarations for staffing review; they do not grant permission to use a tool or perform an action.</p>
+      <button type="button" id="publication-prepare" class="btn btn-secondary">Review publication</button>
+      <pre id="publication-review" style="white-space: pre-wrap; overflow-wrap: anywhere"></pre>
+      <button type="button" id="publication-confirm" class="btn btn-primary" disabled>Confirm exact publication</button>
+      <button type="button" id="publication-inspect" class="btn btn-secondary" disabled>Check saved publication</button>
+      <button type="button" id="publication-receipt" class="btn btn-secondary" disabled>Download publication request</button>
+      <button type="button" id="publication-new" class="btn btn-secondary" disabled>Save request and start another review</button>
+      <p id="publication-status" role="status" aria-live="polite">Loading project choices…</p>
+      <p id="publication-next" hidden><a id="publication-launch">Continue to project staffing</a> · <a id="publication-decisions">Review staffing and member admission</a></p>
+    </section>
+
+    <section class="panel" aria-labelledby="consent-title">
+      <h2 id="consent-title">Prepare a heavyweight offer</h2>
+      <p><a href="lifecycle.html">Open heavyweight lifecycle desk</a> to review host-prepared calls, seal accepted terms, and recover committed publication.</p>
+      <p>A heavyweight would have a lasting identity and its own memory. Review the complete offer here, then prepare a runtime review through the configured installation host. Reserving the runtime, launching one exchange and sealing accepted terms each require separate confirmation.</p>
+      <details><summary>Required disclosure to the founding model</summary><pre id="consent-core" style="white-space: pre-wrap">Loading disclosure…</pre></details>
+      <label for="consent-name">Proposed name</label><input id="consent-name" class="form-control" maxlength="256" />
+      <label for="consent-purpose">Purpose</label><textarea id="consent-purpose" class="form-control"></textarea>
+      <label for="consent-charter">Charter and responsibilities</label><textarea id="consent-charter" class="form-control"></textarea>
+      <label for="consent-starting_memory">Proposed starting memory (describe it, or explicitly state none)</label><textarea id="consent-starting_memory" class="form-control"></textarea>
+      <label for="consent-memory_readers">Who may read the identity's memory?</label><textarea id="consent-memory_readers" class="form-control"></textarea>
+      <label for="consent-retirement_memory_policy">What happens to memory if the identity is retired?</label><textarea id="consent-retirement_memory_policy" class="form-control"></textarea>
+      <button id="consent-review" type="button" class="btn btn-secondary">Review exact offer</button>
+      <button id="consent-download" type="button" class="btn btn-primary" disabled>Download reviewed offer</button>
+      <button id="consent-prepare" type="button" class="btn btn-primary" disabled>Prepare runtime review</button>
+      <pre id="consent-preview" style="white-space: pre-wrap; overflow-wrap: anywhere"></pre>
+      <p id="consent-status" role="status" aria-live="polite">The model writes its own succession terms. An offer is not consent.</p>
+    </section>
+
+    <!-- Tab 1: Identity Editor -->
+    <section id="tab-identity" class="tab-pane active">
+      <div class="layout-split">
+        
+        <!-- Left: Form Controls -->
+        <div class="pane-form">
+          
+          <!-- Tier Selection -->
+          <div class="panel">
+            <div class="panel-title">
+              <span>Agent Architectural Tier</span>
+              <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">Defines format & runtime ceiling</span>
+            </div>
+            <div class="tier-toggle-group">
+              <label class="tier-option selected">
+                <input type="radio" name="agent-tier" value="lightweight" checked>
+                <div>
+                  <div style="font-weight: 600;">Lightweight (LW)</div>
+                  <div style="font-size: 11px; color: var(--text-secondary);">Full BRIEFCASE-1 with System 0/2 blocks, deep memory & broad tools.</div>
+                </div>
+              </label>
+              <label class="tier-option">
+                <input type="radio" name="agent-tier" value="ultralight">
+                <div>
+                  <div style="font-weight: 600;">Ultralight (UL)</div>
+                  <div style="font-size: 11px; color: var(--text-secondary);">Single MICROCASE-1 (~1,500 token target / 2,000 ceiling, fixed LAW/TAGS).</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Core Identity Form -->
+          <div class="panel">
+            <div class="panel-title">Core Identity Properties</div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-name">Agent Name</label>
+                <input type="text" id="field-name" class="form-control" placeholder="e.g. Nova, Zephyr" />
+              </div>
+              <div class="form-group">
+                <label for="field-agent-id">Agent ID Template</label>
+                <input type="text" id="field-agent-id" class="form-control" placeholder="e.g. AgentDev_Ada_001" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="field-role">Full Agent Role</label>
+              <input type="text" id="field-role" class="form-control" placeholder="e.g. Research Analyst and Literature Synthesiser" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-task-size">Intended Task Sizing</label>
+                <select id="field-task-size" class="form-control">
+                  <option value="micro">Micro (Single-turn inspection)</option>
+                  <option value="standard" selected>Standard (Bounded multi-step packet)</option>
+                  <option value="complex">Complex (Architectural synthesis)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="field-author">Author / Contributor</label>
+                <input type="text" id="field-author" class="form-control" placeholder="Author name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Alignment Values (Press Enter or Comma to add)</label>
+              <div id="values-tags" class="tag-container">
+                <input type="text" id="values-input" class="tag-input" placeholder="Add value..." />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Useful Capabilities (Press Enter or Comma)</label>
+              <div id="capabilities-tags" class="tag-container">
+                <input type="text" id="capabilities-input" class="tag-input" placeholder="Add capability..." />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Exclusions & Safety Boundaries (Press Enter or Comma)</label>
+              <div id="exclusions-tags" class="tag-container">
+                <input type="text" id="exclusions-input" class="tag-input" placeholder="Add exclusion..." />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="field-handoff">Handoff Expectations</label>
+              <textarea id="field-handoff" class="form-control" placeholder="Describe format and expectations when delivering work to next agent..."></textarea>
+            </div>
+          </div>
+
+          <!-- Disposition & Working Style Panel -->
+          <div class="panel">
+            <div class="panel-title">
+              <span>Disposition and Working Style</span>
+              <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">Editable behavioral tendencies (no budget/permission changes)</span>
+            </div>
+
+            <div class="traits-header">
+              <div style="font-size: 12px; color: var(--text-secondary);">
+                Quick Add Presets (Editable starting points):
+              </div>
+              <div id="trait-presets-bar" class="presets-bar"></div>
+              <div>
+                <button type="button" id="btn-add-custom-trait" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">+ Add Custom Trait</button>
+              </div>
+            </div>
+
+            <!-- Tension Advisories -->
+            <div id="trait-advisories" class="advisory-box" style="display: none;"></div>
+
+            <!-- Traits List -->
+            <div id="traits-list-container" class="traits-list"></div>
+          </div>
+
+          <!-- Deployment Preferences Panel (Finding R5) -->
+          <div class="panel">
+            <div class="panel-title">
+              <span>Deployment Preferences (Disconnected Draft Settings)</span>
+              <span class="status-pill" style="font-size: 11px; color: var(--accent-amber);">Not Connected</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary);">
+              Preferences describe unvalidated deployment requests (never live secrets or runtime connections).
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-model-alias">Model Alias</label>
+                <input type="text" id="field-model-alias" class="form-control" placeholder="e.g. qwen-2.5-72b-instruct" />
+              </div>
+              <div class="form-group">
+                <label for="field-backend-type">Backend Type</label>
+                <select id="field-backend-type" class="form-control">
+                  <option value="operator_local">Operator Local Default</option>
+                  <option value="local_lm_studio">Local LM Studio (Loopback)</option>
+                  <option value="local_ollama">Local Ollama</option>
+                  <option value="custom_reference">Custom Named Backend</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-context-limit">Context Limit (Tokens)</label>
+                <input type="number" id="field-context-limit" class="form-control" min="512" max="262144" step="512" />
+              </div>
+              <div class="form-group">
+                <label for="field-output-limit">Output Limit (Tokens)</label>
+                <input type="number" id="field-output-limit" class="form-control" min="64" max="32768" step="64" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-reasoning-pref">Reasoning / Thinking Mode</label>
+                <select id="field-reasoning-pref" class="form-control">
+                  <option value="standard">Standard (No extended thinking)</option>
+                  <option value="light">Light Reasoning</option>
+                  <option value="extended">Extended Thinking / High Reasoning</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="field-tool-limit">Tool Call Cap</label>
+                <input type="number" id="field-tool-limit" class="form-control" min="0" max="500" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="field-request-timeout">Request Timeout (Sec)</label>
+                <input type="number" id="field-request-timeout" class="form-control" min="1" max="3600" />
+              </div>
+              <div class="form-group">
+                <label for="field-run-timeout">Run Timeout (Sec)</label>
+                <input type="number" id="field-run-timeout" class="form-control" min="1" max="86400" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="field-credential-ref">Credential Reference (Format: operator-managed:&lt;id&gt;)</label>
+              <input type="text" id="field-credential-ref" class="form-control" placeholder="operator-managed:local-default" />
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                Strict invariant: Live API keys (e.g. sk-...) are forbidden. Only safe operator-managed references are permitted.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Live Preview Panel -->
+        <div class="pane-preview">
+          <div class="panel" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="preview-header">
+              <span class="panel-title" style="border-bottom: none; padding: 0;">Live Tier Projection</span>
+              <div class="preview-toolbar">
+                <span id="token-count-label" style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-blue);">Estimated Tokens: ~0</span>
+              </div>
+            </div>
+
+            <!-- Token Budget Meter -->
+            <div id="preview-token-meter" class="token-meter-container">
+              <div class="token-meter-labels">
+                <span>Budget Tracking</span>
+                <span id="token-target-label">Target: 1,500 · Ceiling: 2,000</span>
+              </div>
+              <div class="meter-track">
+                <div id="meter-fill" class="meter-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <pre id="preview-code" class="preview-code-block" style="flex: 1;"></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tab 2: Full Tier-Aware Preview -->
+    <section id="tab-preview" class="tab-pane">
+      <div class="panel" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+        <div class="panel-title">
+          <span>Tier-Aware Full Format Preview</span>
+          <span style="font-size: 12px; color: var(--text-secondary);">Exact structural projection for assembler verification</span>
+        </div>
+        <pre id="full-preview-code" class="preview-code-block" style="flex: 1; margin-top: 12px;"></pre>
+      </div>
+    </section>
+
+    <!-- Tab 3: Mock Project Roster Preview -->
+    <section id="tab-roster" class="tab-pane">
+      <div class="panel" style="width: 100%;">
+        <div class="panel-title">
+          <span>Mock Project Team Roster</span>
+          <button type="button" id="btn-add-roster-instance" class="btn btn-primary">+ Assign Template to Roster</button>
+        </div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+          Mock team assignments simulate multi-agent project staffing. Credentials are safe operator references (e.g. <code>operator-managed:local-qwen</code>). Live execution is disconnected.
+        </div>
+        <div id="roster-table-container"></div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Cognitive Strategy Workbench (Finding R6) -->
+    <section id="tab-strategy" class="tab-pane">
+      <div class="layout-split">
+        
+        <!-- Left: Strategy List & Interactive Authoring Form -->
+        <div class="pane-form">
+          <div class="panel">
+            <div class="panel-title">
+              <span>Attached Cognitive Strategies</span>
+              <button type="button" id="btn-add-strategy" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">+ Draft New Strategy</button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+              Experience-backed strategies capture abstract heuristics per the recent pivot. Recipient agents retain full sovereignty to decline or adapt them.
+            </div>
+            <div id="strategy-list-container"></div>
+          </div>
+
+          <!-- Interactive Strategy Editor -->
+          <div id="strategy-editor-panel" class="panel" style="display: none;">
+            <div class="panel-title">
+              <span>Strategy Definition Editor</span>
+              <span id="strat-editor-id-badge" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-title">Strategy Title</label>
+              <input type="text" id="strat-field-title" class="form-control" placeholder="Descriptive strategy title" />
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-problem-class">Target Problem Class</label>
+              <input type="text" id="strat-field-problem-class" class="form-control" placeholder="e.g. Conflicting multi-sensor telemetry under stress" />
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-rationale">Observed Experience / Empirical Rationale</label>
+              <textarea id="strat-field-rationale" class="form-control" placeholder="Describe the empirical tests or observations that support this heuristic..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-assumptions">Assumptions (One per line)</label>
+              <textarea id="strat-field-assumptions" class="form-control" style="min-height: 60px;" placeholder="Assumed preconditions..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-invariants">Invariants (One per line)</label>
+              <textarea id="strat-field-invariants" class="form-control" style="min-height: 60px;" placeholder="Properties that must hold strictly true..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-steps">Operational Step Sequence (One per line)</label>
+              <textarea id="strat-field-steps" class="form-control" style="min-height: 80px;" placeholder="1. Step one&#10;2. Step two..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-checks">Observable Verification Checks (One per line)</label>
+              <textarea id="strat-field-checks" class="form-control" style="min-height: 60px;" placeholder="Concrete checks to verify outcome..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-stops">Stop / Switch Conditions (One per line)</label>
+              <textarea id="strat-field-stops" class="form-control" style="min-height: 60px;" placeholder="When to halt or switch approach..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="strat-field-attribution">Contributor / Source Lineage</label>
+              <input type="text" id="strat-field-attribution" class="form-control" placeholder="Attribution / author..." />
+            </div>
+
+            <!-- Recipient Application & Task State (Separated per R6) -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-weight: 600; font-size: 13px; color: var(--accent-blue);">Recipient Applications & Task Evaluations</span>
+                <button type="button" id="btn-add-strat-app" class="btn btn-secondary" style="font-size: 11px; padding: 2px 8px;">+ Evaluate for New Task</button>
+              </div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+                Separates reusable candidate definition from recipient task outcomes. Multiple tasks evaluate the same strategy independently.
+              </div>
+
+              <div class="form-group">
+                <label for="strat-app-select">Select Task Evaluation Record</label>
+                <select id="strat-app-select" class="form-control"></select>
+              </div>
+
+              <div class="form-group">
+                <label for="strat-app-task-context">Task Context / Problem Instance</label>
+                <input type="text" id="strat-app-task-context" class="form-control" placeholder="e.g. Continuous Optimization or Teleportation Game" />
+              </div>
+
+              <div class="form-group">
+                <label for="strat-app-recipient">Recipient Agent ID</label>
+                <input type="text" id="strat-app-recipient" class="form-control" placeholder="Agent evaluating strategy (e.g. Nova)" />
+              </div>
+
+              <div class="form-group">
+                <label for="strat-app-sovereignty">Recipient Sovereignty Evaluation</label>
+                <select id="strat-app-sovereignty" class="form-control">
+                  <option value="unresolved">Unresolved (Unevaluated Candidate)</option>
+                  <option value="accepted">Accepted (Applicable &amp; Verified)</option>
+                  <option value="declined">Declined (Incompatible / Counterexample)</option>
+                  <option value="not_applicable">Not Applicable to Current Task</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="strat-app-decline-reason">Application Notes / Counterexample Reason</label>
+                <textarea id="strat-app-decline-reason" class="form-control" style="min-height: 50px;" placeholder="If declined, document reason (e.g. Teleportation Game violates spatial conservation)..."></textarea>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right: Strategy Detail & Views -->
+        <div class="pane-preview">
+          <div class="panel" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="preview-header">
+              <span class="panel-title" style="border-bottom: none; padding: 0;">Strategy Specification View</span>
+              <button type="button" id="btn-toggle-strategy-view" class="btn btn-secondary" style="font-size: 12px;">Switch to Lexicon/WMC View</button>
+            </div>
+            <pre id="strategy-detail-preview" class="preview-code-block" style="flex: 1; margin-top: 12px;"></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tab 5: Export & Validate -->
+    <section id="tab-export" class="tab-pane">
+      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 900px; margin: 0 auto;">
+        
+        <!-- Export Panel -->
+        <div class="panel">
+          <div class="panel-title">
+            <span>Export Draft Bundle</span>
+            <span id="export-status-badge" class="badge" style="background-color: rgba(210, 153, 34, 0.15); color: var(--accent-amber); border-color: rgba(210, 153, 34, 0.3);">Draft · Unsaved Changes</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary);">
+            Serializes the complete current draft into an <code>agent-design-draft-v1</code> JSON file with author attribution, disposition traits, deployment preferences, and cognitive strategies.
+          </p>
+          <div>
+            <button type="button" id="btn-export-bundle" class="btn btn-primary">Download Draft Bundle (.json)</button>
+          </div>
+          <div id="export-digest-display" style="display: none; font-family: var(--font-mono); font-size: 12px; color: var(--accent-green);"></div>
+        </div>
+
+        <!-- Pre-baked Fixture Loader -->
+        <div class="panel">
+          <div class="panel-title">Load Synthetic Reference Fixtures</div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <select id="select-preset-fixture" class="form-control" style="max-width: 360px;">
+              <option value="sample_lw_template">Nova (Lightweight · Combined Traits)</option>
+              <option value="sample_ul_template">Zephyr (Ultralight · Cautious)</option>
+              <option value="empty_traits_template">Baseline (Lightweight · Empty Traits)</option>
+              <option value="custom_traits_template">Artisan (Lightweight · Custom Traits)</option>
+            </select>
+            <button type="button" id="btn-load-fixture" class="btn btn-secondary">Load Fixture into Studio</button>
+          </div>
+        </div>
+
+        <!-- Studio Governance Policy & Configuration Contract (Praxis R5) -->
+        <div class="panel">
+          <div class="panel-title">
+            <span>Studio Governance Policy</span>
+            <span id="config-status-badge-panel" class="badge">Policy: Embedded Defaults (v1.0)</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary);">
+            Active validation limits, bounds, and timeouts governing drafts. In direct file-open (<code>file:///</code>) operation, operators can load a custom <code>studio-config.json</code> policy file or inspect active baseline constraints.
+          </p>
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+            <input type="file" id="config-file-input" accept=".json" style="display: none;" />
+            <button type="button" id="btn-load-config" class="btn btn-secondary">Load Custom Policy (.json)</button>
+            <button type="button" id="btn-reset-config" class="btn btn-secondary" style="font-size: 12px;">Reset to Defaults</button>
+          </div>
+          <div id="config-policy-summary" style="font-family: var(--font-mono); font-size: 11px; background-color: var(--bg-tertiary); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); color: var(--text-secondary);">
+            <!-- Populated dynamically: Active limits overview -->
+          </div>
+          <div id="config-status-alert" class="alert-box" style="display: none; margin-top: 10px;"></div>
+        </div>
+
+        <!-- Import / Dropzone Panel -->
+        <div class="panel">
+          <div class="panel-title">Import & Validate Draft Bundle</div>
+          <div id="bundle-dropzone" class="dropzone">
+            <input type="file" id="bundle-file-input" accept=".json" style="display: none;" />
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">Click or Drag & Drop Draft Bundle JSON file here</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">Enforces schema validation, Unicode preservation, size limits (&lt; 1MB), and credential safety checks.</div>
+          </div>
+          <div id="import-status-alert" class="alert-box" style="display: none;"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/studio.js"></script>
+  <script src="js/bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# Preserve the qualified source bytes, including intentional mixed line endings.
+* -text

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atelier · Aether</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3}body{max-width:1100px;margin:1.5rem auto;padding:0 1rem}
+h1{font-size:1.7rem;margin:.4rem 0}h2{font-size:1.1rem;margin:.2rem 0 .6rem}a{color:#a9ddd4}p{line-height:1.5}.muted{color:#adc0cb}
+.panel{border:1px solid #39505e;background:#172630;border-radius:10px;padding:1rem;margin:1rem 0}
+.top{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}.top select{flex:1 1 14rem;min-width:0;max-width:100%}
+select,textarea,input{font:inherit;background:#101820;color:inherit;border:1px solid #6e8c9a;border-radius:6px;padding:.5rem;box-sizing:border-box;max-width:100%}
+textarea{width:100%;min-height:6rem}button{font:inherit;margin:.5rem .5rem 0 0;padding:.55rem .9rem;border:0;border-radius:6px;background:#a5d7ce;color:#102820;cursor:pointer;max-width:100%}
+button.quiet{background:#2c4352;color:#e3edf3}button:disabled{opacity:.5;cursor:not-allowed}
+.meter{display:flex;flex-wrap:wrap;gap:1.5rem}.meter div{min-width:8rem;max-width:100%;flex:1 1 8rem}.big{font-size:1.4rem;font-weight:700;display:block}.label{color:#a9c4c4;font-size:.85rem}
+progress{width:100%;height:.7rem}article{border-bottom:1px solid #2c4352;padding:.6rem 0;overflow-wrap:anywhere}article.host{color:#c5d3da;border-left:3px solid #6e8c9a;padding-left:.8rem}article.operator{background:#1b2e38;padding:.6rem .8rem;border-radius:6px;margin:.4rem 0}article.cited-decision{border-left-color:#a5d7ce}article.turn_failed{border-left-color:#f5a97f;color:#f5a97f}
+.who{font-weight:700;color:#c7ece5}.when{color:#8fa6b3;font-size:.85rem;margin-left:.5rem}.words{white-space:pre-wrap;overflow-wrap:anywhere;margin:.3rem 0}
+.files{overflow-wrap:anywhere;word-break:break-all}.files a,.files span{margin-right:1rem;font-size:.9rem}.cost{color:#8fa6b3;font-size:.8rem}#hint{color:#f5e17a}#notice{min-height:1.4em}
+</style></head><body>
+<header><a href="/">Mission Control</a> · <a href="/projects/places">Places &amp; libraries</a> · <a id="state-link" href="/projects/campaign">Commission state</a> · <a id="receipts-link" href="/projects/campaign-receipts">Daybook receipts</a>
+<h1>Atelier</h1><p class="muted">Work with a team or ask the librarian. Replies and files stay together in this conversation. For team projects, say "go" to approve a planned sprint. Say "accepted" when the result is right, or write what you would like changed.</p></header>
+<section class="panel top"><label for="commission">Commission</label><select id="commission"></select><button id="new" class="quiet">New commission</button></section>
+<section class="panel" aria-label="Conversation status"><div id="request-choice"><label for="request-kind">New conversation</label> <select id="request-kind"><option value="project">Work with a team</option><option value="library">Ask the librarian</option></select></div><strong id="conversation-status" role="status" aria-live="polite">New conversation</strong><p id="availability" class="muted"></p></section>
+<section class="panel" aria-label="Budget and the three numbers"><div class="meter">
+<div><span class="label">Model calls</span><span class="big" id="calls">–</span><progress id="calls-meter" max="1" value="0"></progress></div>
+<div><span class="label">Thinking minutes per atelier minute</span><span class="big" id="thinking">–</span></div>
+<div><span class="label">Refusals per hundred calls</span><span class="big" id="refusals">–</span></div>
+<div><span class="label">Approvals per sprint</span><span class="big" id="approvals">–</span></div>
+<div><span class="label">Daybook</span><span class="big" id="chain">–</span></div></div></section>
+<section class="panel" aria-label="The thread"><div id="thread"></div><p id="empty" class="muted">No notes yet.</p></section>
+<section class="panel" aria-label="Write a note"><p id="hint" role="status"></p>
+<label for="text" id="text-label">Your note</label><textarea id="text"></textarea>
+<input id="attach" type="file" multiple aria-label="Attach files"><div><button id="send">Send</button><button id="say-go" class="quiet" type="button">Say "go"</button><button id="say-accepted" class="quiet" type="button">Say "Accepted."</button></div>
+<p id="notice" role="status" aria-live="polite"></p></section>
+<section class="panel" aria-label="People"><h2>People in this atelier</h2><p class="muted">Waking someone asks the atelier to run their turn now; they read every note since they last read.</p><div id="people"></div></section>
+<script>
+const $=id=>document.getElementById(id);
+const HEX=/^[0-9a-f]{64}$/;
+let commission=new URLSearchParams(location.search).get('commission')||'',lastId=null,busy=false,timer=null,connectionError='';
+function text(parent,tag,value){const e=document.createElement(tag);e.textContent=value==null?'':String(value);parent.append(e);return e;}
+function notice(value){$('notice').textContent=value||'';}
+async function call(url,body){const options={cache:'no-store',credentials:'same-origin'};
+ if(body!==undefined){options.method='POST';options.headers={'Content-Type':'application/json'};options.body=JSON.stringify(body);}
+ const r=await fetch(url,options);let v={};try{v=await r.json();}catch(e){v={error:'Unexpected response ('+r.status+')'};}
+ if(!r.ok&&r.status!==202)throw Error(v.error||('Request failed ('+r.status+')'));return v;}
+function fileHref(sha){return '/api/atelier/file?commission='+encodeURIComponent(commission)+'&sha256='+sha;}
+function who(p){return p?(p.name||p.id):'';}
+function note(row){const a=document.createElement('article');
+ const kinds=[row.sender&&row.sender.kind];
+ if(row.kind&&row.kind!=='message')kinds.push(row.kind);
+ if((row.facts||{}).cited_decision)kinds.push('cited-decision');
+ a.className=kinds.filter(Boolean).join(' ');a.id='note-'+row.id;
+ const head=text(a,'div','');text(head,'span',who(row.sender)).className='who';
+ if(row.place)text(head,'span',' @'+row.place);
+ if(row.to)text(head,'span',' → '+who(row.to));text(head,'span',row.at).className='when';
+ text(a,'p',row.text).className='words';
+ if((row.files||[]).length){const files=text(a,'div','');files.className='files';
+  for(const f of row.files){if(HEX.test(f.sha256||'')){const link=text(files,'a',f.name+' ('+f.bytes+' bytes, '+f.sha256.slice(0,12)+')');link.href=fileHref(f.sha256);link.setAttribute('download',f.name);}
+   else text(files,'span',f.name+' (no stored version)');}}
+ const c=row.cost||{};if(c.model_calls||c.seconds)text(a,'p',(c.model_calls||0)+' model calls · '+(c.seconds||0)+' s').className='cost';
+ $('thread').append(a);}
+function number(v,suffix){return v==null?'–':String(v)+(suffix||'');}
+function meter(v){const b=v.budget||{},n=v.numbers||{};
+ $('calls').textContent=(b.model_calls_used??0)+(b.model_calls_limit!=null?' of '+b.model_calls_limit:'');
+ $('calls-meter').max=b.model_calls_limit||Math.max(b.model_calls_used||0,1);$('calls-meter').value=b.model_calls_used||0;
+ $('thinking').textContent=number(n.thinking_per_harness);$('refusals').textContent=number(n.refusals_per_hundred);$('approvals').textContent=number(n.approvals_per_sprint);
+ $('chain').textContent=v.chain?(v.chain.ok?v.chain.messages+' notes, chain verifies':'chain broken: '+v.chain.first_problem):'–';}
+function people(v){const root=$('people');root.replaceChildren();
+ if(v.places_managed){text(root,'p','Connected places wake their minds as notes arrive. Manage availability in Places & libraries.');return;}
+ for(const p of v.people||[]){const b=text(root,'button','Wake '+who(p)+' ('+p.kind+')');b.className='quiet';
+  if((v.working||[]).includes(p.id)){b.disabled=true;b.textContent=who(p)+' is working…';}
+  b.onclick=()=>wake(p);}}
+function links(){const q=commission?'?id='+encodeURIComponent(commission):'';$('state-link').href='/projects/campaign'+q;$('receipts-link').href='/projects/campaign-receipts'+q;}
+function composer(v){const opening=!commission;
+ $('request-choice').hidden=!opening;
+ $('conversation-status').textContent=opening?'New conversation':(v&&v.status&&v.status.label)||'Conversation open';
+ const a=v&&v.availability;
+ $('availability').textContent=a?('This place is '+(a.running?(a.stopping?'stopping after the current turn':'running'):'stopped')+'. '+
+  ((a.places||[]).filter(p=>p.alive&&(p.minds||[]).length).map(p=>p.name+': '+p.minds.join(', ')).join('; ')||'No hosted minds are currently announced as available.')+
+  (a.error?' Last place error: '+a.error:'')):'';
+ $('text-label').textContent=opening?'Commission letter':'Your note';
+ $('text').placeholder=opening?'What to deliver, why, what helps, and the budget (for example "Budget: 20 model calls").':'Write to everyone, or reply "go" or "accepted".';
+ $('hint').textContent=opening?'Write the commission letter: what to deliver, why, what helps, and the budget.':(v&&v.hint)||'';
+ $('say-go').hidden=opening||!!(v&&v.status&&!v.status.can_approve);$('say-accepted').hidden=opening||!!(v&&v.status&&!v.status.can_accept);}
+async function list(){const v=await call('/api/atelier');const select=$('commission');select.replaceChildren();
+ const fresh=text(select,'option','New commission');fresh.value='';
+ for(const c of v.commissions||[]){const o=text(select,'option',c.id+' · '+c.letter.slice(0,80)+(c.accepted?' · accepted':''));o.value=c.id;}
+ select.value=commission;}
+async function read(full){if(!commission){$('thread').replaceChildren();$('empty').hidden=false;composer(null);people({people:[]});meter({});links();return;}
+ const v=await call('/api/atelier/read?commission='+encodeURIComponent(commission)+(!full&&lastId?'&since='+encodeURIComponent(lastId):''));
+ if(connectionError&&$('notice').textContent===connectionError)notice('');connectionError='';
+ if(full||!v.since_known)$('thread').replaceChildren();
+ for(const row of v.notes)note(row);lastId=v.last_id;$('empty').hidden=!!lastId;
+ meter(v);people(v);composer(v);links();return v;}
+function choose(id){commission=id||'';lastId=null;history.replaceState(null,'',commission?'?commission='+encodeURIComponent(commission):location.pathname);return read(true);}
+function base64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+32768));return btoa(s);}
+async function attachments(){const out=[];for(const f of Array.from($('attach').files||[]))out.push({name:f.name,content_base64:base64(new Uint8Array(await f.arrayBuffer()))});return out;}
+async function send(){if(busy)return;const words=$('text').value;busy=true;$('send').disabled=true;notice('');
+ try{const files=await attachments();if(!words.trim()&&!files.length){notice('Write a note or attach a file.');return;}
+  const v=commission?await call('/api/atelier/post',{commission,text:words,files}):await call('/api/atelier/open',{text:words,files,request_kind:$('request-kind').value||'project'});
+  $('text').value='';$('attach').value='';
+  if(!commission){commission=v.commission_id;await list();await choose(commission);}else await read(false);
+  if(v.stop)notice('The atelier stopped for '+v.stop+': '+v.detail);}
+ catch(e){notice(e.message);}finally{busy=false;$('send').disabled=false;}}
+async function wake(p){notice('');try{const v=await call('/api/atelier/wake',{commission,participant:{id:p.id,kind:p.kind,name:p.name||p.id}});
+  notice(v.started?'Turn requested for '+who(p)+'.':v.working?'A turn was already in progress for '+who(p)+'.':'');await read(false);}catch(e){notice(e.message);}}
+$('send').onclick=send;$('say-go').onclick=()=>{if(busy)return;$('text').value='go';send();};$('say-accepted').onclick=()=>{if(busy)return;$('text').value='Accepted.';send();};$('new').onclick=()=>{$('commission').value='';choose('');};$('commission').onchange=()=>choose($('commission').value);
+async function start(){if(new URLSearchParams(location.search).get('request')==='library')$('request-kind').value='library';
+ try{await list();await read(true);}catch(e){connectionError=e.message;notice(connectionError);$('conversation-status').textContent='Connection unavailable';}
+ timer=setInterval(()=>{if(commission&&!busy)read(false).catch(e=>{connectionError=e.message;notice(connectionError);$('conversation-status').textContent='Connection unavailable — last shown notes retained';});},3000);}
+start();
+</script></body></html>

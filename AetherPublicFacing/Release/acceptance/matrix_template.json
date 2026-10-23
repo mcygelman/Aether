@@ -1,0 +1,55 @@
+{
+  "schema": "aether-acceptance-matrix/1",
+  "created_at": null,
+  "candidate": {
+    "version": "v0.1.0-alpha",
+    "git_commit": null,
+    "manifest_sha256": null,
+    "archive_sha256": null
+  },
+  "environment": {
+    "os": "Windows",
+    "python_version": null,
+    "execution_layer": null,
+    "machine_id": null,
+    "isolation_confirmed": false
+  },
+  "model_configuration": {
+    "provider": null,
+    "model_name": null,
+    "context_limit": null,
+    "output_reserve": null,
+    "budget_calls": null,
+    "budget_dollars": null
+  },
+  "metrics": {
+    "thinking_minutes_per_atelier_minute": null,
+    "refusals_per_hundred_calls": null,
+    "approvals_per_sprint": null,
+    "threshold_status": "Pending operator determination; thresholds are not preset"
+  },
+  "checks": {
+    "T00_foundation": "NOT RUN",
+    "T01_install_and_connect": "NOT RUN",
+    "T02_prepare_and_commission": "NOT RUN",
+    "T03_establish_continuity": "NOT RUN",
+    "T04_execute_and_review": "NOT RUN",
+    "T05_interrupt_and_resume": "NOT RUN",
+    "T06_reform_context": "NOT RUN",
+    "T07_apply_experience": "NOT RUN",
+    "T08_enforce_boundaries": "NOT RUN",
+    "T09_preserve_user_data": "NOT RUN",
+    "T10_verify_closure": "NOT RUN",
+    "T11_reproduce_and_explain": "NOT RUN"
+  },
+  "artifacts": {
+    "project_a_daybook_hash": null,
+    "project_a_review_hash": null,
+    "project_b_daybook_hash": null,
+    "project_b_review_hash": null,
+    "recalled_note_ids": [],
+    "recalled_note_applied": false,
+    "changed_constraint_honored": false
+  },
+  "unresolved_limitations": []
+}

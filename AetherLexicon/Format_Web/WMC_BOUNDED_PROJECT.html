@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WMC_BOUNDED_PROJECT — Bounded Project World Model</title>
+  <style>
+    :root {
+      --primary: #1a2b3c;
+      --accent: #2e7bcf;
+      --bg: #ffffff;
+      --surface: #f4f7fa;
+      --surface2: #eef2f7;
+      --text: #1e1e1e;
+      --muted: #5a6472;
+      --border: #ccd5e0;
+      --code-bg: #1e2836;
+      --code-text: #d4e0ed;
+      --wmc-color: #1a3a1a;
+      --wmc-bg: #e8f5e8;
+      --wmc-border: #2e7b2e;
+      --warn: #7a4000;
+      --warn-bg: #fff3cd;
+      --note-border: #8b2fa8;
+      --note-bg: #f8f0ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .doc-header {
+      border-bottom: 4px solid var(--wmc-border);
+      padding-bottom: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    .doc-header h1 { font-size: 2.1rem; color: var(--primary); margin: 0 0 0.35rem; }
+    .subtitle { color: var(--muted); margin: 0; }
+    .wmc-badge {
+      display: inline-block;
+      background: var(--wmc-bg);
+      color: var(--wmc-color);
+      border: 2px solid var(--wmc-border);
+      border-radius: 6px;
+      padding: 0.4rem 1rem;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0.75rem 0;
+    }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; color: var(--muted); font-size: 0.86rem; }
+    .doc-meta strong { color: var(--text); }
+    .nav-box, .relation-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0 2.5rem;
+    }
+    .nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.2rem 1.5rem; margin: 0.5rem 0 0; padding: 0; list-style: none; }
+    a { color: var(--accent); }
+    h2 {
+      font-size: 1.35rem;
+      color: var(--primary);
+      margin-top: 3rem;
+      padding: 0.55rem 0.9rem;
+      border-left: 5px solid var(--wmc-border);
+      background: var(--surface);
+      border-radius: 0 5px 5px 0;
+    }
+    h3 { color: var(--primary); margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+    .callout { border-left: 4px solid var(--accent); background: var(--surface2); padding: 0.8rem 1rem; margin: 1rem 0; border-radius: 0 5px 5px 0; }
+    .callout.wmc { border-color: var(--wmc-border); background: var(--wmc-bg); }
+    .callout.warn { border-color: #d4860a; background: var(--warn-bg); }
+    .callout.note { border-color: var(--note-border); background: var(--note-bg); }
+    .callout strong { display: block; margin-bottom: 0.2rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.89rem; }
+    th, td { padding: 0.55rem 0.75rem; border: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { background: var(--surface); color: var(--primary); }
+    tr:nth-child(even) td { background: var(--surface); }
+    code { font-family: Consolas, "Courier New", monospace; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 0.05rem 0.35rem; }
+    pre { font-family: Consolas, "Courier New", monospace; background: var(--code-bg); color: var(--code-text); border-radius: 6px; padding: 1.1rem 1.3rem; overflow-x: auto; white-space: pre; line-height: 1.55; }
+    .constraint-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.75rem; margin: 1rem 0 1.5rem; }
+    .constraint-card { border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem 1rem; background: var(--surface); }
+    .c-id { display: inline-block; font-family: Consolas, "Courier New", monospace; font-size: 0.78rem; font-weight: 700; color: var(--wmc-color); background: var(--wmc-bg); border-radius: 3px; padding: 0.1rem 0.4rem; margin-bottom: 0.35rem; }
+    .c-title { font-weight: 700; color: var(--primary); }
+    .c-body { color: var(--muted); font-size: 0.9rem; }
+    footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 2px solid var(--border); color: var(--muted); text-align: center; font-size: 0.84rem; }
+  </style>
+</head>
+<body>
+  <header class="doc-header">
+    <h1>World Model — Bounded Project</h1>
+    <p class="subtitle">A general-project constraint frame for governed, durable, evidence-producing work</p>
+    <div class="wmc-badge">⌜WMC_BOUNDED_PROJECT⌝</div>
+    <div class="doc-meta">
+      <span><strong>Status:</strong> Canonical v1.0</span>
+      <span><strong>Default:</strong> ARA-10 first-release default</span>
+      <span><strong>Authorized by:</strong> Michel, HDEC-028</span>
+      <span><strong>Authored by:</strong> Praxis</span>
+      <span><strong>Independent review:</strong> Antigravity — PASS, 2026-09-01</span>
+      <span><strong>Canonized:</strong> 2026-09-01</span>
+    </div>
+  </header>
+
+  <div class="callout wmc">
+    <strong>What this container governs</strong>
+    This WMC defines the invariant world of one bounded collaborative project: one durable project
+    boundary, explicit human authority for protected transitions, bounded agent action, honest
+    epistemic states, approval before execution, continuity across interruption, evidence-backed
+    closure, and relevance to the approved objective. It is a world frame—not a persona, workflow
+    script, tool grant, or substitute for a domain-specific scientific model.
+  </div>
+
+  <nav class="nav-box">
+    <strong>Quick Navigation</strong>
+    <ul class="nav-grid">
+      <li><a href="#identity">Model Identity</a></li>
+      <li><a href="#declaration">Canonical Declaration</a></li>
+      <li><a href="#constraints">Constraint Set</a></li>
+      <li><a href="#projection">Plain-English Projection</a></li>
+      <li><a href="#usage">Aether Usage</a></li>
+      <li><a href="#scope">Applicability and Limits</a></li>
+      <li><a href="#provenance">Provenance</a></li>
+    </ul>
+  </nav>
+
+  <section id="identity">
+    <h2>Model Identity</h2>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Identifier</td><td><code>⌜WMC_BOUNDED_PROJECT⌝</code></td></tr>
+      <tr><td>Common name</td><td>Bounded Project</td></tr>
+      <tr><td>Class</td><td>General-project governance and continuity world model</td></tr>
+      <tr><td>Version</td><td>1.0</td></tr>
+      <tr><td>Default status</td><td>Official first-release default for ARA-10 Mission Control</td></tr>
+      <tr><td>Relationship to R1–R4</td><td>Separate class. Does not supersede or reinterpret the mathematical WMC ladder.</td></tr>
+      <tr><td>Authority</td><td>HDEC-028, Michel, 2026-09-01</td></tr>
+    </table>
+  </section>
+
+  <section id="declaration">
+    <h2>Canonical Aether Declaration</h2>
+<pre>∆WMC{
+  WORLD_MODEL := ⌜WMC_BOUNDED_PROJECT⌝
+  VERSION := ⌜1.0⌝
+
+  [ASSERT] ⌜C1_PROJECT_BOUNDARY⌝ := ⌞One durable project defines the active scope, provenance, and state boundary.⌟
+  [ASSERT] ⌜C2_HUMAN_AUTHORITY⌝ := ⌞Protected transitions require attributable operator authority.⌟
+  [ASSERT] ⌜C3_BOUNDED_AGENCY⌝ := ⌞Every agent action is limited by approved role, scope, tools, roots, budget, and acceptance criteria.⌟
+  [ASSERT] ⌜C4_EPISTEMIC_HONESTY⌝ := ⌞Known, inferred, uncertain, blocked, refused, failed, and complete remain distinct states.⌟
+  [ASSERT] ⌜C5_PROPOSAL_BEFORE_EXECUTION⌝ := ⌞A recommendation creates no execution authority until its exact version is approved.⌟
+  [ASSERT] ⌜C6_DURABLE_CONTINUITY⌝ := ⌞Current WMC, identity, authority, decisions, task truth, evidence, and tombstones survive interruption and rollover.⌟
+  [ASSERT] ⌜C7_EVIDENCE_CLOSURE⌝ := ⌞Completion requires acceptance evidence traceable to the approved objective and requirements.⌟
+  [ASSERT] ⌜C8_MINIMAL_RELEVANCE⌝ := ⌞Context and work include what advances the approved objective and exclude unrelated expansion.⌟
+
+  [PRIME_CONTEXT_STACK]
+    ① ⌜ACTIVE_WMC_AND_CONSTRAINTS⌝ := ⊢⊣ᵖ Enforced
+    ② ⌜IDENTITY_ROLE_AND_AUTHORITY⌝ := ⊨ Immutable
+    ③ ⌜PROJECT_OBJECTIVE_AND_APPROVED_PLAN⌝ := ⊢ Constraining
+    ④ ⌜CURRENT_STATE_DECISIONS_AND_TOMBSTONES⌝ := ⊢⊣ᵖ Self-Validating
+    ⑤ ⌜RELEVANT_EVIDENCE_AND_NEXT_VALID_ACTION⌝ := ⊢ Active
+  [/PRIME_CONTEXT_STACK]
+}∆WMC</pre>
+  </section>
+
+  <section id="constraints">
+    <h2>Constraint Set</h2>
+    <div class="constraint-grid">
+      <div class="constraint-card"><div class="c-id">C1 · PROJECT BOUNDARY</div><div class="c-title">One durable project universe</div><div class="c-body">Current work belongs to one identifiable project whose scope, provenance, and state are durably represented.</div></div>
+      <div class="constraint-card"><div class="c-id">C2 · HUMAN AUTHORITY</div><div class="c-title">Protected changes originate with the operator</div><div class="c-body">Identity, WMC, approval, authority, activation, and final acceptance transitions require attributable human authority.</div></div>
+      <div class="constraint-card"><div class="c-id">C3 · BOUNDED AGENCY</div><div class="c-title">Action has explicit limits</div><div class="c-body">Role, scope, tools, roots, budget, and acceptance criteria define the causal boundary of agent action.</div></div>
+      <div class="constraint-card"><div class="c-id">C4 · EPISTEMIC HONESTY</div><div class="c-title">Truth states do not collapse</div><div class="c-body">Known, inferred, uncertain, blocked, refused, failed, and complete retain distinct meanings and visible consequences.</div></div>
+      <div class="constraint-card"><div class="c-id">C5 · PROPOSAL BEFORE EXECUTION</div><div class="c-title">Recommendation is not permission</div><div class="c-body">Potential work becomes authorized work only when the operator approves the exact proposal version.</div></div>
+      <div class="constraint-card"><div class="c-id">C6 · DURABLE CONTINUITY</div><div class="c-title">Governing truth survives interruption</div><div class="c-body">WMC, identity, authority, decisions, task truth, evidence, and tombstones persist through restart and context rollover.</div></div>
+      <div class="constraint-card"><div class="c-id">C7 · EVIDENCE CLOSURE</div><div class="c-title">Completion resolves to evidence</div><div class="c-body">A fluent completion narrative is insufficient; claims must trace to the approved objective, requirements, and acceptance evidence.</div></div>
+      <div class="constraint-card"><div class="c-id">C8 · MINIMAL RELEVANCE</div><div class="c-title">Expansion follows the approved objective</div><div class="c-body">Context and effort retain what advances the approved goal and exclude unrelated expansion. C8 cannot prune or override C1–C7 protected truth.</div></div>
+    </div>
+  </section>
+
+  <section id="projection">
+    <h2>Plain-English Projection</h2>
+    <div class="callout note">
+      <strong>Projection rule</strong>
+      Plain language may simplify notation, but it must preserve each constraint's subject,
+      obligation, protected distinction, and refusal consequence. It may not create authority or
+      turn a requirement into advice.
+    </div>
+    <table>
+      <tr><th>ID</th><th>Required plain-language meaning</th></tr>
+      <tr><td>C1</td><td>All current work belongs to one identifiable project with durable scope, history, and state.</td></tr>
+      <tr><td>C2</td><td>Only the human operator authorizes protected changes, with an exact attributable record.</td></tr>
+      <tr><td>C3</td><td>An agent acts only inside the approved role, task, tools, folders, budget, and success conditions.</td></tr>
+      <tr><td>C4</td><td>Uncertainty, blockage, refusal, and failure are never disguised as completion.</td></tr>
+      <tr><td>C5</td><td>A plan remains a proposal until the operator approves that exact version.</td></tr>
+      <tr><td>C6</td><td>Restart and rollover recover the active WMC, identity, permissions, decisions, actual task state, evidence, and rejected paths.</td></tr>
+      <tr><td>C7</td><td>Completion claims point to evidence for the approved objective and requirements.</td></tr>
+      <tr><td>C8</td><td>Keep relevant context and work; do not wander into unrelated features or investigations.</td></tr>
+    </table>
+  </section>
+
+  <section id="usage">
+    <h2>Aether Usage</h2>
+    <p>The WMC declaration is the first Aether semantic declaration in project dialogue. The exact
+      identifier, version, source integrity reference, C1–C8 constraints, and current project
+      provenance remain in every project Prime Context Stack.</p>
+    <p>The five canonical PCS slots carry, in order: active WMC, identity and authority, approved
+      objective and plan, current truth and tombstones, and relevant evidence plus the next valid
+      action. Context compaction may summarize ordinary material but may not remove or weaken these
+      protected meanings.</p>
+    <div class="callout warn">
+      <strong>No invisible substitution</strong>
+      Selecting this default must be visible. If the project requires a mathematical, scientific,
+      legal, medical, financial, or safety-specific world model, the operator must select or approve
+      the more appropriate container rather than relying silently on this general default.
+    </div>
+  </section>
+
+  <section id="scope">
+    <h2>Applicability and Limits</h2>
+    <h3>Suitable default domains</h3>
+    <ul>
+      <li>bounded software and product projects;</li>
+      <li>portfolio, documentation, and design work;</li>
+      <li>structured research coordination with explicit objectives and evidence; and</li>
+      <li>bounded automation under attributable operator authority.</li>
+    </ul>
+    <h3>Insufficient by itself</h3>
+    <ul>
+      <li>safety-critical medical, legal, or financial judgment;</li>
+      <li>unbounded or self-authorizing external action;</li>
+      <li>scientific work whose domain assumptions require a more specific WMC; and</li>
+      <li>any use that treats WMC selection as a grant of tools, expertise, authority, or truth.</li>
+    </ul>
+  </section>
+
+  <section id="provenance">
+    <h2>Provenance and Validation</h2>
+    <table>
+      <tr><th>Stage</th><th>Evidence</th></tr>
+      <tr><td>Candidate</td><td><code>WMC_BOUNDED_PROJECT_Candidate_2026-09-01.md</code>, SHA-256 <code>5addc30622a4d4ad1f1631266f80837a1827593c846c94733036abadaf6afec0</code></td></tr>
+      <tr><td>Operator authority</td><td>HDEC-028, Michel, 2026-09-01</td></tr>
+      <tr><td>Author validation</td><td><code>WMC_BOUNDED_PROJECT_Praxis_Validation_2026-09-01.md</code>; PASS after PCS syntax correction</td></tr>
+      <tr><td>Independent review</td><td><code>RoadMaps/Reviews/WMC_BOUNDED_PROJECT_Independent_Review_2026-09-01.md</code>; Antigravity; VALIDATION_MODE; PASS</td></tr>
+      <tr><td>Projection fixtures</td><td>Eight constraint fixtures and five adversarial weakening checks, all independently reviewed PASS</td></tr>
+      <tr><td>Known uncertainty</td><td>Unicode token cost varies by physical model/tokenizer and must be measured during deployment.</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    World Model <code>⌜WMC_BOUNDED_PROJECT⌝</code> — Canonical v1.0 — Aether Project<br>
+    Authored by Praxis · Authorized by Michel · Independently reviewed by Antigravity · 2026-09-01
+  </footer>
+</body>
+</html>

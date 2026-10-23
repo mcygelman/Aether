@@ -1,0 +1,17 @@
+{
+  "name": "06_fog_rule",
+  "origin": "Decision 19: the more important a note, the weaker the thread needed to reach it",
+  "start": "2026-06-01T09:00:00Z",
+  "memories": [
+    {"id": "aion_lesson", "title": "Never edit core identity mid-session", "body": "In-session edits to System 0 corrupted the boot stream (the 2025 Aion crash).", "kind": "project fact", "importance": 0.95, "category": "Alert", "tags": ["boot stream", "identity"], "switch_in_days": 7},
+    {"id": "ordinary", "title": "Boot stream file naming detail", "body": "Boot streams were named CLAUDE_BOOT_STREAM_vX.txt at the time.", "kind": "project fact", "tags": ["boot stream", "naming"], "switch_in_days": 7},
+    {"id": "new_work", "title": "Identity editor feature", "body": "Building an editor for agent identities in Mission Control.", "kind": "project fact", "tags": ["identity editor"], "switch_in_days": 14, "at_day": 60}
+  ],
+  "links": [
+    {"a": "new_work", "b": "aion_lesson", "relation": "causal", "strength": 0.9, "at_day": 60},
+    {"a": "new_work", "b": "ordinary", "relation": "context", "strength": 0.9, "at_day": 60}
+  ],
+  "steps": [
+    {"day": 61, "do": "recall", "tags": ["identity editor"], "expect_surface": ["new_work", "aion_lesson"], "expect_through_fog": ["aion_lesson"], "expect_absent": ["ordinary"], "note": "The buried but vital lesson is reached through a fresh thread; the ordinary detail is not."}
+  ]
+}

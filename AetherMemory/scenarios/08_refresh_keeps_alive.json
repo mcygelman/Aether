@@ -1,0 +1,74 @@
+{
+  "name": "08_refresh_keeps_alive",
+  "origin": "Decision 17: un-tugged important memories fade; pulling one up keeps it alive",
+  "start": "2026-10-06T09:00:00Z",
+  "memories": [
+    {
+      "id": "used",
+      "title": "Unload LM Studio before starting llama-server",
+      "body": "Two GPU servers at once exhaust VRAM.",
+      "kind": "safety warning",
+      "category": "Alert",
+      "tags": [
+        "gpu",
+        "llama-server"
+      ]
+    },
+    {
+      "id": "unused",
+      "title": "Unload the model before changing GPU priority",
+      "body": "Priority changes need a reload.",
+      "kind": "safety warning",
+      "category": "Alert",
+      "tags": [
+        "gpu",
+        "lm studio"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "day": 20,
+      "do": "load",
+      "ids": [
+        "used"
+      ]
+    },
+    {
+      "day": 40,
+      "do": "load",
+      "ids": [
+        "used"
+      ]
+    },
+    {
+      "day": 60,
+      "do": "check",
+      "expect_stronger": [
+        [
+          "used",
+          "unused"
+        ]
+      ]
+    },
+    {
+      "day": 60,
+      "do": "recall",
+      "tags": [
+        "gpu"
+      ],
+      "expect_first": "used"
+    },
+    {
+      "day": 150,
+      "do": "recall",
+      "tags": [
+        "gpu"
+      ],
+      "expect_absent": [
+        "unused"
+      ],
+      "note": "An ordinary warning nobody pulls eventually sinks; only rare, very important notes are visible through the fog."
+    }
+  ]
+}

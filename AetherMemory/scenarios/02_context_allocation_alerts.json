@@ -1,0 +1,18 @@
+{
+  "name": "02_context_allocation_alerts",
+  "origin": "Gemini's TC-MEM-001 (M1/M2/M3), re-expressed for the agreed design: the agent sees ranked headers and decides",
+  "start": "2026-09-13T10:00:00Z",
+  "agent": "agent-c",
+  "memories": [
+    {"id": "M1", "title": "Context allocation too large for local model", "body": "Allocated context exceeded what the local model could hold; the run exhausted context. Size local allocation to the real window.", "kind": "safety warning", "category": "Alert", "stratum": "Reflection", "tags": ["qwen", "local", "context allocation", "gui", "demo"], "at_day": 0},
+    {"id": "M2", "title": "Context allocation stale after driver change", "body": "The API model inherited the small local allocation and ran out of context. Allocation is per model; reset it when the driver changes.", "kind": "safety warning", "category": "Alert", "stratum": "Reflection", "tags": ["deepseek", "context allocation", "driver change", "gui", "demo"], "at_day": 7},
+    {"id": "M3", "title": "Untested credential before delegation", "body": "First call failed: the API key was wrong and untested. Probe the key before multi-round work.", "kind": "safety warning", "category": "Alert", "stratum": "Reflection", "tags": ["deepseek", "credential"], "at_day": 14}
+  ],
+  "links": [
+    {"a": "M1", "b": "M2", "relation": "conceptual", "strength": 0.88, "at_day": 7}
+  ],
+  "steps": [
+    {"day": 21, "do": "recall", "tags": ["qwen", "deepseek", "gui", "demo", "context allocation"], "expect_surface": ["M1", "M2"], "expect_above": [["M2", "M3"], ["M1", "M3"]], "note": "Planning a mixed local+API delegation: the two allocation alerts must outrank the credential alert, which matches only one tag."},
+    {"day": 21, "do": "recall", "tags": ["credential", "deepseek"], "expect_first": "M3", "note": "When the task is about credentials, M3 leads."}
+  ]
+}

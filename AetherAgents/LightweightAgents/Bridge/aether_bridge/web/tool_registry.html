@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Tool registry</title>
+<style>body{font:16px system-ui;background:#101820;color:#eef5f5;max-width:1050px;margin:2rem auto;padding:1rem}a{color:#79d5cd}button{padding:.6rem;margin:.3rem}
+section{border:1px solid #567;padding:1rem;margin:1rem 0}label{display:block;margin:.6rem 0 .2rem}input{font:inherit;padding:.5rem;width:100%;max-width:36rem;box-sizing:border-box;background:#18242e;color:#eef5f5;border:1px solid #759393}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.4rem .5rem;border-bottom:1px solid #345;vertical-align:top}caption{text-align:left;padding:.4rem 0}code{overflow-wrap:anywhere}
+.state{font-weight:600}#message{padding:1rem;border:1px solid #759393}#message:empty{display:none}:focus-visible{outline:3px solid #79d5cd;outline-offset:2px}li{margin:.5rem 0}.wrap{overflow-x:auto}</style>
+<nav aria-label="Mission Control"><a href="/">Mission Control</a> · <a href="/projects/roadmaps">Roadmaps</a></nav>
+<main>
+<h1>Tool registry</h1>
+<p>Approval for model-offered tool dispatch. Campaign staff writes follow staffing authority, not this registry. Built-in tools are approved from reviewed source unless withdrawn. Other tools arrive unapproved; changed definitions require fresh approval. Withdrawal prevents later admissions, not already admitted calls. Every change is journaled. Discovery and schema changes cannot be undone; undo that restores approval requires the current inspection.</p>
+<section aria-labelledby="who-heading"><h2 id="who-heading">Who and why</h2>
+<p>Required for every withdraw, approve and undo.</p>
+<label for="by">Your name (required)</label><input id="by" name="by" autocomplete="name" required aria-required="true">
+<label for="reason">Why (required, kept in the journal)</label><input id="reason" name="reason" required aria-required="true">
+</section>
+<div id="message" role="alert" aria-live="assertive"></div>
+<p id="status" role="status" aria-live="polite">Loading…</p>
+<section aria-labelledby="tools-heading"><h2 id="tools-heading">Tools</h2><button id="refresh" type="button">Refresh</button>
+<div class="wrap"><table><caption>Every tool, its state, where it comes from, and the last change to it.</caption>
+<thead><tr><th scope="col">Tool</th><th scope="col">State</th><th scope="col">Source</th><th scope="col">Digest</th><th scope="col">Last change</th><th scope="col">Actions</th></tr></thead>
+<tbody id="tools"></tbody></table></div></section>
+<section aria-labelledby="servers-heading"><h2 id="servers-heading">MCP servers</h2>
+<p>External servers configured in the installation setting <code>toolbelt.mcp_servers</code>, and the tools each has announced. Their tools arrive unapproved; approve or withdraw them in the table above. This page does not start servers.</p>
+<ul id="servers"></ul></section>
+<section aria-labelledby="history-heading"><h2 id="history-heading">History</h2>
+<p id="historyScope">All tools, newest first.</p><button id="allHistory" type="button">Show all tools</button>
+<ul id="history"></ul></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let historyName='',inspectionTokens={};
+function text(parent,tag,value){const e=document.createElement(tag);e.textContent=value;parent.append(e);return e;}
+function fail(message){$('message').textContent=message;}
+async function call(url,options){const r=await fetch(url,Object.assign({cache:'no-store',credentials:'same-origin'},options||{}));let v={};try{v=await r.json();}catch(e){v={error:'Unexpected response ('+r.status+')'};}if(!r.ok)throw Error(v.error||('Request failed ('+r.status+')'));return v;}
+function who(){const by=$('by').value.trim(),reason=$('reason').value.trim();
+ if(!by){fail('Enter your name before making a change.');$('by').focus();return null;}
+ if(!reason){fail('Say why before making a change; it is kept in the journal.');$('reason').focus();return null;}
+ return {by,reason};}
+async function change(action,payload,done){const w=who();if(!w)return;fail('');
+ try{const v=await call('/api/tool-registry/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign(payload,w))});
+  $('status').textContent=done+' (change '+v.change.id+').';render(v);await history();}catch(e){fail(e.message);}}
+function describe(c){return c?(c.by+' at '+c.at+': '+c.reason+(c.undoes?' (undoes change '+c.undoes+')':'')):'No change recorded';}
+function render(v){const body=$('tools');body.replaceChildren();inspectionTokens={};
+ for(const t of v.tools){const row=document.createElement('tr');const th=document.createElement('th');th.scope='row';text(th,'code',t.name);row.append(th);
+  inspectionTokens[t.name]=t.approval_token;
+  text(row,'td',t.state+(t.schema_changed?' (schema changed since approval)':'')).className='state';
+  text(row,'td',t.builtin?'built-in':t.source);
+  const d=text(row,'td','');if(t.digest)text(d,'code',t.digest);else d.textContent=t.builtin?'reviewed source':'none';
+  if(t.definition){const details=text(d,'details','');text(details,'summary','Inspect definition');text(details,'pre',JSON.stringify(t.definition,null,2));}
+  if(t.source_definition){const details=text(d,'details','');text(details,'summary','Inspect source definition');text(details,'pre',JSON.stringify(t.source_definition,null,2));}
+  text(row,'td',describe(t.last_change));
+  const cell=document.createElement('td');
+  if(t.state==='approved'){const b=text(cell,'button','Withdraw');b.type='button';b.setAttribute('aria-label','Withdraw '+t.name);b.onclick=()=>change('withdraw',{name:t.name},'Withdrew '+t.name);}
+  else{const b=text(cell,'button','Approve');b.type='button';b.setAttribute('aria-label','Approve '+t.name);b.onclick=()=>change('approve',{name:t.name,approval_token:t.approval_token},'Approved '+t.name);}
+  const h=text(cell,'button','History');h.type='button';h.setAttribute('aria-label','History of '+t.name);h.onclick=()=>{historyName=t.name;history();};
+  row.append(cell);body.append(row);}}
+async function history(){try{const q=historyName?('?name='+encodeURIComponent(historyName)):'';const v=await call('/api/tool-registry/history'+q);
+ $('historyScope').textContent=historyName?('Changes to '+historyName+', newest first.'):'All tools, newest first.';
+ const list=$('history');list.replaceChildren();
+ for(const c of v.changes){const li=document.createElement('li');
+  text(li,'span','Change '+c.id+' · '+c.name+': '+c.before+' to '+c.after+' · '+describe(c)+' ');
+  const b=text(li,'button','Undo');b.type='button';b.setAttribute('aria-label','Undo change '+c.id+' to '+c.name);
+  b.onclick=()=>change('undo',{change_id:c.id,approval_token:inspectionTokens[c.name]||''},'Undid change '+c.id);list.append(li);}
+ if(!v.changes.length)text(list,'li','No changes recorded yet.');}catch(e){fail(e.message);}}
+async function servers(){const list=$('servers');list.replaceChildren();try{const v=await call('/api/tool-registry/servers');if(!v.servers.length){text(list,'li','No MCP servers are configured.');return;}for(const s of v.servers){const li=text(list,'li','');text(li,'strong',s.name);text(li,'span',' ('+s.source+'): '+s.status+'. ');if(s.command)text(li,'span','Command: '+s.command.join(' ')+'; timeout '+s.timeout_seconds+' s. ');text(li,'span',s.tools.length?('Tools: '+s.tools.map(x=>x.name+' ('+x.state+')').join(', ')+'.'):'No tools announced yet.');}}catch(e){text(list,'li','The MCP servers could not be listed: '+e.message);}}
+async function load(){try{const v=await call('/api/tool-registry');render(v);await servers();$('status').textContent='Showing '+v.tools.length+' tools.';fail('');await history();}
+ catch(e){$('status').textContent='The tool registry could not be loaded.';fail(e.message);}}
+$('refresh').onclick=load;$('allHistory').onclick=()=>{historyName='';history();};load();
+</script>

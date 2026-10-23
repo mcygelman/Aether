@@ -1,0 +1,78 @@
+{
+ "name": "10_phrase_queries",
+ "origin": "Real Praxis import (2026-10-06): 'lm studio' and 'context governor' found nothing because tags only matched exactly",
+ "start": "2026-10-01T09:00:00Z",
+ "memories": [
+  {
+   "id": "goa",
+   "title": "LMStudio GoA loaded state mismatch",
+   "body": "The loaded instance did not match the requested context length.",
+   "kind": "project fact",
+   "tags": [
+    "lmstudio"
+   ],
+   "switch_in_days": 14
+  },
+  {
+   "id": "unload",
+   "title": "Unload on idle",
+   "body": "LM Studio unloads idle models; check before a live run.",
+   "kind": "safety warning",
+   "category": "Alert",
+   "tags": [
+    "lm-studio idle"
+   ]
+  },
+  {
+   "id": "governor",
+   "title": "HDEC033 and C2 governor core",
+   "body": "The context governor selects whole pieces under the budget.",
+   "kind": "project fact",
+   "tags": [
+    "governor",
+    "hdec033"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "lighting",
+   "title": "Studio lighting",
+   "body": "Unrelated: the photo studio's lights.",
+   "kind": "project fact",
+   "tags": [
+    "studio"
+   ],
+   "switch_in_days": 30
+  }
+ ],
+ "links": [],
+ "steps": [
+  {
+   "day": 2,
+   "do": "recall",
+   "tags": [
+    "lm studio"
+   ],
+   "expect_surface": [
+    "goa",
+    "unload"
+   ],
+   "expect_absent": [
+    "lighting"
+   ],
+   "expect_first": "unload",
+   "note": "Spacing and hyphens don't matter; the alert leads; a mere word overlap ('studio') doesn't count."
+  },
+  {
+   "day": 2,
+   "do": "recall",
+   "tags": [
+    "context governor"
+   ],
+   "expect_surface": [
+    "governor"
+   ],
+   "note": "A phrase that finds nothing falls back to its words."
+  }
+ ]
+}

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agents · Aether</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3;
+  --panel:#172630;--line:#39505e;--accent:#a5d7ce;--link:#a9ddd4;--muted:#adc0cb;--warn:#ffe39b;--bad:#f2a7a0;--good:#9fdca0}
+body{max-width:1240px;margin:1.5rem auto;padding:0 1rem}
+a{color:var(--link)}h1{font-size:1.8rem;margin:.6rem 0}h2{font-size:1.15rem;margin:.2rem 0 .6rem}
+p{line-height:1.5}.muted{color:var(--muted)}#notice{color:var(--warn);min-height:1.4em}
+button{font:inherit;padding:.5rem .9rem;border:0;border-radius:6px;background:var(--accent);color:#102820;cursor:pointer}
+button.quiet{background:transparent;color:var(--link);border:1px solid var(--line)}
+select{font:inherit;padding:.45rem;background:#101820;color:inherit;border:1px solid #6e8c9a;border-radius:6px}
+.bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+/* Cards: a game-style face for every agent */
+#roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin:1rem 0 1.5rem}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;position:relative;border-radius:16px;
+  padding:12px 12px 10px;min-height:300px;background:linear-gradient(160deg,#1d3240,#121d26 70%);
+  border:2px solid var(--tier);box-shadow:0 0 0 1px #0b1218 inset,0 6px 18px #0007;transition:transform .12s}
+.card:hover,.card:focus-visible{transform:translateY(-3px);outline:2px solid var(--accent);outline-offset:3px}
+.card[aria-pressed=true]{outline:3px solid var(--accent);outline-offset:3px}
+.card.big{cursor:default;min-height:360px;width:260px}.card.big:hover{transform:none}
+.tier-0{--tier:#5d7280}.tier-1{--tier:#c08a5a}.tier-2{--tier:#c9d2d8}.tier-3{--tier:#e8c260}.tier-4{--tier:#9fe6da}
+.rank{position:absolute;top:-12px;left:-10px;width:46px;height:50px;display:grid;place-items:center;font-weight:700;font-size:1.05rem;
+  color:#101820;background:var(--tier);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.source{align-self:flex-end;font-size:.72rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;max-width:75%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.portrait{margin:8px auto 10px;width:132px;height:132px;border-radius:14px;background:#0e171e;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.big .portrait{width:170px;height:170px}
+.portrait img,.portrait svg{width:100%;height:100%;object-fit:contain}
+.name{font-weight:700;font-size:1.08rem;text-align:center}
+.title{font-style:italic;text-align:center;color:#cfe0e8;font-size:.88rem;margin:.25rem 0 .4rem;min-height:1.2em}
+.title.none{color:var(--muted);font-style:normal}
+.ranktext{text-align:center;font-size:.8rem;color:var(--tier)}
+.stats{display:flex;justify-content:space-around;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
+.stats b{display:block;color:#e3edf3;font-size:1rem;text-align:center}
+.status{font-size:.74rem;text-align:center;margin-top:.4rem;color:var(--muted)}.status.bad{color:var(--bad)}
+/* Detail */
+#detail{display:none;gap:24px;align-items:flex-start}#detail.open{display:flex}
+#detail>.side{flex:none}#detail>.main{flex:1;min-width:0}
+[role=tablist]{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:1rem}
+[role=tab]{background:transparent;color:var(--muted);border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:0}
+[role=tab][aria-selected=true]{color:#e3edf3;border-color:var(--line);background:var(--panel)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+#tab-memory .panel,#tab-record .panel{margin-bottom:12px}
+.chip{display:inline-block;font-size:.72rem;border-radius:999px;padding:1px 9px;border:1px solid currentColor;margin-left:.4rem;vertical-align:middle}
+.st-ok{color:var(--good)}.st-empty{color:var(--muted)}.st-unknown{color:var(--warn)}.st-unavailable{color:var(--bad)}
+.big-state{font-size:1.5rem;font-weight:700;margin:.2rem 0}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;background:#101820;border-radius:6px;padding:.6rem}
+ul.items{padding-left:1.1rem;margin:.3rem 0}ul.items li{margin:.25rem 0}
+.linklike{all:unset;color:var(--link);cursor:pointer;text-decoration:underline}
+.kinds span{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin:2px;font-size:.8rem}
+details{margin-top:.5rem}summary{cursor:pointer;color:var(--muted)}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--line);padding:.35rem;text-align:left}
+dialog{max-width:760px;width:90%;background:var(--panel);color:inherit;border:1px solid var(--line);border-radius:10px}
+dialog::backdrop{background:#000a}
+@media (max-width:800px){#detail.open{flex-direction:column}.card.big{width:100%}}
+</style></head><body>
+<nav><a href="/">Mission Control</a> · Agents</nav>
+<h1>Agents</h1>
+<p class="muted">Each card is the agent's own: its name, the title it wrote for itself, the avatar it chose, and a level earned only from outcomes someone else verified. Select a card to see its current Welcome Dashboard with the selected session's continuity context. This is a live view, not a saved hydration snapshot. Viewing never changes an agent's memory.</p>
+<div class="bar"><button id="reload">Refresh</button><span id="listed" class="muted"></span></div>
+<p id="notice" role="status" aria-live="polite"></p>
+<section id="roster" aria-label="Agent cards"></section>
+<section id="detail" aria-live="polite">
+  <div class="side" id="bigcard"></div>
+  <div class="main">
+    <div role="tablist" aria-label="Agent views">
+      <button role="tab" aria-selected="true" data-tab="welcome">Welcome Dashboard</button>
+      <button role="tab" aria-selected="false" data-tab="memory">Memory</button>
+      <button role="tab" aria-selected="false" data-tab="record">Record</button>
+    </div>
+    <div id="tab-welcome">
+      <div class="bar"><label for="session">Session</label><select id="session"></select>
+        <button id="refresh">Refresh</button><button id="history-open" class="quiet">Full session history</button></div>
+      <p id="viewing" class="muted"></p>
+      <div class="grid" id="elements"></div>
+    </div>
+    <div id="tab-memory" hidden></div>
+    <div id="tab-record" hidden></div>
+  </div>
+</section>
+<dialog id="note"><h2 id="note-title"></h2><p id="note-meta" class="muted"></p><div id="note-body" class="prose"></div>
+  <p><button id="note-close">Close</button></p></dialog>
+<dialog id="history"><h2 id="history-title">Session history</h2>
+  <p class="muted">Newest first. Missing closure information is advisory; normal work may continue.</p>
+  <p id="history-status" role="status"></p><div id="history-events"></div>
+  <p><button id="history-more">Load older events</button> <button id="history-close">Close</button></p></dialog>
+<script>
+"use strict";
+// Every value from a memory is data: inserted with textContent, never parsed as HTML.
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs = {}, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v; else if (k === "text") node.textContent = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v); else node.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid !== null && kid !== undefined) node.append(kid);
+  return node;
+}
+async function getJSON(url) {
+  const response = await fetch(url, {cache: "no-store"});
+  const body = await response.json().catch(() => ({error: "Unreadable answer (" + response.status + ")"}));
+  if (!response.ok) throw new Error(body.error || ("HTTP " + response.status));
+  return body;
+}
+const q = (params) => new URLSearchParams(params).toString();
+let agents = [], current = null;
+let selectionVersion = 0, rosterRequest = 0, dashboardRequest = 0, noteRequest = 0, historyRequest = 0;
+let historyBefore = null;
+function invalidateDetail() {
+  selectionVersion++; dashboardRequest++; noteRequest++; historyRequest++;
+  $("note").close(); $("history").close();
+  $("viewing").textContent = "";
+  $("session").replaceChildren();
+  $("elements").replaceChildren();
+}
+
+// -- the card face ------------------------------------------------------------------------
+function tier(level) { return level >= 10 ? 4 : level >= 7 ? 3 : level >= 4 ? 2 : level >= 1 ? 1 : 0; }
+function hash(text) { let h = 2166136261; for (const c of text) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function sigil(seed, letter) {
+  // A generated placeholder, used only until the agent chooses its own avatar.
+  const ns = "http://www.w3.org/2000/svg", h = hash(seed), sides = 3 + (h % 5), hue = h % 360;
+  const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Generated symbol; no avatar chosen yet");
+  const pts = [];
+  for (let i = 0; i < sides; i++) { const a = (Math.PI * 2 * i) / sides - Math.PI / 2; pts.push((50 + 36 * Math.cos(a)).toFixed(1) + "," + (50 + 36 * Math.sin(a)).toFixed(1)); }
+  const shape = document.createElementNS(ns, "polygon"); shape.setAttribute("points", pts.join(" "));
+  shape.setAttribute("fill", `hsl(${hue} 45% 30%)`); shape.setAttribute("stroke", `hsl(${hue} 60% 70%)`); shape.setAttribute("stroke-width", "3");
+  const ring = document.createElementNS(ns, "circle"); ring.setAttribute("cx", "50"); ring.setAttribute("cy", "50"); ring.setAttribute("r", "44");
+  ring.setAttribute("fill", "none"); ring.setAttribute("stroke", `hsl(${(hue + 40) % 360} 40% 45%)`); ring.setAttribute("stroke-dasharray", "4 5");
+  const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "61"); text.setAttribute("text-anchor", "middle");
+  text.setAttribute("font-size", "32"); text.setAttribute("font-weight", "700"); text.setAttribute("fill", "#f2f7f9"); text.textContent = letter;
+  svg.append(ring, shape, text); return svg;
+}
+function cardFace(a, big) {
+  const level = (a.rank && a.rank.level) || 0;
+  const face = el(big ? "div" : "button", {class: `card tier-${tier(level)}` + (big ? " big" : ""), "data-key": a.key});
+  if (!big) { face.setAttribute("aria-pressed", String(current === a.key)); face.addEventListener("click", () => select(a.key)); }
+  face.append(el("div", {class: "rank", title: a.rank ? a.rank.basis : "", text: level ? String(level) : "–"}));
+  face.append(el("div", {class: "source", title: a.source, text: a.source}));
+  const portrait = el("div", {class: "portrait"});
+  if (a.avatar_uri) { const img = el("img", {alt: a.avatar_description || "The agent's avatar"}); img.src = a.avatar_uri; portrait.append(img); }
+  else portrait.append(sigil(a.agent_id || a.key, (a.name || "?").slice(0, 1).toUpperCase()));
+  face.append(portrait, el("div", {class: "name", text: a.name}));
+  face.append(el("div", {class: "title" + (a.title ? "" : " none"), text: a.title || "No title written yet"}));
+  face.append(el("div", {class: "ranktext", text: a.rank ? (a.rank.specialty ? `${a.rank.label} · ${a.rank.specialty}` : a.rank.label) : ""}));
+  if (a.status === "ok") {
+    const stat = (n, label) => el("div", {}, el("b", {text: String(n ?? "–")}), label);
+    face.append(el("div", {class: "stats"}, stat(a.memory.notes, "memories"), stat(a.memory.links, "links"), stat(a.stats.verified_tasks, "verified")));
+    face.append(el("div", {class: "status" + (a.seal.tampered ? " bad" : ""),
+      text: a.seal.tampered ? "Memory seal does not match" : a.seal.status === "in_use" ? "In use now" : "Memory sealed"}));
+  } else face.append(el("div", {class: "status bad", text: a.reason}));
+  return face;
+}
+async function loadRoster() {
+  const request = ++rosterRequest;
+  $("notice").textContent = "";
+  try {
+    const data = await getJSON("/api/agents");
+    if (request !== rosterRequest) return;
+    agents = data.agents;
+    $("listed").textContent = `${agents.length} agent${agents.length === 1 ? "" : "s"} · retrieved ${data.retrieved_at}`;
+    $("roster").replaceChildren(...agents.map((a) => cardFace(a, false)));
+    if (!agents.length) $("roster").append(el("p", {class: "muted", text: "No agent homes were found in the configured folders."}));
+    if (current && agents.some((a) => a.key === current)) select(current);
+    else if (current) { invalidateDetail(); current = null; $("detail").classList.remove("open"); }
+  } catch (e) { if (request === rosterRequest) $("notice").textContent = "Agents unavailable: " + e.message; }
+}
+
+// -- detail -------------------------------------------------------------------------------
+async function select(key) {
+  invalidateDetail();
+  const version = selectionVersion;
+  current = key;
+  for (const face of document.querySelectorAll("#roster .card")) face.setAttribute("aria-pressed", String(face.dataset.key === key));
+  const a = agents.find((x) => x.key === key);
+  $("bigcard").replaceChildren(cardFace(a, true));
+  $("detail").classList.add("open");
+  renderRecord(a); renderMemory(a);
+  $("history-open").disabled = a.status !== "ok";
+  $("refresh").disabled = a.status !== "ok";
+  if (a.status !== "ok") { $("elements").replaceChildren(el("p", {class: "st-unavailable", text: a.reason})); $("session").replaceChildren(); return; }
+  try {
+    const s = await getJSON("/api/agents/sessions?" + q({agent: key}));
+    if (version !== selectionVersion) return;
+    $("session").replaceChildren(el("option", {value: "", text: "Latest session context"}),
+      el("option", {value: "none", text: "No session context"}),
+      ...s.sessions.map((x) => el("option", {value: x.event_id, text: `${x.occurred_at} · ${x.source_system} · ${x.state}`})));
+  } catch (e) {
+    if (version !== selectionVersion) return;
+    $("session").replaceChildren(el("option", {value: "", text: "Latest session context"}));
+  }
+  await loadDashboard();
+}
+async function loadDashboard() {
+  if (!current) return;
+  const key = current, version = selectionVersion, request = ++dashboardRequest;
+  const session = $("session").value || "";
+  const active = () => version === selectionVersion && request === dashboardRequest && session === ($("session").value || "");
+  noteRequest++; $("note").close();
+  $("viewing").textContent = "";
+  $("elements").replaceChildren(el("p", {class: "muted", text: "Loading…"}));
+  try {
+    const d = await getJSON("/api/agents/dashboard?" + q({agent: key, session}));
+    if (!active()) return;
+    $("viewing").textContent = `${d.viewing.basis} Retrieved ${d.retrieved_at} · memory revision ${d.revision} · journal event ${d.event_seq}` +
+      (d.viewing.session_id ? ` · session ${d.viewing.session_id}` : "");
+    $("elements").replaceChildren(...d.elements.map(element));
+  } catch (e) { if (active()) $("elements").replaceChildren(el("p", {class: "st-unavailable", text: "Dashboard unavailable: " + e.message})); }
+}
+const STATUS = {ok: "Found", empty: "None", unknown: "Unknown", unavailable: "Unavailable"};
+function element(item) {
+  const box = el("section", {class: "panel"}, el("h2", {text: item.title}, el("span", {class: `chip st-${item.status}`, text: STATUS[item.status] || item.status})));
+  const v = item.value;
+  if (item.status === "empty") box.append(el("p", {class: "muted", text: "None: a successful lookup that found nothing."}));
+  else if (item.name === "previous_closure" && v) closureCard(box, v);
+  else if (v && typeof v === "object" && "text" in v) noteCard(box, v);
+  else if (v && typeof v === "object" && Array.isArray(v.records)) listCard(box, v);
+  else if (v && typeof v === "object" && Array.isArray(v.kinds)) box.append(el("div", {class: "kinds"}, ...v.kinds.map((k) => el("span", {text: k}))),
+      el("p", {class: "muted", text: "Categories: " + v.categories.join(", ")}));
+  else if (v && typeof v === "object" && v.title) titledCard(box, v);
+  else if (typeof v === "string") box.append(el("p", {class: "prose", text: v}));
+  if (item.reason || item.error) box.append(el("p", {class: "muted", text: item.reason || item.error}));
+  if (v && typeof v === "object") box.append(el("details", {}, el("summary", {text: "Evidence and references"}), el("pre", {text: JSON.stringify(v, null, 2)})));
+  return box;
+}
+function closureCard(box, v) {
+  box.append(el("div", {class: "big-state", text: v.state}));
+  if (v.occurred_at) box.append(el("p", {text: `${v.state === "PASS" ? "Closed" : "Last evidence"} ${v.occurred_at}` + (v.recovered ? " · recovered after a failed attempt" : "")}));
+  if (v.reason) box.append(el("p", {class: "muted", text: v.reason}));
+  const latest = v.latest_verified_closure;
+  if (latest && latest.session_id !== v.session_id) box.append(el("p", {text: `Latest verified closure: ${latest.state} at ${latest.occurred_at}`}));
+  // The engine supplies exact totals and only a few recent references.
+  for (const [list, count, one, many] of [[v.unresolved_sessions, v.unresolved_count, "session without a recorded close", "sessions without a recorded close"],
+                                         [v.candidates, v.candidate_count, "other session on record", "other sessions on record"]]) {
+    if (count === undefined) continue;
+    const refs = list || [], label = count === 1 ? one : many;
+    box.append(el("p", {text: `${count} ${label}`}));
+    if (refs.length) box.append(el("details", {}, el("summary", {text: `${refs.length} recent references`}),
+      el("ul", {class: "items"}, ...refs.map((id) => el("li", {text: id})))));
+  }
+  const key = current;
+  box.append(el("button", {class: "linklike", text: "Inspect full session history", onclick: () => openHistory(key)}));
+}
+function readLink(noteId, title, revision) {
+  const key = current;
+  return el("button", {class: "linklike", text: title, onclick: () => openNote(key, noteId, revision)});
+}
+function noteCard(box, v) {
+  if (v.selection) box.append(el("p", {class: "muted", text: v.selection + (v.closure_at ? ` · closure ${v.closure_at}` : "")}));
+  box.append(el("div", {class: "prose", text: v.text}));
+  if (v.total_chars > v.returned_chars) box.append(el("p", {class: "muted", text: `Showing ${v.returned_chars} of ${v.total_chars} characters.`}));
+  box.append(el("p", {}, readLink(v.note_id, "Read the full note", v.at_revision)));
+}
+function listCard(box, v) {
+  const key = (r) => r.project_id || r.guide_id || r.teachframe_id;
+  box.append(el("ul", {class: "items"}, ...v.records.map((r) => el("li", {}, readLink(key(r), r.title)))));
+  box.append(el("p", {class: "muted", text: `${v.records.length} of ${v.total} shown`}));
+}
+function titledCard(box, v) {
+  const id = v.scaffold_id || v.project_id;
+  box.append(el("p", {}, id ? readLink(id, v.title, v.snapshot_revision) : el("span", {text: v.title})));
+  const when = v.completed_at ? "Completed " + v.completed_at : v.authored_at ? "Written " + v.authored_at : v.occurred_at ? "Worked on " + v.occurred_at : "";
+  if (when) box.append(el("p", {class: "muted", text: when}));
+  if (v.current_content_differs) box.append(el("p", {class: "st-unknown", text: "Its instructions have changed since this run; the link shows the version that ran."}));
+  if (Array.isArray(v.attempts) && v.attempts.length) box.append(el("p", {class: "muted", text: `${v.attempts.length} attempt(s) at this version: ` + v.attempts.map((x) => x.outcome).join(", ")}));
+}
+async function openNote(key, noteId, revision) {
+  if (key !== current) return;
+  const version = selectionVersion, request = ++noteRequest;
+  const active = () => version === selectionVersion && request === noteRequest;
+  try {
+    const params = {agent: key, id: noteId}; if (revision !== undefined && revision !== null) params.revision = revision;
+    const n = await getJSON("/api/agents/note?" + q(params));
+    if (!active()) return;
+    $("note-title").textContent = n.title;
+    $("note-meta").textContent = [n.created_at && "Written " + n.created_at, n.at_revision !== null && n.at_revision !== undefined && "as of memory revision " + n.at_revision].filter(Boolean).join(" · ");
+    $("note-body").textContent = n.body; if (!$("note").open) $("note").showModal();
+  } catch (e) { if (active()) $("notice").textContent = "Note unavailable: " + e.message; }
+}
+async function openHistory(key) {
+  if (!key || key !== current) return;
+  historyBefore = null;
+  $("history-title").textContent = `Session history · ${agents.find(a => a.key === key)?.name || key}`;
+  $("history-events").replaceChildren();
+  $("history").showModal();
+  await loadHistory(key);
+}
+async function loadHistory(key = current) {
+  const version = selectionVersion, request = ++historyRequest;
+  const active = () => version === selectionVersion && request === historyRequest && $("history").open;
+  const params = {agent: key}; if (historyBefore !== null) params.before = historyBefore;
+  $("history-more").disabled = true;
+  $("history-status").textContent = "Loading…";
+  try {
+    const data = await getJSON("/api/agents/history?" + q(params));
+    if (!active()) return;
+    for (const row of data.events) $("history-events").append(el("details", {},
+      el("summary", {text: `${row.occurred_at} · ${row.kind} · ${row.session_id}`}),
+      el("pre", {text: JSON.stringify(row, null, 2)})));
+    historyBefore = data.next_before;
+    $("history-status").textContent = `Retrieved ${data.retrieved_at}. ` +
+      (historyBefore === null ? "All recorded events are shown." : "Older events are available below.");
+    $("history-more").hidden = historyBefore === null;
+  } catch (e) {
+    if (!active()) return;
+    $("history-status").textContent = "History unavailable: " + e.message;
+    $("history-more").hidden = false;
+  } finally { if (active()) $("history-more").disabled = false; }
+}
+function renderMemory(a) {
+  const box = $("tab-memory");
+  if (a.status !== "ok") { box.replaceChildren(el("p", {class: "st-unavailable", text: a.reason})); return; }
+  const include = el("input", {type: "checkbox", id: "proprietary"});
+  box.replaceChildren(el("div", {class: "panel"},
+    el("h2", {text: "Memory Fabric"}),
+    el("p", {text: `${a.memory.notes} memories · ${a.memory.links} weighted links · ${a.memory.active_alerts} active alerts · revision ${a.revision}`}),
+    el("p", {class: "muted", text: "The full viewer shows the weighted graph, strengths over time, every memory and the settings. It opens read-only in a new tab."}),
+    el("p", {}, include, el("label", {for: "proprietary", text: " Include proprietary memories"})),
+    el("button", {text: "Open the Memory Fabric viewer", onclick: () => window.open("/api/agents/memory?" + q({agent: a.key, proprietary: include.checked ? "1" : "0"}), "_blank", "noopener")})));
+}
+function renderRecord(a) {
+  const box = $("tab-record");
+  if (a.status !== "ok") { box.replaceChildren(el("p", {class: "st-unavailable", text: a.reason})); return; }
+  const rows = a.specialties.map((s) => el("tr", {}, el("td", {text: s.specialty}), el("td", {text: String(s.level)}),
+    el("td", {text: String(s.points)}), el("td", {text: s.next_level_at === null ? "top level" : String(s.next_level_at)})));
+  box.replaceChildren(
+    el("div", {class: "panel"}, el("h2", {text: "Rank"}), el("p", {text: a.rank.label + (a.rank.specialty ? " · " + a.rank.specialty : "")}), el("p", {class: "muted", text: a.rank.basis})),
+    el("div", {class: "panel"}, el("h2", {text: "Specialties"}), rows.length ? el("table", {}, el("tr", {}, el("th", {text: "Specialty"}), el("th", {text: "Level"}), el("th", {text: "Points"}), el("th", {text: "Next level at"})), ...rows)
+      : el("p", {class: "muted", text: "None yet."})),
+    el("div", {class: "panel"}, el("h2", {text: "Verified work"}),
+      el("p", {text: `${a.stats.verified_tasks} verified tasks · ${a.stats.successes} succeeded` + (a.stats.success_rate !== null ? ` (${Math.round(a.stats.success_rate * 100)}%)` : "") +
+        ` · ${a.stats.reviews} reviews` + (a.stats.average_rating !== null ? ` · average rating ${a.stats.average_rating}` : "")}),
+      ...a.recent_reviews.map((r) => el("p", {class: "prose", text: `${r.reviewer} (${r.role})${r.rating !== null ? " · " + r.rating : ""}: ${r.text}`}))),
+    el("div", {class: "panel"}, el("h2", {text: "Last known activity"}),
+      el("p", {text: a.last_session ? `Latest session opened ${a.last_session.occurred_at} (${a.last_session.source_system})` : "No session recorded yet."}),
+      el("p", {text: a.last_project ? `Last project: ${a.last_project.title} · ${a.last_project.occurred_at}` : "No project activity recorded yet."})));
+}
+for (const tab of document.querySelectorAll("[role=tab]")) tab.addEventListener("click", () => {
+  for (const t of document.querySelectorAll("[role=tab]")) { t.setAttribute("aria-selected", String(t === tab)); $("tab-" + t.dataset.tab).hidden = t !== tab; }
+});
+$("reload").addEventListener("click", loadRoster);
+$("refresh").addEventListener("click", loadDashboard);
+$("session").addEventListener("change", loadDashboard);
+$("note-close").addEventListener("click", () => $("note").close());
+$("note").addEventListener("close", () => { noteRequest++; });
+$("history-open").addEventListener("click", () => openHistory(current));
+$("history-more").addEventListener("click", () => loadHistory());
+$("history-close").addEventListener("click", () => $("history").close());
+$("history").addEventListener("close", () => { historyRequest++; });
+loadRoster();
+</script></body></html>

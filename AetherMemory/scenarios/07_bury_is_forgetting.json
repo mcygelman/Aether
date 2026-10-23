@@ -1,0 +1,15 @@
+{
+  "name": "07_bury_is_forgetting",
+  "origin": "Decision 13: memories are never deleted; forgetting is burying",
+  "start": "2026-10-06T09:00:00Z",
+  "memories": [
+    {"id": "wrong", "title": "Port 8080 is always free", "body": "Assumed port 8080 is always free (it was not).", "kind": "standing lesson", "tags": ["ports", "llama-server"]},
+    {"id": "right", "title": "Check port 8080 before launching llama-server", "body": "Verify the port is free before launch; another server may hold it.", "kind": "standing lesson", "category": "Alert", "tags": ["ports", "llama-server"]}
+  ],
+  "steps": [
+    {"day": 1, "do": "recall", "tags": ["ports"], "expect_surface": ["wrong", "right"]},
+    {"day": 2, "do": "bury", "id": "wrong", "note": "The agent learned it was wrong and forgets it."},
+    {"day": 3, "do": "recall", "tags": ["ports"], "expect_surface": ["right"], "expect_absent": ["wrong"]},
+    {"day": 3, "do": "check", "expect_note_count": 2, "note": "Still there, just buried."}
+  ]
+}

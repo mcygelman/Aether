@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "aether-wmc-catalog-1.0.0",
+  "catalogStatus": "canonical",
+  "catalogDate": "2026-09-01",
+  "authority": "HDEC-028",
+  "authoritativeFormat": "AetherLexicon/Format_Web",
+  "defaultWmcId": "WMC_BOUNDED_PROJECT",
+  "selectionRule": "Mission Control lists only canonical entries with an exact source SHA-256. It visibly preselects defaultWmcId but requires the operator to accept the selection before heavyweight planning.",
+  "entries": [
+    {
+      "id": "WMC_BOUNDED_PROJECT",
+      "name": "Bounded Project",
+      "description": "General-project constraint frame for operator authority, bounded agency, durable continuity, epistemic honesty, and evidence-backed closure.",
+      "status": "canonical",
+      "default": true,
+      "source": "AetherLexicon/Format_Web/WMC_BOUNDED_PROJECT.html",
+      "version": "1.0",
+      "sha256": "5fea2a0340bb8997d27476c1b923d8dfb4a2408fd1e42c24368304904f496803",
+      "scope": "ordinary bounded software, product, documentation, portfolio, and structured research projects",
+      "publicEligible": true,
+      "review": "RoadMaps/Reviews/WMC_BOUNDED_PROJECT_Independent_Review_2026-09-01.md"
+    },
+    {
+      "id": "WMC_R1_MONAD",
+      "name": "R1 Monad",
+      "description": "One-point mathematical world model; boolean and foundational base-case reasoning.",
+      "status": "legacy-canonical",
+      "default": false,
+      "source": "AetherLexicon/Format_Web/WMC_R1_MONAD.html",
+      "version": "0.2",
+      "sha256": "cac47f720ca9c002014cf3562eb9264be5f901f2e620a15f4fa27a4a692814cf",
+      "scope": "mathematical WMC ladder",
+      "publicEligible": true
+    },
+    {
+      "id": "WMC_R2_DYAD",
+      "name": "R2 Dyad",
+      "description": "Two-point mathematical world model with separation, gap, metric, midpoint, and bilateral symmetry.",
+      "status": "legacy-canonical",
+      "default": false,
+      "source": "AetherLexicon/Format_Web/WMC_R2_DYAD.html",
+      "version": "0.2",
+      "sha256": "3c4d1dfb886ae9aa6ed5fad54fd46a006b69325cf860156f0d42a0a20eaef390",
+      "scope": "mathematical WMC ladder",
+      "publicEligible": true
+    },
+    {
+      "id": "WMC_R3_TRIAD",
+      "name": "R3 Triad",
+      "description": "Three-point mathematical world model with planar, angular, rotational, and completion constraints.",
+      "status": "legacy-canonical",
+      "default": false,
+      "source": "AetherLexicon/Format_Web/WMC_R3_TRIAD.html",
+      "version": "0.2",
+      "sha256": "5dc225d8de0ee74889c4d1c948e3a1e39f1abb4c45ee75caac36b34a1f1890d9",
+      "scope": "mathematical WMC ladder",
+      "publicEligible": true
+    },
+    {
+      "id": "WMC_R4_TETRAD",
+      "name": "R4 Tetrad",
+      "description": "Four-point mathematical world model with three-dimensional and non-abelian symmetry constraints.",
+      "status": "legacy-canonical",
+      "default": false,
+      "source": "AetherLexicon/Format_Web/WMC_R4_TETRAD.html",
+      "version": "0.2",
+      "sha256": "61bd4b3e54ad0c09d1e98ab478a72638f62720642daaadeef57b9a4b67646e5b",
+      "scope": "mathematical WMC ladder",
+      "publicEligible": true
+    }
+  ]
+}

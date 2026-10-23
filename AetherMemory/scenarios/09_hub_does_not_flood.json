@@ -1,0 +1,726 @@
+{
+ "name": "09_hub_does_not_flood",
+ "origin": "Real Praxis import (2026-10-06): the continuity thread names hundreds of records; recalling 'hydration' reached 527 memories through it before the fan effect",
+ "start": "2026-09-01T09:00:00Z",
+ "memories": [
+  {
+   "id": "continuity",
+   "title": "Continuity thread",
+   "body": "Running thread naming every sprint record so far.",
+   "kind": "project fact",
+   "category": "Thread",
+   "tags": [
+    "continuity"
+   ],
+   "switch_in_days": 60
+  },
+  {
+   "id": "hydration",
+   "title": "Bridge 3A 3B Hydration",
+   "body": "Rehydrated fully; reflections reconciled.",
+   "kind": "project fact",
+   "tags": [
+    "hydration",
+    "bridge"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "lesson",
+   "title": "Hydration is reconciliation",
+   "body": "Loading memory is reconciling it with the present, not replaying it.",
+   "kind": "lesson",
+   "category": "Reflection",
+   "tags": [
+    "reconciliation"
+   ]
+  },
+  {
+   "id": "rec00",
+   "title": "Sprint record 00",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 00"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec01",
+   "title": "Sprint record 01",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 01"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec02",
+   "title": "Sprint record 02",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 02"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec03",
+   "title": "Sprint record 03",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 03"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec04",
+   "title": "Sprint record 04",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 04"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec05",
+   "title": "Sprint record 05",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 05"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec06",
+   "title": "Sprint record 06",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 06"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec07",
+   "title": "Sprint record 07",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 07"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec08",
+   "title": "Sprint record 08",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 08"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec09",
+   "title": "Sprint record 09",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 09"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec10",
+   "title": "Sprint record 10",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 10"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec11",
+   "title": "Sprint record 11",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 11"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec12",
+   "title": "Sprint record 12",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 12"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec13",
+   "title": "Sprint record 13",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 13"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec14",
+   "title": "Sprint record 14",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 14"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec15",
+   "title": "Sprint record 15",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 15"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec16",
+   "title": "Sprint record 16",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 16"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec17",
+   "title": "Sprint record 17",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 17"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec18",
+   "title": "Sprint record 18",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 18"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec19",
+   "title": "Sprint record 19",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 19"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec20",
+   "title": "Sprint record 20",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 20"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec21",
+   "title": "Sprint record 21",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 21"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec22",
+   "title": "Sprint record 22",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 22"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec23",
+   "title": "Sprint record 23",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 23"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec24",
+   "title": "Sprint record 24",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 24"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec25",
+   "title": "Sprint record 25",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 25"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec26",
+   "title": "Sprint record 26",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 26"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec27",
+   "title": "Sprint record 27",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 27"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec28",
+   "title": "Sprint record 28",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 28"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec29",
+   "title": "Sprint record 29",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 29"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec30",
+   "title": "Sprint record 30",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 30"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec31",
+   "title": "Sprint record 31",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 31"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec32",
+   "title": "Sprint record 32",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 32"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec33",
+   "title": "Sprint record 33",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 33"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec34",
+   "title": "Sprint record 34",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 34"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec35",
+   "title": "Sprint record 35",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 35"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec36",
+   "title": "Sprint record 36",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 36"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec37",
+   "title": "Sprint record 37",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 37"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec38",
+   "title": "Sprint record 38",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 38"
+   ],
+   "switch_in_days": 30
+  },
+  {
+   "id": "rec39",
+   "title": "Sprint record 39",
+   "body": "An unrelated sprint record.",
+   "kind": "project fact",
+   "tags": [
+    "sprint 39"
+   ],
+   "switch_in_days": 30
+  }
+ ],
+ "links": [
+  {
+   "a": "hydration",
+   "b": "lesson",
+   "relation": "derived",
+   "strength": 0.9
+  },
+  {
+   "a": "hydration",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec00",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec01",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec02",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec03",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec04",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec05",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec06",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec07",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec08",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec09",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec10",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec11",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec12",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec13",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec14",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec15",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec16",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec17",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec18",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec19",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec20",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec21",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec22",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec23",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec24",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec25",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec26",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec27",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec28",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec29",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec30",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec31",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec32",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec33",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec34",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec35",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec36",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec37",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec38",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  },
+  {
+   "a": "rec39",
+   "b": "continuity",
+   "relation": "context",
+   "strength": 0.8
+  }
+ ],
+ "steps": [
+  {
+   "day": 5,
+   "do": "recall",
+   "tags": [
+    "hydration"
+   ],
+   "expect_surface": [
+    "hydration",
+    "lesson",
+    "continuity"
+   ],
+   "expect_absent": [
+    "rec00",
+    "rec17",
+    "rec39"
+   ],
+   "note": "The record and its lesson surface, and the hub thread itself; the hub's forty unrelated neighbours do not ride along."
+  },
+  {
+   "day": 5,
+   "do": "recall",
+   "tags": [
+    "sprint 07"
+   ],
+   "expect_first": "rec07",
+   "expect_absent": [
+    "rec08",
+    "hydration"
+   ],
+   "note": "Every record is still reachable by its own tag."
+  }
+ ]
+}

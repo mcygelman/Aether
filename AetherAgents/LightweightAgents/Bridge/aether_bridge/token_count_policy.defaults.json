@@ -1,0 +1,5 @@
+{
+  "nearLimitRemainingFraction": 0.1,
+  "allowedUndercountTokens": 32,
+  "allowedUndercountFraction": 0.01
+}

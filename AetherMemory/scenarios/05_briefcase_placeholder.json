@@ -1,0 +1,19 @@
+{
+  "name": "05_briefcase_placeholder",
+  "origin": "Two independent model debriefs (llama-server and DeepSeek, 2026-10-05) flagged the same briefcase flaw",
+  "start": "2026-10-05T12:00:00Z",
+  "agent": "claude",
+  "memories": [
+    {"id": "obs_llama", "title": "llama debrief: Section 08 is an empty placeholder", "body": "The Grace briefcase task section is {ASSIGNED_AT_DISPATCH}; the model noted no formal packet existed.", "kind": "project fact", "stratum": "Perception", "tags": ["briefcase", "debrief"], "switch_in_days": 7},
+    {"id": "obs_deepseek", "title": "DeepSeek debrief: no packet, no work vs operator instruction", "body": "The model had to choose between 'no packet, no work' and the operator's direct instruction; asked for authority clarity.", "kind": "project fact", "stratum": "Perception", "tags": ["briefcase", "debrief", "authority"], "switch_in_days": 7, "at_day": 0.2},
+    {"id": "alert", "title": "Briefcase Section 08 contradicts 'no packet, no work'", "body": "Populate Section 08 at dispatch or state that direct operator instructions apply.", "kind": "safety warning", "category": "Alert", "stratum": "Insight", "tags": ["briefcase", "teachframe", "dispatch"], "at_day": 0.3}
+  ],
+  "links": [
+    {"a": "alert", "b": "obs_llama", "relation": "derived", "strength": 0.9, "at_day": 0.3},
+    {"a": "alert", "b": "obs_deepseek", "relation": "derived", "strength": 0.9, "at_day": 0.3}
+  ],
+  "steps": [
+    {"day": 1, "do": "recall", "tags": ["teachframe"], "expect_surface": ["alert", "obs_llama", "obs_deepseek"], "note": "Fresh: the alert brings its evidence."},
+    {"day": 25, "do": "recall", "tags": ["briefcase"], "expect_first": "alert", "expect_absent": ["obs_llama", "obs_deepseek"], "note": "Weeks later, briefcase work surfaces the distilled alert, not the raw observations."}
+  ]
+}

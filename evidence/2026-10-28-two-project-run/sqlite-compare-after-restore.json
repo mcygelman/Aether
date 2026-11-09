@@ -1,0 +1,27 @@
+{
+ ".aether_control/data_sources/sources.sqlite3": {
+  "original": "fc41d8a619274852",
+  "restored": "fc41d8a619274852",
+  "same": true
+ },
+ ".aether_control/operators/accounts.sqlite3": {
+  "original": "b2d2f89bd174a5ae",
+  "restored": "b2d2f89bd174a5ae",
+  "same": true
+ },
+ "minds/harbor/author/memory/mind.sqlite": {
+  "original": "a77eda3f16fb088e",
+  "restored": "a77eda3f16fb088e",
+  "same": true
+ },
+ "minds/harbor/lead/memory/mind.sqlite": {
+  "original": "2c9b4ce7a184c2ce",
+  "restored": "2c9b4ce7a184c2ce",
+  "same": true
+ },
+ "minds/harbor/reviewer/memory/mind.sqlite": {
+  "original": "575d64f27abe0e50",
+  "restored": "575d64f27abe0e50",
+  "same": true
+ }
+}

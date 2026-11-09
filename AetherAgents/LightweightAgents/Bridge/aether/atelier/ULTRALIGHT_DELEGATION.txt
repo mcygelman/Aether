@@ -1,0 +1,62 @@
+Dynamic ultralight delegation — public Atelier
+
+Lightweight and heavyweight project agents share delegate_ultralight. It starts
+a fresh logical helper session for one bounded task and returns its result to
+the parent. It does not launch an OS process, load a model into RAM or create a
+persistent agent home. External inference remains the operator's choice.
+
+Setup: Settings -> Model connections -> Add connection. Choose a small model
+on this machine, a LAN server or a hosted provider. Use the exact connection
+name ultralight. Local/LAN keys are optional when the server permits it; hosted
+credentials use the existing credential store. The Settings overview shows the
+connection's presence, not a live readiness check. No fallback to the parent's
+model is made. Remove or rename the connection to disable future helper turns.
+An in-flight turn holds its configuration snapshot until it finishes.
+
+The tool takes role (scout, scribe or checker), task (up to 1,500 characters) and
+evidence (up to 4,500 characters, with source labels). The parent first obtains
+the relevant evidence using its own authorized tools. Only these explicit
+excerpts go to the helper: no automatic parent identity, history, cartridge,
+credentials or filesystem access. The parent must select appropriate excerpts
+for the chosen endpoint. The host does not perform content-based data-loss
+prevention on parent-supplied text.
+
+The helper has no tools, writes, memory or recursive delegation. Its packet is
+a host-verified MICROCASE with a fresh id. The response must acknowledge that id
+and seal. Status and citations remain model claims requiring parent review;
+the seal check verifies instruction acknowledgement, not factual correctness.
+The parent decides what to act on, save or send. Model-returned tool calls are
+rejected without execution.
+
+Limits: two child requests per parent turn, two concurrent helpers per process,
+one inference call each, maximum 1,024 output tokens and a configured timeout
+capped at 60 seconds. A small configured context window is checked before
+dispatch. Input above limits is rejected; returned text above 8,000 characters
+is explicitly truncated and marked partial. Multi-process/network-wide quotas
+remain future infrastructure work.
+
+Child calls, reported tokens and inference seconds are included in the parent
+turn cost. A child cannot consume the last call reserved for the parent's closing
+reply. Providers that omit token usage are marked usage_reported=false; this is
+not measured zero token usage or a currency-cost estimate. Failed requests count
+as attempted model calls. There is no automatic child retry.
+
+The parent's cost record retains bounded helper receipts (id, role, status,
+input/output hashes, usage and review requirement), and its side log records
+the action. The host does not create a child transcript store. The parent may
+quote a result in its normal reply/continuity; normal failure-transcript handling
+may also retain the tool result. No guarantee of provider-side deletion is made.
+
+Network-place stop, public Emergency Halt and commission waiting state are
+checked before dispatch and after return. An already-sent network request may
+finish; late output is discarded when a stop is detected. No hard provider-side
+cancellation is claimed. This does not change the parent's existing stop policy.
+
+Covered paths: public manual campaign wakes, inherited legacy manual wake and
+network Place turns. The separate full-edition Studio executor retains its
+existing MICROCASE/staffing path; this change does not add a second tool to that
+executor. Ordinary personal Chat remains separate from resident project agents.
+
+Implementation owner: aether/atelier/ultralight_delegation.py. turn.py only wires
+the tool, configuration and accounting; no helper runtime belongs in a GUI
+catch-all. No Memory Fabric implementation or resident identity is modified.

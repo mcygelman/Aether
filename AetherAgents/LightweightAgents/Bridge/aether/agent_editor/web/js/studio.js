@@ -1,4 +1,6 @@
 /**
+ * Owner: retained draft schema, projections and editing controller.
+ * Must never: install agents, run inference, or mutate an agent's identity/memory.
  * Agent Design Studio (ADS) - Self-Contained Offline Studio Engine
  * Runs seamlessly on both file:/// (local double-click) and http:// (local server).
  * Zero external dependencies, no build steps, no CDN requirements.
@@ -1103,7 +1105,7 @@ const EMBEDDED_FIXTURES = {
       title: "Nova Research Analyst Template",
       created_at: "2026-09-14T14:30:00Z",
       updated_at: "2026-09-14T14:30:00Z",
-      author: "Michel & Gemini",
+      author: "Aether",
       revision: 1,
       lineage: ["Initial draft created in Agent Design Studio ADS-01"],
       notes: "Synthetic Lightweight research template demonstrating combined proactive and skeptical dispositions."
@@ -1276,7 +1278,7 @@ const EMBEDDED_FIXTURES = {
       title: "Zephyr Ultralight Telemetry Triage",
       created_at: "2026-09-14T14:45:00Z",
       updated_at: "2026-09-14T14:45:00Z",
-      author: "Michel & Gemini",
+      author: "Aether",
       revision: 1,
       lineage: ["Initial draft created in Agent Design Studio ADS-01"],
       notes: "Synthetic Ultralight template adhering strictly to standard LAW/TAGS and empty TASK."
@@ -1342,7 +1344,7 @@ const EMBEDDED_FIXTURES = {
       title: "Baseline Code Verification Template",
       created_at: "2026-09-14T15:00:00Z",
       updated_at: "2026-09-14T15:00:00Z",
-      author: "Michel & Gemini",
+      author: "Aether",
       revision: 1,
       lineage: ["Initial draft created in Agent Design Studio ADS-01"],
       notes: "Synthetic Lightweight template with an empty disposition traits list demonstrating optionality."
@@ -1391,7 +1393,7 @@ const EMBEDDED_FIXTURES = {
       title: "Artisan Architecture Prototyper",
       created_at: "2026-09-14T15:15:00Z",
       updated_at: "2026-09-14T15:15:00Z",
-      author: "Michel & Gemini",
+      author: "Aether",
       revision: 1,
       lineage: ["Initial draft created in Agent Design Studio ADS-01"],
       notes: "Synthetic Lightweight template demonstrating author-defined custom traits."
@@ -1463,7 +1465,9 @@ const EMBEDDED_FIXTURES = {
 
 class StudioApp {
   constructor() {
-    this.currentBundle = JSON.parse(JSON.stringify(EMBEDDED_FIXTURES.sample_lw_template));
+    this.currentBundle = typeof window !== 'undefined' && window.aetherEditor?.emptyDraft
+      ? window.aetherEditor.emptyDraft()
+      : JSON.parse(JSON.stringify(EMBEDDED_FIXTURES.sample_lw_template));
     this.selectedStrategyIndex = 0;
     this.selectedAppIndex = 0;
     this.strategyViewMode = 'plain';
@@ -1915,10 +1919,10 @@ class StudioApp {
     if (isSame) return;
 
     strat[prop] = newValue;
-    // Bump revision on committed candidate edit (Praxis R3 P2)
+    // Bump revision on committed candidate edit
     strat.revision = (strat.revision || 1) + 1;
 
-    // Explicitly invalidate affected evaluations for applications bound to this candidate (Praxis R3 P2)
+    // Explicitly invalidate affected evaluations for applications bound to this candidate
     if (Array.isArray(this.currentBundle.strategy_applications)) {
       this.currentBundle.strategy_applications.forEach(app => {
         if (app && app.strategy_id === strat.id) {

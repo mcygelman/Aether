@@ -34,6 +34,24 @@ def _separate(path, roots, label):
     return path
 
 
+def registered_homes(data,anchors=None):
+    """Agent homes saved in the installation's Agents registry (available or ejected), as recorded; never searched."""
+    registry=data/'.aether_control/agents.json'
+    if not registry.exists():
+        return []
+    value,digest=metadata(registry)
+    if anchors is not None:
+        anchors[str(registry)]=digest
+    if value.get('version')!=1 or type(value.get('agents')) is not dict:
+        raise ValueError('The Agents registry cannot be read; repair it before planning a backup')
+    return [preservation.safe(row['home']) for _,row in sorted(value['agents'].items())]
+
+
+def supported_home(path):
+    """An Atelier home, or a member home with a GUID identity; older profiles stay outside this contract."""
+    return (path/'participant.json').is_file() or (path/'identity/AGENT_ID.json').is_file()
+
+
 def discover(app,extra_mounts):
     app,config=preservation.installation(app)
     data=preservation.safe(config['data']); credentials=preservation.safe(config['credentials'])
@@ -61,6 +79,10 @@ def discover(app,extra_mounts):
             minds=preservation.safe(configured)
             if not minds.is_relative_to(data):
                 mounts['minds']=str(minds)
+    homes=[]
+    for path in registered_homes(data,anchors):
+        if path.is_dir() and supported_home(path):
+            homes.append(path)
     for name in ('layout.json','staff_homes.json'):
         path=data/name
         if path.exists():
@@ -68,12 +90,13 @@ def discover(app,extra_mounts):
             if name=='staff_homes.json' and (value.get('schema')!='aether-staff-homes-location-1.0.0'
                     or preservation.safe(value['user_data_root'])!=data):
                 raise ValueError('Staff-home declaration differs from the installation data root')
-    # Choose the outermost explicitly registered project roots; never broaden to
-    # an unregistered common ancestor. Extra mounts remain explicitly visible.
-    for path in sorted(set(candidates),key=lambda p:(len(p.parts),str(p).casefold())):
+    # Choose the outermost explicitly registered project roots and agent homes; never
+    # broaden to an unregistered common ancestor. Extra mounts remain explicitly visible.
+    kinds={**{p:'agent' for p in homes},**{p:'project' for p in candidates}}
+    for path in sorted(kinds,key=lambda p:(len(p.parts),str(p).casefold())):
         if any(path.is_relative_to(root) for root in [data,*map(Path,mounts.values())]):
             continue
-        key='project-'+preservation.sha(str(path).encode('utf-8'))[:16]
+        key=kinds[path]+'-'+preservation.sha(str(path).encode('utf-8'))[:16]
         if key in mounts and Path(mounts[key])!=path:
             raise ValueError('Generated project mount ID collides with an explicit mount')
         mounts[key]=str(path)
@@ -175,6 +198,10 @@ def main(argv=None):
     for name in ('runtime-reference','release-disposition'):
         tool=commands.add_parser(name,help='Offline release evidence only; no export or publication authority')
         tool.add_argument('arguments',nargs=argparse.REMAINDER,help='Tool subcommand and exact input paths; see ReleaseProvenance.md')
+    scope=commands.add_parser('coverage',help='List what a backup would include, leave out or still need; copies nothing')
+    scope.add_argument('--mount',action='append',default=[],help='Additional explicit id=absolute-path, repeatable')
+    report=commands.add_parser('recovery-report',help='Describe a verified staged restore and what reconnecting it needs; activates nothing')
+    report.add_argument('--target',required=True,type=Path)
     plan=commands.add_parser('prepare-backup',help='Discover exact registered roots and GUID owner mapping; write a new review plan')
     plan.add_argument('--destination',required=True,type=Path)
     plan.add_argument('--plan',required=True,type=Path)
@@ -210,7 +237,11 @@ def main(argv=None):
                 from .release_disposition import main as release_tool
             return release_tool(args.arguments)
         app=preservation.safe(args.app)
-        if args.operation=='prepare-backup':
+        if args.operation in ('coverage','recovery-report'):
+            from . import maintenance_coverage
+            result=(maintenance_coverage.coverage(app,_mounts(args.mount)) if args.operation=='coverage'
+                    else maintenance_coverage.recovery_report(app,args.target))
+        elif args.operation=='prepare-backup':
             _,config=preservation.installation(app)
             deps=metadata(args.credential_dependencies,forbidden=(preservation.safe(config['credentials']),))[0] if args.credential_dependencies else []
             result=write_plan(prepare_backup(app,args.destination,extra_mounts=_mounts(args.mount),
@@ -225,6 +256,7 @@ def main(argv=None):
         elif args.operation=='restore':
             receipt=preservation.restore(app,args.archive,args.target,expected_manifest_sha256=args.manifest_sha256)
             result={k:receipt[k] for k in ('status','target','archive','manifest_sha256')}
+            result['next_action']='Staging is not active. Run recovery-report --target with this folder before deciding anything.'
         elif args.operation=='preview-replacement':
             p=preservation.preview_replacement(app,args.target)
             result=dict(preview=p,sha256=preservation.sha(preservation.encoded(p)))
@@ -248,7 +280,11 @@ def main(argv=None):
                 result=public_export.export(bundle,destination,policy,report_path=args.report)
         else:
             result=getattr(preservation,args.operation.replace('-','_'))(app,args.target)
-        print(json.dumps(result,indent=2,ensure_ascii=False));return 1 if result.get('status')=='FAIL' else 0
+        try:
+            print(json.dumps(result,indent=2,ensure_ascii=False))
+        except UnicodeEncodeError:   # a redirected Windows console is cp1252; escaped JSON is the same document
+            print(json.dumps(result,indent=2))
+        return 1 if result.get('status')=='FAIL' else 0
     except (ValueError,OSError,KeyError,TypeError) as exc:
         print(json.dumps(dict(status='REFUSED',error=str(exc),automatic_retry=False),indent=2));return 2
 

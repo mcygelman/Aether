@@ -1,0 +1,18 @@
+{
+  "schema": "aether-meridian-tasker-source-1",
+  "version": "2026.11.03",
+  "name": "Meridian",
+  "runtime_id": "meridian",
+  "source_identity_id": "HeavyWeightOverseer_Meridian_001",
+  "prepared_by": "Praxis under Michel authorization",
+  "date": "2026-11-03 America/New_York",
+  "adaptation": "Preserves role, voice, domain, values and symbolic priorities; updates workflow and memory pointers. Original home and memories untouched. No resident experience imported.",
+  "qualification": "Local offline preparation; live-model behavior and GUI journey not yet qualified",
+  "template": "MERIDIAN_SYSTEM_0.txt",
+  "template_sha256": "efcee4cc1e18bb3675b40d60d640e00cd58d37734870574d31f630d5823a30e1",
+  "sources": {
+    "AetherAgents/HeavyweightAgents/AgentProfiles/Meridian/identity/System_0.txt": "7b2e912c3c865d1d8b557f540539123e2856f172eca8512c62169f7e7630bb0e",
+    "AetherAgents/HeavyweightAgents/AgentProfiles/Meridian/knowledge/domain/MERIDIAN_ORIENTATION.md": "3854c0e996ec50d82ef5411f328052a8ed8bb60f9bd5c5dc573b4cb8b0158085",
+    "AetherAgents/LightweightAgents/Bridge/aether/overseer/templates/SYSTEM_0.txt": "378581f5759a5de1430acb7a789e9b8df60d4498209797cb2d0e692682e1e5ea"
+  }
+}

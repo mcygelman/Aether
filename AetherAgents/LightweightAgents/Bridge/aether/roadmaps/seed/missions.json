@@ -1,0 +1,8 @@
+[
+  {
+    "id": "our-first-mvp",
+    "name": "Our first MVP",
+    "description": "Create Aether's first MVP: persistent agents that complete real work, keep their experience and use it on the next piece of work, in an installable app with a reproducible demonstration.",
+    "folders": ["Aether"]
+  }
+]

@@ -55,7 +55,7 @@ def test_lmstudio_probe_uses_models_without_inference():
         thread.join(timeout=2)
 
 
-# ---- stop and restart refuse honestly (Praxis's Windows check, 2026-10-07) ----
+# ---- stop and restart refuse honestly (Windows check, 2026-10-07) ----
 import pytest  # noqa: E402
 from aether.operations import launcher  # noqa: E402
 

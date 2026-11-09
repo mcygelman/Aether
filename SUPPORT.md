@@ -6,4 +6,4 @@ This experimental preview is offered without a service-level or response-time co
 
 Paid setup, integration and ongoing support are the intended initial services around the open-source product. Scope, supported deployment, pricing and response commitments are agreed separately before a contract; no paid service or hosting subscription is included in the download. Contact the maintainer through the repository's public contact channels without posting secrets.
 
-The current packaged paths cover configured DeepSeek and LM Studio deployments. This release does not promise qualification of additional providers or platforms.
+DeepSeek and LM Studio are the tested model paths. A llama.cpp server, or another server with an OpenAI-compatible API, connects the same way but has not been through the same live tests. Windows is the only supported platform.

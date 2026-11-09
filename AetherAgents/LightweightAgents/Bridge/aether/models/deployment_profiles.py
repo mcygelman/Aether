@@ -39,10 +39,10 @@ class CredentialRef:
         if value is None:
             return None
         if (not isinstance(value, dict) or set(value) != {'kind', 'name'}
-                or value['kind'] not in ('env', 'sealed')
+                or value['kind'] not in ('env', 'sealed', 'vault')
                 or not isinstance(value['name'], str) or not IDENTIFIER.fullmatch(value['name'])
                 or (value['kind'] == 'sealed' and value['name'].upper() in WINDOWS_RESERVED)):
-            raise RuntimeProfileError('credential_ref requires an env or sealed identifier, never a path or key')
+            raise RuntimeProfileError('credential_ref requires an env, sealed or vault identifier, never a path or key')
         return cls(value['kind'], value['name'])
 
     def to_mapping(self):
@@ -173,6 +173,15 @@ def capture_binding(name, configuration, *, config_revision, prepared_by):
                 profile_sha256=profile_sha256, selection_source='explicit', prepared_by=prepared_by)
 
 
+def _hosted(profile) -> bool:
+    """A provider reached over HTTPS on a non-local host (DeepSeek and similar), not a model server on this network."""
+    parts = urlsplit(profile.endpoint)
+    host = (parts.hostname or '').lower()
+    local = host in ('localhost', '::1') or host.startswith('127.') or host.endswith('.local') or \
+        re.match(r'^(10|192\.168|172\.(1[6-9]|2\d|3[01]))\.', host) is not None
+    return parts.scheme == 'https' and not local and profile.adapter_type in ('deepseek', 'openai-compatible')
+
+
 def validate_deployments(raw):
     if (not isinstance(raw, dict) or set(raw) != {'schemaVersion', 'default_profile_id', 'profiles'}
             or type(raw['schemaVersion']) is not int or raw['schemaVersion'] != 3
@@ -187,7 +196,10 @@ def validate_deployments(raw):
         if not isinstance(name, str) or not name.strip() or name != name.strip() or any(ord(c) < 32 for c in name):
             raise RuntimeProfileError('Deployment ID must be nonblank text without outer whitespace or controls')
         profile = DeploymentProfile.from_mapping(name, value)
-        if profile.identifier_kind == 'logical-alias':
+        # A local server's alias names one loaded model, so two budgets for it would contradict each other. A hosted
+        # provider's model has no loaded instance; budgets are per request, so a second profile (a documented smaller
+        # allowance, say) is a choice, not a conflict (rehearsal 4, O6).
+        if profile.identifier_kind == 'logical-alias' and not _hosted(profile):
             key = (profile.adapter_type, endpoint_identity(profile.endpoint), profile.requested_api_identifier.casefold())
             if key in aliases:
                 raise RuntimeProfileError('duplicate logical API identifier within deployment endpoint')

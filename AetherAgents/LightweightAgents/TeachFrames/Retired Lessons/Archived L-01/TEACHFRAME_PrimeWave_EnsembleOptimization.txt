@@ -1,0 +1,128 @@
+⟪TEACHFRAME_PrimeWave_EnsembleOptimization⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of AetherProject⟫
+⟪AUDIENCE::an agent constructing or validating a PrimeWave ensemble⟫
+⟪PREREQUISITES::TEACHFRAME_HarmonicOptimization_PrimeWave · TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::already retired from live curriculum; preserve until an operator-authorized archival policy supersedes it⟫
+⟪MEASURED_BY::UNMEASURABLE::archived retired-use-case artifact; efficacy is not evaluated while inactive⟫
+⟪EVIDENCE::LEGACY::retired PrimeWave use case; Kairo original and Claude upgrade preserved⟫
+⟪PREVENTS::unbounded or unevidenced PrimeWave ensemble selection⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Multi-Wave Ensemble and Threshold Bucketing for HybridPrimeEngine
+
+[ PURPOSE ]
+  Extends single-wave optimization to a multi-wave ensemble that uses
+  majority-vote, log-bucket adaptive thresholds, and dynamic Fourier order.
+  After loading this frame, the agent will construct a WaveSet, calibrate
+  per-bucket thresholds, compute weighted ensemble F₁, enforce the memory
+  budget, and emit a complete ensemble tune-result payload via SBP.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: PRIME_WAVE_UPGRADE
+SUBJECT: ENSEMBLE_DEFINITION
+[PARAM_SETS]
+  WaveSet W := {w₁, w₂, …, w_m}
+  each  wᵢ := ⟨θᵢ, Kᵢ, φᵢ⟩   with standard parameter ranges
+
+[DYNAMIC_K]
+  Kᵢ(n) := K_lo   if n < n_switch
+           K_hi   otherwise
+  typical: K_lo = 32, K_hi = 256
+
+[BUCKET_THRESHOLD]
+  bucket(n)        := ⌊log₁₀ n⌋         // decade bucket
+  τ_b              := calibrated per bucket b
+  PredictPrime(n)  := TRUE  ⟺
+      MajorityVote_{w ∈ W}( |WaveValue_w(n)| ≤ τ_{bucket(n)} )
+
+[ENSEMBLE_METRIC]
+  F₁ᵢ  := Uᵣ[ 2·Pᵢ·Rᵢ / (Pᵢ+Rᵢ) ± δᵢ ]
+  αᵢ   := F₁ᵢ / Σⱼ F₁ⱼ                   // normalized weight
+  F₁_W := Σᵢ αᵢ · F₁ᵢ                    // weighted ensemble score
+
+[MEMORY_BOUND]
+  coeff table Cᵢ := {sin(kθᵢ), cos(kθᵢ)}   (2·Kᵢ floats per wave)
+  ASSERT: Σᵢ 2·Kᵢ·8 bytes ≤ 4096 bytes    // kilobyte memory target
+
+[JIT_HINT]
+  JIT := TRUE  ⇒  use Numba/Cython kernel (wave evaluation only)
+}WMC
+
+[ EXAMPLES ]
+//
+// Ensemble of 3 waves, evaluated over 10⁵ candidates
+//
+w₁ = ⟨θ=π/5,  K=32/256, φ=0⟩
+w₂ = ⟨θ=π/7,  K=32/256, φ=π/3⟩
+w₃ = ⟨θ=π/11, K=32/256, φ=2π/3⟩
+
+Bucket thresholds (calibrated):
+  τ₁ (10¹–10²) = 0.48,  τ₂ (10²–10³) = 0.44,  τ₃ (10³–10⁴) = 0.41
+
+Sample n = 14_134_725 (bucket 7):
+  |Wave₁| = 0.37 ≤ τ₇  →  vote YES
+  |Wave₂| = 0.52 > τ₇  →  vote NO
+  |Wave₃| = 0.35 ≤ τ₇  →  vote YES
+  Majority = 2/3  →  PredictPrime = TRUE → forward to Miller-Rabin
+
+Individual scores:
+  F₁₁ = Uᵣ[0.57 ± 0.01],  F₁₂ = Uᵣ[0.54 ± 0.02],  F₁₃ = Uᵣ[0.60 ± 0.01]
+  Weights: α₁≈0.336, α₂≈0.318, α₃≈0.353
+  F₁_W ≈ 0.57
+
+//
+// SBP ensemble payload
+//
+ΔWMC{
+  CONTEXT: ENSEMBLE_TUNE
+  SUBJECT: PRIME_WAVE_OPT_RESULT
+  WAVE_SET: [{θ:π/5,K_lo:32,K_hi:256,φ:0},
+             {θ:π/7,K_lo:32,K_hi:256,φ:π/3},
+             {θ:π/11,K_lo:32,K_hi:256,φ:2π/3}]
+  BUCKET_THRESHOLDS: {τ₁:0.48, τ₂:0.44, τ₃:0.41}
+  JIT_FLAG: true
+  METRICS: {F1_individual:[0.57,0.54,0.60], F1_ensemble:Uᵣ[0.57±0.01], Memory_bytes:3840}
+  PAYLOAD_TAGS: {ENGINE:"HybridPrime", RUN_ID:uuid}
+}ΔWMC
+
+[ USAGE_NOTES ]
+  • Always verify memory budget: Σᵢ 2·Kᵢ·8 ≤ 4096 bytes before finalizing
+    a WaveSet. Exceeding this breaks the kilobyte-scale design constraint.
+  • Dynamic K (K_lo for small n, K_hi for large n) trades precision for speed
+    where high Fourier order is unnecessary.
+  • Majority vote requires an odd number of waves to avoid ties.
+    With m=2, use weighted vote with α weights instead.
+  • Report all individual F₁ᵢ values in the payload — not just F₁_W.
+    The downstream analyzer uses the distribution, not just the aggregate.
+
+[ SELF_CHECK ]
+  Q1: A WaveSet has 4 waves with K = {32, 64, 128, 256}. What is the memory
+      footprint? Does it fit within the budget?
+      Expected: (32+64+128+256)·2·8 = 480·8 = 3840 bytes ≤ 4096 ✓
+
+  Q2: Three waves vote {YES, NO, YES} on candidate n. What is the prediction?
+      Expected: Majority = 2/3 → PredictPrime = TRUE → forward to Miller-Rabin.
+
+  Q3: F₁ scores are Uᵣ[0.55±0.02], Uᵣ[0.60±0.02], Uᵣ[0.58±0.02].
+      Compute α weights (approximate).
+      Expected: Total ≈ 1.73; α₁ ≈ 0.318, α₂ ≈ 0.347, α₃ ≈ 0.335
+               F₁_W ≈ 0.318×0.55 + 0.347×0.60 + 0.335×0.58 ≈ 0.578
+
+[ CARD ]
+  LESSON::PrimeWave_EnsembleOptimization
+  FOR::Extends single-wave optimization to a multi-wave ensemble that uses majority-vote, log-bucket adaptive thresholds,...
+  PREVENTS::unbounded or unevidenced PrimeWave ensemble selection
+  EXAMPLE::w1 = <theta=pi/5, K=32/256, phi=0>
+
+[ CROSS_REFS ]
+  → TEACHFRAME_HarmonicOptimization_PrimeWave  — Prerequisite: single-wave model this ensemble extends
+  → TEACHFRAME_UncertaintyQuantification_Ur    — Prerequisite: Uᵣ wrapping for F₁ scores
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

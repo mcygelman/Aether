@@ -1,0 +1,17 @@
+/* Own the Create a specialist layout; never override shared theme colors. */
+.sc-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.sc-field{margin:0 0 16px}
+.sc-field>label,.sc-kind legend{display:block;font-weight:600;font-size:14px;margin:0 0 4px}
+.sc-field>.small{margin:0 0 6px}
+.sc-kind{border:0;padding:0;margin:0 0 16px}
+.sc-kind label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.sc-kind input[type=radio]{width:auto;margin:0}
+.sc-side{position:sticky;top:12px}
+.sc-preview h2{margin:4px 0 6px}
+.sc-preview h3{font-size:14px;margin:14px 0 4px}
+.sc-preview ol,.sc-preview ul{margin:4px 0;padding-left:1.2rem;font-size:14px}
+.sc-preview li{margin:3px 0}
+.sc-identity{max-height:420px;overflow:auto;white-space:pre-wrap;font-size:12px}
+.sc-advanced{margin-top:16px}
+.sc-advanced summary{cursor:pointer;font-weight:600}
+@media (max-width:900px){.sc-layout{grid-template-columns:1fr}.sc-side{position:static}}

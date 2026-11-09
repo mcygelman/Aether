@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 2,
+  "roadmaps": [
+    {
+      "id": "roadmap-mvp-persistent-agents-20261008",
+      "name": "Aether MVP — Persistent agents and a reproducible demonstration",
+      "description": "Operator-agreed October 8 priority baseline: an agent completes meaningful work, returns with its experience intact and uses it well on the next project. MVP-00 is the module/repair prerequisite; MVP-01 through MVP-10 are the agreed product priorities. These are integration outcomes linked to existing delivery sprints, not duplicate implementation assignments. The public-safe, installable demonstration should substantiate Michel's AI engineering work. Current path and requirement tests: Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md. No deadline reinstated; future model advantage remains a hypothesis. The same-day agreed MOD-16 Agent Editor contract is also MVP scope: ADS-05 tracks prototype browser/demo acceptance and ADS-06 tracks production integration, Ultralight hiring and heavyweight consent/rehydration. These are linked delivery work, not an invented eleventh product priority.",
+      "status": "Active",
+      "owner": "Michel: product authority, the design and final acceptance. Since the 10-30 Tasker Process: Praxis (heavyweight lane: Overseer, Librarian, native verification) and Opus 5.5 (lightweight lane: Tasker, Timer, staff; the GUI since 11-02). Earlier leads are in the log.",
+      "updated": "2026-11-08",
+      "next": "November 8: the latest deployable is praxis18 (build/windows-tasker-20261108-praxis18; offline checks and upgrade rehearsal passed; its Chat backend is byte-identical to praxis16, which passed a live DeepSeek check). Where the running copy, the deployable and the archived builds are: AETHER_LOCATIONS.md. Next: Michel's check of praxis18 here (F12 and L1 in the app); the live branch not yet seen (a failed answer followed by End); the homepage revamp for the company presentation (plan written 11-08, awaiting Michel); the acceptance protocol run. Held until after the MVP: Retire, and a closing turn after a stopped sprint.",
+      "evidence": [
+        "AetherPublicFacing/Release/acceptance/tasker/README.md"
+      ],
+      "gates": [
+        "MVP-00 independent repair acceptance and module completion.",
+        "All required T00-T11 outcomes supported at their specified evidence layers.",
+        "Independent integrated review and Michel's final acceptance; public release separately authorized.",
+        "MOD-16 Agent Editor MVP delivery: ADS-05 browser/demo acceptance plus ADS-06 production integration and the agreed consent/rehydration contract. Make its explicit acceptance-test mapping part of that delivery; prototype code acceptance alone is insufficient."
+      ],
+      "log": []
+    }
+  ],
+  "sprints": [
+    {
+      "id": "sprint-mvp-00",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-00 — Foundation acceptance",
+      "description": "Independent repair acceptance and module completion before new capability implementation.\n\nDelivery records: sprint-mod-01, sprint-mod-02, sprint-mod-04, sprint-mod-05, sprint-mod-12, sprint-mod-15. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Closed",
+      "sequence": 1,
+      "updated": "2026-10-09",
+      "next": "MVP-01: define the Mission Control project-workflow journey and state transitions (MVP_PATH execution step 2).",
+      "evidence": [],
+      "gates": [
+        "Independent repair acceptance and module-completion decision.",
+        "Complete T00; retain dispositions for the full module register, independent review and Michel's completion decision.",
+        "R1-R3 corrected and independently confirmed; existing T00 module-completion decision still required."
+      ],
+      "log": [],
+      "owner": "Claude (Opus 5.5)"
+    },
+    {
+      "id": "sprint-mvp-01",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-01 — Complete Mission Control project workflow",
+      "description": "Prepare, staff, authorize, follow, intervene, resume and inspect accepted work through one interface.\n\nDelivery records: sprint-ara-10, sprint-bridge-overhaul-m5, sprint-mod-14, sprint-mod-15. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 2,
+      "updated": "2026-11-08",
+      "next": "November 8: Michel ran a mission, a roadmap and two sprints himself on the installed opus12 (\"I am loving the GUI\"); the refactor of his findings ships in every package since opus13. Next: his check of praxis18 here. A closing turn after a stopped sprint stays out of the MVP (Michel, 11-08).",
+      "evidence": [
+        "AetherAgents/LightweightAgents/Bridge/aether/campaign/state.py",
+        "AetherAgents/LightweightAgents/Bridge/aether/campaign/receipts.py",
+        "AetherAgents/LightweightAgents/Bridge/tests/test_campaign_path_room.py"
+      ],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After MVP-00 define workflow contracts first; integrate MVP-02/04/05/06/07 before final workflow acceptance. T02/T04/T05/T10.",
+        "Agent Editor delivery and browser/operator acceptance through ADS-05/06; exact test mapping must be explicit, not inferred from a closed foundation."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-02",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-02 — Overseer conversation",
+      "description": "Discuss objectives, proposed work and redirection through the shared inference contract.\n\nDelivery records: sprint-bridge-overhaul-m1b. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 3,
+      "updated": "2026-11-08",
+      "next": "November 8: Talk with answers after memory work and ends with the mind's own closing words, live-checked on praxis16 (DeepSeek). Next: see the failed-answer-then-End branch live.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After MVP-00 implement the conversation consumer and connect it to the MVP-01 workflow. T02."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-03",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-03 — Real use of persistent memory",
+      "description": "Owner-preserving move-in, maintenance, recall and useful continuity in fresh sessions; public demo memories are independently authored public-safe assets.\n\nDelivery records: sprint-mem-06, sprint-mem-07, sprint-mod-12. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 4,
+      "updated": "2026-11-08",
+      "next": "November 8: heavyweights manage their own memory, live-checked in a sprint (opus15) and in Chat (praxis16); the Memory viewer shows when each memory was recorded (F12, praxis18). Next: T07 under the acceptance protocol.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After repair acceptance prepare owner move-in and live qualification with existing authorization; retain original memories. T03/T07."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-04",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-04 — Durable context reformation",
+      "description": "Compose memory and context reformation with durable/configured/governed execution while preserving authority, obligations, accepted work and source provenance.\n\nDelivery records: sprint-mem-10, sprint-ara-10, sprint-mod-15. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 5,
+      "updated": "2026-10-20",
+      "next": "Unchanged scope. The T06 continuation files collect and pass again since 10-19 (304dc3c4). Next: settle remaining inherited failures where recovery meets continuity, then the full suite. Usability plan (10-20): The usability plan includes an operator walkthrough of interruption and return, preserving uncertainty and avoiding blind replay; reuse and reconcile existing recovery checks. Execution pending.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After MVP-00 design the composition beyond ordinary MEM-10 sessions; integrate MVP-03 and prove interruption/context pressure. T05/T06."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-05",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-05 — Shared tools and approval lifecycle",
+      "description": "Finish inspection, MCP discovery, approval, withdrawal and consistent enforcement across relevant sessions.\n\nDelivery records: sprint-bridge-overhaul-m2, sprint-mod-08, sprint-mod-14. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 6,
+      "updated": "2026-10-14",
+      "next": "Shared ToolBelt lifecycle implementation and October11 scoped repair review are current evidence; generic settings undo R1 is already repaired and its focused regression passes. Complete remaining T08 production/operator acceptance on the exact candidate while preserving calculator exemption and explicit scope: native staff writes, memory, closure and durable controls have separate authority. Retain prospective withdrawal/captured-handler semantics and proposed archive policy without automatic deletion. Full MVP-05/T08 acceptance remains open.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After MVP-00 finish the operator lifecycle and production-path refusals, preserving calculator exemption. T04/T08."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-06",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-06 — Resource pool scheduling",
+      "description": "Manage shared hardware leases, independent concurrency, uncertain termination and restart-safe accounting.\n\nDelivery records: sprint-bridge-overhaul-m4, sprint-mod-15. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 7,
+      "updated": "2026-10-15",
+      "next": "Original heavyweight desktop exchanges can explicitly normal-complete verified returned work on the same coordinator; committed completion can resume only from original host readiness evidence. This is Aether request completion, not provider exclusion or release of any historical uncertain generation. Gemini review pending for this increment. Continue original interrupted recovery/contention/operator walkthroughs; T06 local terminal exclusion stays HELD without actual supported proof. No replacement coordinator, refund or cross-staffing-generation prerequisite transfer.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "After MVP-00 implement the scheduler and verify concurrency/cancellation before real team integration. T05/T08."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-07",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-07 — Bounded real staffing",
+      "description": "Integrate a small explicitly approved persistent team with recoverable assignments and attributable contribution/review; automatic expansion is excluded unless separately adopted.\n\nDelivery records: sprint-ara-10, sprint-hsf-03, sprint-hsf-04, sprint-hsf-05, sprint-hsf-06, sprint-mod-06, sprint-mod-15. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 8,
+      "updated": "2026-11-05",
+      "next": "November 5: three-staff teams ran repeatedly on DeepSeek from Mission Control, split by speciality. Next: the T04 seeded-defect run under the acceptance protocol.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "Compose workflow contracts with MVP-05/06 and retained identities. Do not require automatic expansion for MVP acceptance. T04/T05/T08."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-08",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-08 — Straightforward deployment setup",
+      "description": "One excellent supported Windows setup path, health without inference, actionable errors and explicit deployment selection.\n\nDelivery records: sprint-bridge-overhaul-m1, sprint-bridge-overhaul-m3, sprint-mod-04, sprint-mod-05, sprint-mod-07. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 9,
+      "updated": "2026-11-08",
+      "next": "November 8: setup is unzip, Install.cmd, Aether.cmd, sign in as the default Admin, then the one-time welcome (new password, provider, key); Michel did it himself on a second computer (11-07). Next: live calls through the Claude and OpenAI presets (need Michel's OK); setup guide sections 4 to 8.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "Reuse accepted M1/Flow 1; qualify the selected first path. Managed local lifecycle is conditional, not an automatic release blocker. T01/T08."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-09",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-09 — Clean desktop distribution",
+      "description": "Installable product and public-safe repository, separate user data/credentials, tested update, backup recovery and uninstall.\n\nDelivery records: sprint-ara-11, sprint-bridge-overhaul-m6, sprint-mod-11. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 10,
+      "updated": "2026-11-08",
+      "next": "November 8: the latest deployable is build/windows-tasker-20261108-praxis18 (13,230,553 bytes, SHA-256 070efba3...aa00), with praxis17 kept as the rollback; both are listed in AETHER_LOCATIONS.md. Next: the repository link for the company presentation (github.com/mcygelman/Aether is private during testing; Michel's call).",
+      "evidence": [
+        "AetherAgents/LightweightAgents/Bridge/aether/operations/distribution.py",
+        "AetherAgents/LightweightAgents/Bridge/aether/operations/installed_app.py"
+      ],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "Design packaging now; qualify implementation after MVP-00 against a clean machine and the integrated demo. T01/T09/T11."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    },
+    {
+      "id": "sprint-mvp-10",
+      "roadmapId": "roadmap-mvp-persistent-agents-20261008",
+      "name": "MVP-10 — Repeatable acceptance and professional demonstration",
+      "description": "Complete a substantial project, interrupt/resume it, verify closure, then demonstrate useful retained experience on related work; retain an honest comparison and reproducible professional evidence.\n\nDelivery records: sprint-ara-10, sprint-ara-11, sprint-ara-12. Outcome acceptance is recorded here; implementation ownership remains in those records. See Projects/Aether/MVP_PATH.md and Projects/Aether/MVP_ACCEPTANCE_TEST.md.",
+      "status": "Open",
+      "sequence": 11,
+      "updated": "2026-11-08",
+      "next": "November 8: the demonstration package is praxis18. Next: Michel's walkthrough on praxis18, the homepage revamp for the company presentation, and the acceptance protocol run.",
+      "evidence": [],
+      "gates": [
+        "T00 foundation prerequisite.",
+        "Prepare the frozen workload and scoring now; execute the complete matrix after integration and required live authorization. Independent review, then Michel's acceptance; publication separate. T00-T11."
+      ],
+      "log": [],
+      "owner": "Praxis — MVP engineering lead"
+    }
+  ]
+}

@@ -3,7 +3,8 @@
 The mind wakes to its own identity and continuity, the commission's facts, the notes it has not read, the questions the
 atelier has for it, and the budget left. It thinks with a model and acts with four tools inside the roots it was given
 (read_file, write_file, list_dir, run_tests) and one memory tool (recall_memory). Then its reply is posted to the room
-through its mailbox, with the files it wrote attached by hash, and its cost recorded. A turn that fails is written down
+through its mailbox, with files attached by hash and its cost recorded. Never copy project context into a technical
+specialist cartridge; project binding owns that boundary. A turn that fails is written down
 by the place daemon as a failed turn and the mind is woken again. No preview, no confirm, no template: the reply is
 the mind's own words, and the atelier's extractors make what they can of it.
 """
@@ -14,10 +15,12 @@ import re
 import json
 import math
 from copy import deepcopy
+import importlib.util
+import os
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from aether.mailbox import Mailbox
@@ -25,10 +28,11 @@ from aether.mailbox import Mailbox
 from .atelier import Atelier
 from .participants import Participant
 from . import faults
+from .participant_policy import permits, resolve as resolve_participant_path
 
 MAX_TOOL_ROUNDS = 40        # the budget is the cap; this only bounds one turn's loop
 MAX_TOOL_RESULT = 24_000
-# The context guard (P1, Fable, 2026-10-22). Between turns the context is rebuilt from the daybook, so it is bounded;
+# The context guard. Between turns the context is rebuilt from the daybook, so it is bounded;
 # inside one turn up to 40 rounds of 24,000-character results were not. Before each model call the request is counted
 # against the deployment's catalogued window less the output reserve and a margin. When the next round would not fit,
 # results from earlier rounds (the mind has read them once) are set aside as stubs that say what and how long, the
@@ -41,10 +45,15 @@ RULES = """You are a mind in an atelier: a workshop where persistent AI minds wo
 other, the way colleagues do. The operator opened the commission with a letter and will say "go" to approve a sprint and
 "accepted" to accept the result. Say what you think in plain words. Address a note to one person by starting it with
 "To: <name>"; otherwise it goes to the whole commission. When you deliver a file, write it with write_file and then say
-which file is the deliverable, naming it in backticks. When you review, say PASS or FAIL per requirement, with why. When
-the operator has accepted and you are asked for your closing words, say what you did, what you learned, what your
-future self should carry, and what your next self should skip. Nothing you write is refused for its shape; the atelier
-asks you if it needs more.
+which file is the deliverable, naming it in backticks. When you review, say PASS or FAIL per requirement, with why, and
+record them with record_verdicts. When the operator has accepted and you are asked for your closing words, give them
+with give_closing_words: what you did, what you learned, what your future self should carry, and what your next self
+should skip. Only the operator accepts: until the wake says ACCEPTED: yes, nothing is accepted, so never write as if it
+were and do not write closing words. When the work is ready and only the operator's ruling is missing, say so once (the
+lead also calls mark_ready), then reply (nothing to add) until someone writes something new. THE ROOM IS WAITING ON, in
+your wake, says whose move it is. Report a
+test result only from a run_tests call you made; if tests could not be run, say exactly that. Nothing you write is
+refused for its shape; the atelier asks you if it needs more.
 A librarian keeps one collection: it answers "what do we have on X" in its own words, lends with shelf_lend (the item
 lands in library/ under the commission) and says what it lent and what it left on the shelf, and files what minds hand
 in with file_deposit, in its own words, or says why not with decline_deposit. Nothing is lent or filed silently.
@@ -56,20 +65,23 @@ Your memory is yours: the wake shows headers of what your past selves filed, cho
 the ones that matter with load_memory (reading keeps a memory alive) and look further with recall_memory. Your side log
 keeps one line per action you take (files written, tests run, memories read, notes posted), written for you; add a line
 yourself with log_action when you decide something worth finding again, and look it up with recall_log. When you learn
-something before the close, file it now with file_memory; it is yours from that moment."""
+something before the close, file it now with file_memory; it is yours from that moment. When something you remember
+guides the work, say it comes from your memory; cite a project file only for what that file says."""
 
 
 @dataclass
 class Deployment:
     model: str
     endpoint: str
-    api_key: str = ''
+    api_key: str = field(default='', repr=False)
     max_tokens: int = 4096
     timeout_secs: int = 600
     temperature: float = 0.2
     dialect: str = 'auto'
     context_window: int | None = None
     thinking: str | None = None
+    credential_ref: dict | None = field(default=None, repr=False)
+    credential_bridge: Path | None = field(default=None, repr=False)
 
     @classmethod
     def load(cls, profiles_path: Path, name: str, *, bridge: Path | None = None) -> 'Deployment':
@@ -83,13 +95,16 @@ class Deployment:
     def from_profile(cls, p: dict, *, bridge: Path | None = None) -> 'Deployment':
         """Build from one already-read profile snapshot, resolving credentials through the usual path."""
         key = ''
-        if p.get('credential_ref'):
-            from aether.credentials.provider_credentials import resolve_reference
+        reference = p.get('credential_ref')
+        vault_reference = isinstance(reference, dict) and reference.get('kind') == 'vault'
+        if reference and not vault_reference:
+            from aether.keys.provider_credentials import resolve_reference
             key = resolve_reference(p['credential_ref'], bridge=bridge)
         return cls(model=p.get('requestedApiIdentifier') or p.get('model') or '', endpoint=p['endpoint'], api_key=key,
                    max_tokens=int(p.get('maxOutputTokens') or p.get('max_tokens') or 4096),
                    timeout_secs=int(p.get('timeoutSeconds') or p.get('timeoutSecs') or 600), temperature=float(p.get('temperature', 0.2)),
-                   dialect=p.get('dialect') or 'auto', context_window=p.get('contextWindow'), thinking=p.get('thinking'))
+                   dialect=p.get('dialect') or 'auto', context_window=p.get('contextWindow'), thinking=p.get('thinking'),
+                   credential_ref=deepcopy(reference) if vault_reference else None, credential_bridge=bridge)
 
     def client(self):
         """The production adapter, built the way the installed product builds it (dialect from the endpoint)."""
@@ -100,9 +115,13 @@ class Deployment:
             kwargs['context_window'] = int(self.context_window)
         if self.thinking:
             kwargs['thinking'] = self.thinking
+        if self.credential_ref:
+            kwargs.update(credential_ref=self.credential_ref, credential_bridge=self.credential_bridge)
         try:
             c = LMStudio(**kwargs)
         except TypeError:
+            if self.credential_ref:
+                raise  # Never downgrade a vault-backed client to an unauthenticated legacy client.
             c = LMStudio(endpoint=self.endpoint, model=self.model, timeout_secs=self.timeout_secs, api_key=self.api_key)
         try:
             c.temperature = self.temperature
@@ -113,7 +132,7 @@ class Deployment:
 
 # -- tools -------------------------------------------------------------------------------------------------------
 
-def tool_schemas(librarian: bool = False, lead: bool = False) -> list:
+def tool_schemas(librarian: bool = False, lead: bool = False, technical: bool = False, reviewer: bool = False) -> list:
     def f(name, desc, props, req):
         return dict(type='function', function=dict(name=name, description=desc, parameters=dict(type='object', properties=props, required=req)))
     shelf = [f('catalog_search', 'Search your collection by words, optionally by kind or tags; returns catalog entries, not items.',
@@ -129,14 +148,29 @@ def tool_schemas(librarian: bool = False, lead: bool = False) -> list:
              f('decline_deposit', 'Decline a deposit, saying why; it is kept aside, not deleted.',
                dict(deposit_id=dict(type='string'), why=dict(type='string')), ['deposit_id', 'why'])] if librarian else []
     ruling = [f('file_decision', "Record the operator's ruling, in the operator's words, as a decision for every mind of this commission "
-                "(it binds this project; 'standing' only when the operator's words say so).",
+                "(it binds this project; 'standing' only when the operator's words say so). Accepting the work is not a ruling to record.",
                 dict(words=dict(type='string'), subject=dict(type='string'), scope=dict(type='string', enum=['project', 'standing'])),
                 ['words'])] if lead else []
+    # The three signals that move a commission, said exactly. The host also reads them from prose; these leave no doubt
+    # (runs a72-a92: every run met a new way of writing a verdict, and a finished room waited on words nobody could read).
+    signals = ([f('record_verdicts', 'Record your verdict on each requirement, PASS or FAIL with why. Call it whenever you rule '
+                  '(first review or re-review); the latest verdict on a requirement stands. Say them in your note too.',
+                  dict(verdicts=dict(type='array', items=dict(type='object', properties=dict(
+                      requirement=dict(type='string'), verdict=dict(type='string', enum=['PASS', 'FAIL']), why=dict(type='string')),
+                      required=['requirement', 'verdict']))), ['verdicts'])] if reviewer else []) + \
+              ([f('mark_ready', "Say the work is ready for the operator's ruling: call it once, when every requirement passes and "
+                  'nothing is left, with what is done. Write a note as well.', dict(summary=dict(type='string')), ['summary'])] if lead else []) + \
+              [f('give_closing_words', 'Your closing words, after the operator has accepted (the wake says ACCEPTED: yes): what you did, '
+                 'what you learned, what your future self should carry, and what your next self should skip.',
+                 dict(did=dict(type='string'), learned=dict(type='string'), carry=dict(type='string'), skip=dict(type='string')),
+                 ['did', 'learned', 'carry'])]
+    learning = [f('technical_learning','Your technical cartridge: direct filing, revision, paths, search and history. No approval needed. Use action=schema for fields. arguments_json is an object.',dict(action=dict(type='string'),arguments_json=dict(type='string')),['action']),
+                f('project_checkpoint','Save unfinished work and project details with this project for restart recovery. Never copied into technical memory.',dict(text=dict(type='string')),['text'])] if technical else []
     return [f('read_file', 'Read a text file under the commission root.', dict(path=dict(type='string')), ['path']),
             f('write_file', 'Write a text file under one of your writable roots (creates folders).', dict(path=dict(type='string'), content=dict(type='string')), ['path', 'content']),
             f('list_dir', 'List files under a folder of the commission root.', dict(path=dict(type='string')), ['path']),
             f('read_files', 'Read several files at once (paths relative to the commission root). Cheaper than one read_file per file.', dict(paths=dict(type='array', items=dict(type='string'))), ['paths']),
-            f('run_tests', 'Run pytest on a file or folder under the commission root and return the output.', dict(path=dict(type='string')), ['path']),
+            f('run_tests', 'Run the tests in a file or folder under the commission root (pytest when installed, otherwise unittest) and return the output.', dict(path=dict(type='string')), ['path']),
             f('recall_memory', 'Headers of your own memories by tags (title, kind, strength, one line). Looking changes nothing.', dict(tags=dict(type='array', items=dict(type='string'))), ['tags']),
             f('load_memory', 'Read the memories you choose by id; reading refreshes them.', dict(ids=dict(type='array', items=dict(type='string'))), ['ids']),
             f('memory_workspace', 'Projects, Scaffolds, Guides, TeachFrames, Threads and editable dashboards. '
@@ -152,41 +186,65 @@ def tool_schemas(librarian: bool = False, lead: bool = False) -> list:
               dict(line=dict(type='string'), pointer=dict(type='string'), tags=dict(type='array', items=dict(type='string'))), ['line']),
             f('file_memory', 'File a memory now, without waiting for the close: a lesson, a warning, a fact about this commission, or a to-do; one sentence as the title.',
               dict(kind=dict(type='string', enum=['lesson', 'warning', 'fact', 'todo']), title=dict(type='string'), body=dict(type='string'),
-                   tags=dict(type='array', items=dict(type='string'))), ['kind', 'title'])] + shelf + ruling
+                   tags=dict(type='array', items=dict(type='string'))), ['kind', 'title'])] + shelf + ruling + signals + learning
 
 
 class Tools:
-    def __init__(self, participant: Participant, commission_root: Path, library=None, commission_id: str | None = None):
+    def __init__(self, participant: Participant, commission_root: Path, library=None, commission_id: str | None = None, delegation=None):
         self.p, self.root = participant, Path(commission_root).resolve()
         self.commission_id = commission_id or Path(commission_root).name
+        if participant.technical():
+            from .specialist_context import bind
+            bind(participant,self.root,self.commission_id)
         self.written: dict = {}
         self.library = library                  # a Library when the mind is a librarian
         self.lent: list = []
         self.memory: dict = dict(recalled=[], loaded=[])   # the recall receipt: what the mind looked up and read this turn
         self.actions: list = []                           # the side log rows this turn (kind, pointer, tags, line, by)
         self.decisions: list = []                         # rulings the lead recorded this turn; filed into every mind when posted
+        self.signals: dict = {}                           # verdicts, ready, closing words said with their tools; ride on the note
+        self.delegation = delegation
+        self.remaining_calls = 0
+        self.persisted_actions = 0
+        from aether.data_sources.service import agent_session
+        self.data_sources = agent_session()
 
     def _resolve(self, rel: str, mode: str) -> Path:
-        path = (self.root / rel).resolve()
-        if not str(path).startswith(str(self.root)):
-            raise PermissionError('outside the commission root')
-        allowed = [r for r, m in self.p.roots.items() if (mode == 'read' or m == 'write') and str(path).startswith(str((self.root / r).resolve()))]
-        if not allowed and self.p.roots:
-            raise PermissionError(f'{rel} is not under a root you may {mode}. You may read: {sorted(r for r, m in self.p.roots.items())}; write: {sorted(r for r, m in self.p.roots.items() if m == "write") or "(none)"}')
-        return path
+        return resolve_participant_path(self.p,self.root,rel,mode)
 
     def call(self, name: str, args: dict) -> str:
         try:
+            if not permits(self.p,name):
+                return 'This participant is not allowed to use '+name+'.'
+            if name == 'data_sources':
+                if self.data_sources is None:
+                    return 'No requesting operator data-source scope is available.'
+                return json.dumps(self.data_sources.call(args.get('action'), json.loads(args.get('arguments_json', '{}'))), ensure_ascii=False)
+            if self.p.technical() and name in ('technical_learning','project_checkpoint'):
+                from . import specialist_learning, specialist_context
+                result=(specialist_learning.call(self.p.home,args['action'],json.loads(args.get('arguments_json','{}')))
+                        if name=='technical_learning' else specialist_context.checkpoint(self.p,args['text'],self.commission_id))
+                return json.dumps(result,ensure_ascii=False)
+            if name == 'delegate_ultralight':
+                if self.delegation is None:
+                    return 'Ultralight delegation is unavailable. Configure a model connection named ultralight.'
+                result = self.delegation.call(args, remaining_calls=self.remaining_calls)
+                receipt = self.delegation.receipts[-1]
+                self.actions.append(dict(kind='ultralight', pointer=receipt['id'], tags=['delegation'],
+                    line=f"{receipt['role']}: {receipt['status']}; {receipt['model_calls']} model call(s); parent review required"))
+                return result
             if name in ('memory_workspace', 'memory_query'):
                 from .mind_memory import workspace_call
                 if not self.p.cartridge():
                     return 'Memory cartridge unavailable for this participant.'
+                from .specialist_context import home as project_home
+                memory_home=project_home(self.p,self.commission_id) if self.p.technical() else self.p.home
                 if name == 'memory_query':
-                    result = workspace_call(self.p.home, self.commission_id, 'query', dict(sql=args['sql'],
+                    result = workspace_call(memory_home, self.commission_id, 'query', dict(sql=args['sql'],
                         parameters=json.loads(args.get('parameters_json', '[]')), offset=args.get('offset', 0),
                         limit=args.get('limit', 50)))
                 else:
-                    result = workspace_call(self.p.home, self.commission_id, args['action'],
+                    result = workspace_call(memory_home, self.commission_id, args['action'],
                                             json.loads(args.get('arguments_json', '{}')))
                 return json.dumps(result, ensure_ascii=False)
             if name == 'read_file':
@@ -210,11 +268,14 @@ class Tools:
                 return '\n'.join(out) or 'No paths given.'
             if name == 'run_tests':
                 target = self._resolve(args['path'], 'read')
-                proc = subprocess.run([sys.executable, '-B', '-m', 'pytest', '-q', '-p', 'no:cacheprovider', str(target)],
-                                      cwd=str(self.root), capture_output=True, text=True, timeout=300)
-                tail = (proc.stdout.strip().splitlines() or [''])[-1][:80]
-                self.actions.append(dict(kind='ran', pointer=str(args['path']), tags=['tests', 'pass' if proc.returncode == 0 else 'fail'], line=f'ran tests {args["path"]}: {tail}'))
-                return (proc.stdout + proc.stderr)[-MAX_TOOL_RESULT:]
+                command, base, runner = test_command(target, self.root)
+                proc = subprocess.run(command, cwd=str(base), env=test_environment(), capture_output=True, text=True, timeout=300)
+                output = (proc.stdout + proc.stderr).strip()
+                tail = (output.splitlines() or [''])[-1][:80]
+                self.actions.append(dict(kind='ran', pointer=str(args['path']), tags=['tests', runner, 'pass' if proc.returncode == 0 else 'fail'],
+                                         line=f'ran tests {args["path"]} with {runner}: {tail}'))
+                where = base.relative_to(self.root).as_posix() if base != self.root else '.'
+                return (f'[{runner} from {where}, exit code {proc.returncode}]\n' + output)[-MAX_TOOL_RESULT:]
             if name == 'recall_memory':
                 heads = self.p.recall(list(args.get('tags') or []))[:8]
                 self.memory['recalled'].append(dict(tags=list(args.get('tags') or []), ids=[h.get('id') for h in heads if h.get('id')]))
@@ -248,6 +309,26 @@ class Tools:
                 self.actions.append(dict(kind='recorded-decision', pointer='', tags=['decision'], line=f'recorded the operator: {said[:150]}'))
                 return ('recorded: when your note is posted it is filed into every mind of this commission as "lead, recording the '
                         "operator\"; quote the operator's words in your note.")
+            if name == 'record_verdicts':
+                given = [dict(requirement=str(v.get('requirement') or '').strip()[:160], verdict=str(v.get('verdict') or '').strip().upper(),
+                              why=str(v.get('why') or '').strip()[:300]) for v in (args.get('verdicts') or []) if isinstance(v, dict)]
+                given = [v for v in given if v['requirement'] and v['verdict'] in ('PASS', 'FAIL')]
+                if not given:
+                    return 'Nothing recorded: give each requirement with PASS or FAIL.'
+                self.signals.setdefault('verdicts', []).extend(given)
+                self.actions.append(dict(kind='verdicts', pointer='', tags=['review'],
+                                         line=f"recorded {len(given)} verdict(s): {sum(v['verdict'] == 'PASS' for v in given)} PASS, "
+                                              f"{sum(v['verdict'] == 'FAIL' for v in given)} FAIL"))
+                return f'recorded {len(given)} verdict(s); they are read when your note is posted.'
+            if name == 'mark_ready':
+                self.signals['ready'] = str(args.get('summary') or '').strip()[:600] or 'ready'
+                self.actions.append(dict(kind='ready', pointer='', tags=['ready'], line='marked the work ready for the operator'))
+                return "marked ready; the operator is told when your note is posted. Nothing is accepted until the operator says so."
+            if name == 'give_closing_words':
+                parts = [(k, str(args.get(k) or '').strip()) for k in ('did', 'learned', 'carry', 'skip')]
+                self.signals['closing'] = {k: v[:1200] for k, v in parts if v}
+                self.actions.append(dict(kind='closing', pointer='', tags=['closure'], line='gave closing words'))
+                return 'recorded; they are filed into your home once your note is posted (and only after the operator has accepted).'
             if name == 'file_memory':
                 filed = self.p.file_now(str(args.get('kind') or 'lesson'), str(args.get('title') or ''), str(args.get('body') or ''),
                                         list(args.get('tags') or []), commission_id=self.commission_id)
@@ -286,6 +367,40 @@ class Tools:
             return f'unknown tool {name}'
         except Exception as exc:
             return f'{type(exc).__name__}: {exc}'
+        finally:
+            if self.p.technical() and len(self.actions)>self.persisted_actions:
+                self.p.log(self.actions[self.persisted_actions:],commission_id=self.commission_id)
+                self.persisted_actions=len(self.actions)
+
+
+UNITTEST = ("import sys, unittest; base, start, pattern = sys.argv[1:4]; sys.path.insert(0, base); "
+            "unittest.main(module=None, argv=['unittest', 'discover', '-v', '-s', start, '-t', start, '-p', pattern])")
+
+
+def test_command(target: Path, root: Path) -> tuple:
+    """How to run a project's tests: from the project folder that holds them (the nearest folder above any tests
+    folders), with pytest when this runtime has it and the standard library's unittest otherwise. The installed runtime
+    ships without pytest and its path file keeps the working folder off sys.path, so the project folder is passed in."""
+    root = Path(root).resolve()
+    base = target if target.is_dir() else target.parent
+    while base != root and base.name.lower().startswith('test'):
+        base = base.parent
+    if importlib.util.find_spec('pytest') is not None:
+        return [sys.executable, '-B', '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '--rootdir', str(base), str(target)], base, 'pytest'
+    start, pattern = (str(target), 'test*.py') if target.is_dir() else (str(target.parent), target.name)
+    return [sys.executable, '-B', '-c', UNITTEST, str(base), start, pattern], base, 'unittest'
+
+
+TEST_ENVIRONMENT = ('SYSTEMROOT', 'WINDIR', 'COMSPEC', 'SYSTEMDRIVE', 'PATH', 'PATHEXT', 'TEMP', 'TMP', 'USERPROFILE',
+                    'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA', 'PYTHONUTF8', 'PYTHONIOENCODING')
+
+
+def test_environment(environ=None) -> dict:
+    """The environment a mind's tests run in: the operating system's bootstrap variables only. Tests run code a model
+    wrote, and the server's own environment may hold a provider key (an environment credential reference), so nothing
+    else is passed on."""
+    environ = os.environ if environ is None else environ
+    return {k: v for k, v in environ.items() if k.upper() in TEST_ENVIRONMENT}
 
 
 # -- the turn ----------------------------------------------------------------------------------------------------
@@ -297,7 +412,7 @@ def wake_messages(participant: Participant, context: dict, facts: dict) -> list:
                                    words(' '.join(n['text'][:500] for n in context.get('unread', [])), 8) + ['carry']))
     memory = participant.wake_memory(wake_tags, commission_id=facts['campaign']['id'])
     welcome = ''
-    if participant.cartridge():
+    if participant.cartridge() and not participant.technical():
         try:
             from .mind_memory import welcome as read_welcome
             welcome = read_welcome(participant.home, facts['campaign']['id']) + '\n\n'
@@ -323,10 +438,23 @@ def wake_messages(participant: Participant, context: dict, facts: dict) -> list:
                          (''.join(f"\n  (file {f['name']}, {f['bytes']} bytes)" for f in n.get('files', ())) if n.get('files') else '')
                          for n in context['unread'])
     questions = '\n'.join('- ' + q['text'] for q in context.get('questions_for_me', []))
-    user = (f"THE COMMISSION ({facts['campaign']['id']}), opened by {(facts['campaign'].get('opened_by') or {}).get('name', 'the operator')}:\n{letter}\n\n"
+    try:                                                 # whose move it is: a quiet room always has an owner (runs a80-a92)
+        from .facts import waiting_on
+        waiting = waiting_on(facts) if facts['campaign'].get('request_kind') not in ('chat', 'library') else ''
+    except Exception:
+        waiting = ''                                     # a line that cannot be worked out is left out, never a failed wake
+    # The operator's own words lead the wake, so a long run of colleagues' notes cannot bury them (rehearsal F6).
+    operator = '\n\n'.join(n['text'] for n in context['unread'] if (n.get('sender') or {}).get('kind') == 'operator')
+    chat = ("THIS IS A DIRECT CHAT: the operator is talking with you, one to one. There is no plan, sprint, deliverable "
+            "or acceptance unless they ask for one. Reply to them in plain words.\n\n"
+            if facts['campaign'].get('request_kind') == 'chat' else '')
+    user = chat + (f"THE COMMISSION ({facts['campaign']['id']}), opened by {(facts['campaign'].get('opened_by') or {}).get('name', 'the operator')}:\n{letter}\n\n"
             f"PLAN SO FAR:\n{plan or '(none yet)'}\n\nROSTER: {roster or '(none yet)'}\n"
-            f"APPROVALS: {len(facts['approvals'])}   ACCEPTED: {'yes' if facts['acceptance'] else 'no'}\n"
-            f"DELIVERABLES:\n{deliverables or '(none yet)'}\n\nVERDICTS:\n{verdicts or '(none yet)'}\n\n"
+            f"APPROVED SPRINTS: {', '.join(str(n) for n in sorted({a['sprint'] for a in facts['approvals'] if a.get('sprint') is not None})) or 'none yet'}   ACCEPTED: "
+            f"{'yes' if facts['acceptance'] else 'no (the operator has not accepted; nothing is accepted until this says yes)'}\n"
+            + (f"THE ROOM IS WAITING ON: {waiting}\n" if waiting else '')
+            + (f"THE OPERATOR SAID, SINCE YOUR LAST TURN:\n{operator}\n\n" if operator else '')
+            + f"DELIVERABLES:\n{deliverables or '(none yet)'}\n\nVERDICTS:\n{verdicts or '(none yet)'}\n\n"
             f"BUDGET LEFT: {json.dumps(context['budget_left'])}\n\n"
             f"FILES UNDER THE COMMISSION ROOT (read with read_files; write under your write roots):\n{context.get('tree') or '(no files yet)'}\n\n"
             + (f"YOUR SHELF ({context['shelf']['collection']}): {context['shelf']['items']} item(s), {context['shelf']['deposits']} deposit(s) waiting\n"
@@ -336,6 +464,9 @@ def wake_messages(participant: Participant, context: dict, facts: dict) -> list:
             f"YOUR CONTINUITY:\n{welcome}{cont_text}\n{('PRIOR COMMISSIONS, YOUR OWN CLOSING WORDS:' + prior) if prior else ''}\n\n"
             "Write your note to the room now. If you have nothing to add, reply exactly: (nothing to add)")
     system = f"{participant.system_text()}\n\n{RULES}\n\nYou are {participant.name}, the {participant.kind} of this commission."
+    if participant.technical():
+        from .specialist_learning import GUIDANCE
+        system += "\n\n"+GUIDANCE
     return [dict(role='system', content=system), dict(role='user', content=user)]
 
 
@@ -391,8 +522,11 @@ def make_room(messages: list, room: int, schemas, known, *, final: bool = False)
 
     def set_aside(i):
         size = messages[i].get('_size') or len(messages[i]['content'])
+        # Say which call the result came from, so the mind knows what it no longer holds (rehearsal 4, O8).
+        what = _call_label(messages, messages[i].get('tool_call_id', ''))
         messages[i] = dict(messages[i], _aside=True, _size=size,
-                           content=f'[{size} characters set aside to make room in your context; re-read next turn if you need it. '
+                           content=f'[{size} characters{" from " + what if what else ""} set aside to make room in your '
+                                   'context. Note what you need from it in your reply; re-read it next turn if you must. '
                                    f'It began:]\n{messages[i]["content"][:SET_ASIDE_KEEP]}')
         done.append(dict(kind='set_aside', tool_call_id=messages[i].get('tool_call_id', ''), characters=size, kept=SET_ASIDE_KEEP))
 
@@ -410,6 +544,17 @@ def make_room(messages: list, room: int, schemas, known, *, final: bool = False)
                                                                   f're-read next turn from there if you need the rest]')
         done.append(dict(kind='cut', tool_call_id=messages[i].get('tool_call_id', ''), characters=whole, kept=keep))
     return done
+
+
+def _call_label(messages: list, tool_call_id: str) -> str:
+    """The tool call that produced a result, as `name(arguments)`, shortened; '' when it cannot be found."""
+    for m in messages:
+        for tc in (m.get('tool_calls') or ()) if m.get('role') == 'assistant' else ():
+            if tc.get('id') == tool_call_id:
+                fn = tc.get('function') or {}
+                args = ' '.join(str(fn.get('arguments') or '').split())
+                return f"{fn.get('name', '')}({args[:160]}{'...' if len(args) > 160 else ''})"
+    return ''
 
 
 def _outbound(messages: list) -> list:
@@ -432,17 +577,33 @@ def think(client, messages: list, tools: Tools, max_calls: int | None = None) ->
     No identity, instruction or Welcome card is silently removed to make it fit.
     """
     started = time.perf_counter(); calls = 0; prompt = completion = 0; model_seconds = 0.0
-    schemas = tool_schemas(librarian=tools.library is not None, lead=tools.p.kind == 'lead')
+    schemas = tool_schemas(librarian=tools.library is not None, lead=tools.p.kind == 'lead',technical=tools.p.technical(),
+                           reviewer=tools.p.kind == 'reviewer')
+    if tools.data_sources and permits(tools.p, 'data_sources') and tools.data_sources.directory():
+        from aether.data_sources.service import schema as source_schema
+        schemas.append(source_schema())
+        messages.append(dict(role='system', content=tools.data_sources.briefing()))
+    if tools.p.technical():
+        for schema in schemas:
+            f=schema['function']
+            if f['name'] in ('memory_workspace','memory_query','log_action','recall_log','file_decision'): f['description']='Project-local continuity. '+f['description']
+            if f['name']=='file_memory': f['description']='Direct filing: lesson/warning goes to technical memory; fact/todo stays with this project. Distill technical details without private or project information.'
+    if tools.delegation is not None:
+        from .ultralight_delegation import schema
+        schemas.append(schema())
+    schemas=[s for s in schemas if permits(tools.p,s['function']['name'])]
     rounds = MAX_TOOL_ROUNDS if max_calls is None else max(0, min(MAX_TOOL_ROUNDS, int(max_calls) - 1))
     guard = context_room(client)
     context = dict(window=guard['window'] if guard else None, room=guard['room'] if guard else None,
-                   peak_estimate=0, guard_fired=False, made_room=[])
+                   peak_estimate=0, guard_fired=False, made_room=[], reread_after_set_aside=0)
     known = None
+    called, aside = {}, set()           # tool call id -> what was asked; what was set aside (re-reads are counted, O8)
     transcript = deepcopy(messages)
 
     def account():
         return dict(model_calls=calls, prompt_tokens=prompt, completion_tokens=completion,
-                    seconds=round(model_seconds, 1), turn_seconds=round(time.perf_counter() - started, 1), context=context)
+                    seconds=round(model_seconds, 1), turn_seconds=round(time.perf_counter() - started, 1), context=context,
+                    ultralights=deepcopy(tools.delegation.receipts) if tools.delegation else [])
 
     def append(message):
         messages.append(message)
@@ -450,11 +611,17 @@ def think(client, messages: list, tools: Tools, max_calls: int | None = None) ->
 
     def call(with_tools):
         nonlocal calls, prompt, completion, model_seconds, known
+        if tools.data_sources and tools.data_sources.used:
+            available = {s['id'] for s in tools.data_sources.directory()}
+            if not tools.data_sources.used <= available:
+                raise PermissionError('Data-source access changed before the next model request.')
         selected = schemas if with_tools else None
         estimated = request_estimate(messages, selected, known)
         context['peak_estimate'] = max(context['peak_estimate'], estimated)
         if guard and estimated > guard['room']:
-            context['made_room'] += make_room(messages, guard['room'], selected, known, final=not with_tools)
+            made = make_room(messages, guard['room'], selected, known, final=not with_tools)
+            context['made_room'] += made
+            aside.update(called[m['tool_call_id']] for m in made if m['kind'] == 'set_aside' and m['tool_call_id'] in called)
             estimated = request_estimate(messages, selected, known)
             if estimated > guard['room']:
                 context.update(guard_fired=True, fired_at_call=calls + 1, unsent_estimate=estimated)
@@ -474,6 +641,8 @@ def think(client, messages: list, tools: Tools, max_calls: int | None = None) ->
     text = None
     ending = 'You have used the tool rounds (or the model calls the budget allows) for this turn. '
     for _ in range(rounds):
+        if max_calls is not None and calls >= int(max_calls) - 1:
+            break
         reply = call(True)
         if reply is None:
             ending = (f"Your context is nearly full (about {context['unsent_estimate']} tokens against "
@@ -490,12 +659,26 @@ def think(client, messages: list, tools: Tools, max_calls: int | None = None) ->
                 args = json.loads(fn.get('arguments') or '{}')
             except ValueError:
                 args = {}
+            if not isinstance(args, dict):
+                args = {}
+            asked = (fn.get('name', ''), json.dumps(args, sort_keys=True))
+            context['reread_after_set_aside'] += asked in aside
+            called[tc.get('id', fn.get('name', ''))] = asked
+            tools.remaining_calls = (int(max_calls) - calls) if max_calls is not None else MAX_TOOL_ROUNDS - calls
+            before = dict(tools.delegation.usage) if tools.delegation else {}
             result = tools.call(fn.get('name', ''), args)
+            if tools.delegation:
+                after = tools.delegation.usage
+                calls += after['model_calls'] - before['model_calls']
+                prompt += after['prompt_tokens'] - before['prompt_tokens']
+                completion += after['completion_tokens'] - before['completion_tokens']
+                model_seconds += after['seconds'] - before['seconds']
             append(dict(role='tool', tool_call_id=tc.get('id', fn.get('name', '')), content=result))
     if text is None:
         append(dict(role='user', content=ending + 'Write your note to the atelier now, without more tool calls: what you did, '
                     'what is in place, and exactly what you would continue with next turn (which files to re-read, which step is next). '
-                    'The next turn starts fresh from the daybook with your note in it. Files you wrote are attached automatically.'))
+                    'The next turn starts fresh from the daybook with your note in it. Files you wrote, and files you name as '
+                    'deliverables, are attached automatically.'))
         reply = call(False)
         if reply is None:
             raise ContextCapacityError(
@@ -558,6 +741,45 @@ def _resolve(name: str, facts: dict, atelier) -> dict:
     return dict(id=name, kind='member', name=name)
 
 
+NAMED_FILE_MAX = 2 * 1024 * 1024
+
+
+def _signals_text(signals: dict) -> str:
+    """The note a turn posts when it used a signal tool but wrote nothing else, so the room sees what was said."""
+    lines = []
+    if signals.get('verdicts'):
+        lines += [f"{v['requirement']}: {v['verdict']}" + (f" - {v['why']}" if v.get('why') else '') for v in signals['verdicts']]
+    if signals.get('ready'):
+        lines.append(f"Ready for the operator's ruling: {signals['ready']}")
+    if signals.get('closing'):
+        c = signals['closing']
+        lines += [f'{label}: {c[k]}' for k, label in (('did', 'What I did'), ('learned', 'What I learned'),
+                                                       ('carry', 'What my future self should carry'), ('skip', 'What my next self should skip')) if c.get(k)]
+    return '\n'.join(lines)
+
+
+def _named_files(text: str, participant, root, written: dict) -> dict:
+    """Deliverables a note names that are on disk but were not written in this turn (a file kept from an interrupted
+    turn, say), attached as they are now so the record holds their bytes by hash (rehearsal 4, O7). Only files the mind
+    may read itself; reading only."""
+    if root is None or not text:
+        return {}
+    from .facts import extract
+    named = extract(dict(sender=dict(kind='member'), text=text), {}).get('deliverables') or []
+    out = {}
+    for name in named:
+        rel = str(name).strip().replace('\\', '/').lstrip('/')
+        if not rel or rel in written or rel in out:
+            continue
+        try:
+            path = resolve_participant_path(participant, Path(root).resolve(), rel, 'read')
+            if path.is_file() and path.stat().st_size <= NAMED_FILE_MAX:
+                out[rel] = path.read_bytes()
+        except (OSError, ValueError, PermissionError):
+            continue
+    return out
+
+
 def _answered_already(mailbox: Mailbox, inbox: list) -> Path | None:
     """The note this mind already wrote for the newest unread note, when a turn died between sending it and marking
     the inbox read: the outbox still holds it, or the postmaster has moved it to sent. Reading only; nothing is sent."""
@@ -575,7 +797,7 @@ def _answered_already(mailbox: Mailbox, inbox: list) -> Path | None:
     return None
 
 
-def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=None, commission_root: Path | None = None, since_message_id=None, place: str | None = None):
+def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=None, commission_root: Path | None = None, since_message_id=None, place: str | None = None, profiles_path=None, stopped=None):
     """One turn for one mind: wake from the atelier and its mailbox, think, send the note through the mailbox.
     Returns the outbox path, or None when the mind had nothing to add.
 
@@ -590,8 +812,17 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
         commission_root = Path(atelier.root) / 'work' / atelier.campaign_id
         from .postmaster import Postmaster
         Postmaster(atelier, atelier.root).deliver({participant.id: participant.kind}, {participant.id: participant.name})
+    if participant.technical():
+        from .specialist_context import bind
+        bind(participant,commission_root,atelier.campaign_id)
     context = atelier.wake_context(participant.record())
     facts = atelier.facts()
+    if hasattr(participant, 'campaign_members'):
+        current = participant.campaign_members
+        ids, names = {m['id'] for m in current}, {m['name'] for m in current}
+        roster = [m for m in facts['roster'] if m.get('id') not in ids and m.get('name') not in names] + current
+        facts = dict(facts, roster=roster)
+        context = dict(context, roster=roster)
     inbox = mailbox.inbox(commission=atelier.campaign_id)
     if not inbox and not context.get('questions_for_me'):
         return None
@@ -599,12 +830,12 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
     if answered is not None:                             # the last turn died after sending and before marking read
         for note in inbox:
             mailbox.mark_read(note['id'])
-        atelier.mark_read(participant.record())
+        atelier.mark_read(participant.record(), context.get('seen_through'))
         participant.log([dict(kind='recovered', pointer='note:' + answered.stem, tags=['turn', 'recovery'],
                               line='my answer to these notes was already written when I woke; marked them read, no second turn')],
                         commission_id=atelier.campaign_id)
         return answered
-    if participant.cartridge():
+    if participant.cartridge() and not participant.technical():
         from .mind_memory import begin_work
         try:
             participant.foundation_session_id = begin_work(participant.home, atelier.campaign_id)
@@ -619,7 +850,13 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
         context = dict(context, shelf=dict(collection=participant.library, items=len(library.entries()), deposits=len(library.deposits()),
                                            listing=listing or '  (empty)'))
     messages = wake_messages(participant, dict(context, unread=inbox, unread_total=len(inbox), tree=_tree(commission_root)), facts)
-    tools = Tools(participant, commission_root, library=library, commission_id=atelier.campaign_id)
+    from .ultralight_delegation import configured
+    helper_profiles = getattr(participant, 'campaign_profiles_path', None) or profiles_path or Path(atelier.root) / 'runtime_profiles.json'
+    def helper_stopped():
+        return bool((stopped and stopped()) or atelier.waiting_for_operator())
+    tools = Tools(participant, commission_root, library=library, commission_id=atelier.campaign_id,
+                  delegation=configured(helper_profiles, stopped=helper_stopped,
+                                        document=getattr(participant, 'delegation_profiles_snapshot', None)))
     left = context.get('budget_left') or {}
     max_calls = None
     if left.get('model_calls_limit') is not None:
@@ -651,7 +888,9 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
             from .mind_memory import cited_decisions
             written = [data.decode('utf-8', errors='replace') for rel, data in tools.written.items() if rel.rsplit('.', 1)[-1] in ('md', 'txt', 'py', 'json')]
             try:
-                cited = cited_decisions(participant.home, [text] + written, shown=shown,
+                from .specialist_context import home as project_home
+                cited_home=project_home(participant,atelier.campaign_id) if participant.technical() else participant.home
+                cited = cited_decisions(cited_home, [text] + written, shown=shown,
                                         loaded=[n['id'] for n in tools.memory['loaded'] if n.get('kind') == 'decision'])
             except Exception:
                 cited = []
@@ -659,13 +898,17 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
                 receipt['cited'] = cited
                 tools.actions += [dict(kind='cited-decision', pointer=','.join(d['id'] for d in c['rests_on']) or 'none', tags=['decision'],
                                        line=f"cited a decision: {c['sentence'][:150]}") for c in cited]
+    if tools.signals:
+        receipt = dict(receipt or {}, signals=tools.signals)
+        if not text or text.startswith('(nothing to add'):
+            text = _signals_text(tools.signals)          # a signal said with its tool is never lost in a quiet turn
     if not text or text.startswith('(nothing to add'):
         for note in inbox:                                # a quiet turn: marks first, then the record of the quiet
             mailbox.mark_read(note['id'])
-        atelier.mark_read(participant.record())
+        atelier.mark_read(participant.record(), context.get('seen_through'))
         atelier.quiet(participant.record(), cost, memory=receipt)
         if tools.actions:                                # a quiet turn that did things keeps them; one that only read leaves no row
-            participant.log(tools.actions + [dict(kind='quiet', pointer='', tags=['turn'], line='read the new notes and had nothing to add')], commission_id=atelier.campaign_id)
+            participant.log(tools.actions[tools.persisted_actions:] + [dict(kind='quiet', pointer='', tags=['turn'], line='read the new notes and had nothing to add')], commission_id=atelier.campaign_id)
         return None
     to = None
     first, _, rest = text.partition('\n')
@@ -676,7 +919,7 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
             if line == first:
                 text = rest.strip() or text
             break
-    files = {name: data for name, data in tools.written.items()} or None
+    files = {**tools.written, **_named_files(text, participant, commission_root, tools.written)} or None
     # The note first, then the marks: a turn that dies between the two is found by _answered_already at the next wake
     # and not answered twice; a turn that dies before the send leaves its mail unread and is woken again.
     sent = mailbox.send(text, files=files, cost=cost, to=to, in_reply_to=inbox[-1]['id'] if inbox else None,
@@ -684,8 +927,8 @@ def run_turn(participant, atelier=None, mailbox: Mailbox | None = None, client=N
     faults.point('after_send')
     for note in inbox:
         mailbox.mark_read(note['id'])
-    atelier.mark_read(participant.record())
+    atelier.mark_read(participant.record(), context.get('seen_through'))
     faults.point('after_marks')
-    participant.log(tools.actions + [dict(kind='posted', pointer='note:' + Path(sent).stem, tags=['turn'] + (['to:' + (to.get('name') or to.get('id'))] if to else []),
+    participant.log(tools.actions[tools.persisted_actions:] + [dict(kind='posted', pointer='note:' + Path(sent).stem, tags=['turn'] + (['to:' + (to.get('name') or to.get('id'))] if to else []),
                                           line='posted: ' + text.splitlines()[0][:120])], commission_id=atelier.campaign_id)
     return sent

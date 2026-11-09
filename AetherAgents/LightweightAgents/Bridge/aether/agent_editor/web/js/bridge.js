@@ -1,4 +1,4 @@
-/* MOD-16 companion to Gemini's retained ADS controller. Project publication is separate from hiring. */
+/* MOD-16 companion to the retained ADS controller. Project publication is separate from hiring. */
 window.addEventListener('DOMContentLoaded', () => {
   const status = document.getElementById('bridge-status');
   const buttons = ['bridge-validate', 'bridge-export'].map(id => document.getElementById(id));

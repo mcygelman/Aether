@@ -2,7 +2,7 @@
 
 A participant is a mailbox and a mind that reads it. The mailbox is a directory the mind can reach: on this machine,
 on a share, or (later) behind an HTTP inbox; the mind does not know or care where the others run. This is the
-"network" underneath the atelier (Michel, 2026-10-18): correspondence, like email, with no control of the mind, only
+"network" underneath the atelier: correspondence, like email, with no control of the mind, only
 the protocol of transmission. The mailbox knows nothing about commissions, daybooks or budgets; it stores and forwards.
 
 Contract: Mailbox(root, participant) owns <root>/mailboxes/<participant id>/ with inbox/, outbox/, sent/, bounced/
@@ -12,7 +12,7 @@ the order written, each with its path; deliver(note) writes a daybook note into 
 number); delivered_through() / mark_delivered(n) keep the last daybook number delivered; sent(path) and
 bounce(path, reason, detail) move an outbox note on; bounces() lists them. Nothing here refuses a note for its shape.
 Depends on: nothing in Aether (standard library only).
-Owner: Fable (claude-fable-5-1).
+Owner: Mailbox maintainers.
 """
 from .mailbox import Mailbox, MailboxError, BROADCAST
 

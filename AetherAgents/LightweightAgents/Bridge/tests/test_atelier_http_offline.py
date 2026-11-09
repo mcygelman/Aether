@@ -1,4 +1,4 @@
-"""The atelier page's API and the two projections, offline (Opus, 10-18, the atelier page lane).
+"""The atelier page's API and the two projections, offline.
 
 What this proves: the operator opens a commission by posting its letter, approves each sprint by posting "go", and
 accepts by posting "accepted", through the real route handler (headers, bounded JSON, origin check), with no preview,
@@ -7,8 +7,8 @@ is written down; files travel by hash and come back byte for byte; read since a 
 the campaign state and receipt routes, at their old URLs, answer from the daybook and facts alone.
 
 What it does not prove: a model's turn (the runner is scripted here; `turn.run_turn` is the turn-runner lane) or the
-browser (tests/test_atelier_page_ui.js covers the page). The commission is scripted below in the shape of Fable's
-Project A; when tests/test_room_daybook.py provides a fixture daybook, `_scripted_turns` can be replaced by it.
+browser (tests/test_atelier_page_ui.js covers the page). The commission is scripted below in the shape of the
+acceptance fixture's Project A; when tests/test_room_daybook.py provides a fixture daybook, `_scripted_turns` can be replaced by it.
 
 Run: py -3.10 -B -m pytest tests/test_atelier_http_offline.py -q -p no:cacheprovider --basetemp build/s/po-atelier
 """
@@ -136,13 +136,12 @@ def test_the_operator_runs_a_commission_with_three_kinds_of_note(state):
     assert {p['id'] for p in view['people']} >= {'harbor-steward', 'Harbor Guide', 'Minder'}
     seen = view['last_id']
 
-    assert call(state, 'POST', '/api/atelier/post', dict(commission=commission, text='go'))[0] == 200      # sprint 1
+    assert call(state, 'POST', '/api/atelier/post', dict(commission=commission, text='go'))[0] == 200      # the plan
     code, newer, _ = call(state, 'GET', f'/api/atelier/read?commission={commission}&since={seen}')
     assert newer['since_known'] and newer['notes'][0]['text'] == 'go' and newer['notes'][0]['sender']['kind'] == 'operator'
     wake(state, commission, GUIDE)
     code, guide_view, _ = call(state, 'GET', f'/api/atelier/read?commission={commission}')
     assert any(n['kind'] == 'host' and 'rests on' in n['text'] for n in guide_view['notes'])
-    assert call(state, 'POST', '/api/atelier/post', dict(commission=commission, text='go'))[0] == 200      # sprint 2
     wake(state, commission, MINDER)
     code, value, _ = call(state, 'POST', '/api/atelier/post', dict(commission=commission, text='Accepted.'))
     assert code == 200
@@ -154,7 +153,7 @@ def test_the_operator_runs_a_commission_with_three_kinds_of_note(state):
     assert [a['sprint'] for a in facts['approvals']] == [1, 2] and facts['acceptance']['text'] == 'Accepted.'
     assert facts['deliverables'][0]['sha256'] == hashlib.sha256(REPORTS).hexdigest()
     assert [v['verdict'] for v in facts['verdicts']] == ['PASS'] and len(facts['closures']) == 2
-    assert view['chain']['ok'] and view['numbers']['approvals_per_sprint'] == 1.0 and view['numbers']['refusals_per_hundred'] == 0.0
+    assert view['chain']['ok'] and view['numbers']['approvals_per_sprint'] == 0.5 and view['numbers']['refusals_per_hundred'] == 0.0
     assert view['budget']['model_calls_used'] == 4
 
     # Files by hash, byte for byte, as a download.
@@ -224,6 +223,10 @@ def test_closing_hint_waits_for_other_participants(state):
     assert campaign(state, f'/api/campaign-state?id={cid}')[1]['stage'] == 'Close'
     room.closure(MINDER, 'I learned to check the boundary independently.')
     room.filed(MINDER, 'Minder home')
+    # The lead wrote here too, so it is asked as well; "Harbor Steward" was once dropped as a likeness of "Harbor Guide".
+    assert any(q['about'] == 'closure' and q['to'] == LEAD['id'] for q in room.facts()['questions_asked'])
+    room.closure(LEAD, 'I learned to name the reviewer before the work starts.')
+    room.filed(LEAD, 'Steward home')
     _, view, _ = call(state, 'GET', f'/api/atelier/read?commission={cid}')
     assert view['hint'] == 'Accepted; every closing note is filed.'
     assert campaign(state, f'/api/campaign-state?id={cid}')[1]['stage'] == 'Closed'

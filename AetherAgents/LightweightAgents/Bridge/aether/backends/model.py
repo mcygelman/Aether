@@ -6,7 +6,7 @@ report it — same rule as wrapper adapter/lmstudio.rs; hosted APIs are asked
 for their window at mission setup too, for the same reason: the *response*
 tells us what model actually served the call, never what window it has).
 
-S00073.7 (B2, Fable ruling Q1): `LMStudio` is the one concrete implementation
+S00073.7 (B2, design decision Q1): `LMStudio` is the one concrete implementation
 of the informal ModelAdapter shape every caller in this package already uses
 (`chat()`, `warmup()`, `probe()`, `.context_window`) — see the `ModelAdapter`
 Protocol below. It was originally written LM-Studio-only; adding `api_key`
@@ -125,6 +125,8 @@ class LMStudio:
     # Explicit deployment capability; omitted remains strict. No endpoint inference.
     reasoning_telemetry: str | None = None
     reasoning_off_switch: str = 'Enable Thinking OFF and Preserve Thinking OFF, then unload/reload the model'
+    credential_ref: dict | None = field(default=None, repr=False)
+    credential_bridge: object | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         if self.reasoning_telemetry not in (None, 'reported', 'not-reported'):
@@ -206,26 +208,48 @@ class LMStudio:
 
     def _headers(self) -> dict:
         headers = {"Content-Type": "application/json"}
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
-        headers.update(self.extra_headers)
+        key = self.api_key
+        if self.credential_ref is not None:
+            from aether.keys.provider_credentials import resolve_reference
+            from urllib.parse import urlsplit
+            route = urlsplit(self.endpoint)
+            if route.scheme != 'https' and not (route.scheme == 'http' and route.hostname in ('127.0.0.1', '::1')):
+                raise ModelError('Saved API keys require HTTPS, or loopback for local testing.')
+            key = resolve_reference(self.credential_ref, bridge=self.credential_bridge)
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
+        if self.credential_ref is None:
+            headers.update(self.extra_headers)
+        else:
+            headers.update({k: v for k, v in self.extra_headers.items() if k.lower() != 'authorization'})
         return headers
 
     def probe(self, timeout_secs: float = 1.5) -> bool:
         """Check server reachability without consuming an inference slot."""
         req = urllib.request.Request(self.endpoint.rstrip("/") + "/models", method="GET",
                                      headers=self._headers())
+        send = urllib.request.urlopen
+        if self.credential_ref is not None:
+            from aether.backends.deployment_probe import NoRedirect
+            send = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect()).open
         try:
-            with urllib.request.urlopen(req, timeout=timeout_secs) as resp:
+            with send(req, timeout=timeout_secs) as resp:
                 return 200 <= resp.status < 300
         except (OSError, urllib.error.URLError):
             return False
 
+    @property
+    def sent_temperature(self):
+        """The temperature this client sends: none to hosts whose models refuse one (sends_temperature)."""
+        return self.temperature if sends_temperature(self.endpoint) else None
+
     def request_body(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
         """Build the exact completion body, also inspectable by admission adapters."""
         body = {"model": self.model, "messages": messages,
-                "temperature": self.temperature, "stream": False,
+                "temperature": self.sent_temperature, "stream": False,
                 **self._body_extras(), **self.extra}
+        if body["temperature"] is None:
+            del body["temperature"]
         if tools:
             body["tools"] = tools
         return body
@@ -318,7 +342,7 @@ class LMStudio:
                     raise urllib.error.HTTPError(req.full_url, code, 'redirect refused', headers, fp)
             opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
             send = opener.open
-        elif configured_attempt is not None or prepared_snapshot is not None:
+        elif configured_attempt is not None or prepared_snapshot is not None or self.credential_ref is not None:
             class NoConfiguredRedirect(urllib.request.HTTPRedirectHandler):
                 def redirect_request(self, req, fp, code, msg, headers, newurl):
                     raise urllib.error.HTTPError(req.full_url, code, 'redirect refused', headers, fp)
@@ -370,6 +394,9 @@ class LMStudio:
                     data = (self._decode_prepared_completion(raw) if prepared_snapshot is not None
                             else json.loads(raw.decode("utf-8")))
         except urllib.error.HTTPError as e:
+            if self.credential_ref is not None:
+                e.close()
+                raise ModelError(f'HTTP {e.code}: the saved-key deployment rejected the request.') from None
             if prepared_snapshot is not None and cancellation_token is not None and cancellation_token.is_set():
                 raise Cancelled(dispatch_possible=True) from e
             body_text = ""
@@ -379,10 +406,14 @@ class LMStudio:
                 pass
             raise ModelError(f"HTTP {e.code} from {self.endpoint}: {body_text or e.reason}") from e
         except urllib.error.URLError as e:
+            if self.credential_ref is not None:
+                raise ModelError('The saved-key deployment could not be reached.') from None
             if prepared_snapshot is not None and cancellation_token is not None and cancellation_token.is_set():
                 raise Cancelled(dispatch_possible=True) from e
             raise ModelError(f"model endpoint unreachable at {self.endpoint}: {e}") from e
         except OSError as e:
+            if self.credential_ref is not None:
+                raise ModelError('The saved-key deployment connection was interrupted.') from None
             # ARA-09 live evidence (2026-08-22): stopping LM Studio mid-request can raise
             # http.client.RemoteDisconnected (an OSError subclass) that urllib does not wrap
             # into URLError. The whole endpoint-outage family must surface as ModelError so
@@ -390,6 +421,9 @@ class LMStudio:
             if prepared_snapshot is not None and cancellation_token is not None and cancellation_token.is_set():
                 raise Cancelled(dispatch_possible=True) from e
             raise ModelError(f"model endpoint unreachable at {self.endpoint}: {e}") from e
+        if self.credential_ref is not None:
+            from aether.keys.redaction import redact
+            data = redact(data)
         if prepared_snapshot is not None:
             return self._prepared_completion(data, terminal_sha, reasoning_required=expected_body_sha256 is not None)
         try:
@@ -431,12 +465,12 @@ DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1"
 # retired by the vendor as of 2026-07-24 15:59 UTC. The API now hard-rejects both names with
 # HTTP 400 ("The supported API model names are deepseek-v4-pro or deepseek-v4-flash"). G4 first
 # ran and closed against deepseek-v4-pro (same day). Switched to deepseek-v4-flash immediately
-# after, per Michel's explicit decision: Flash is faster, and Michel's working hypothesis is that
+# after, by explicit product decision: Flash is faster, and the working hypothesis is that
 # reasoning models front-load deliberation the Aether-side architecture should instead be doing
-# via stored, retrievable learning (see Michel_Hypothesis_Reasoning_And_Flash.md in this folder) --
+# via stored, retrievable learning --
 # so the non-reasoning model gets first crack at exercising that path for real, not the
 # already-strong reasoning model.
-# 2026-09-10: Michel selected V4.1-Flash only. Official API id: deepseek-flash.
+# 2026-09-10: switched to V4.1-Flash only. Official API id: deepseek-flash.
 # https://www.deepseek.com/en/news/deepseek-v4-1-flash/
 DEEPSEEK_DEFAULT_MODEL = "deepseek-flash"
 
@@ -494,6 +528,21 @@ def capability_for_model(model: str) -> ModelCapability | None:
 
 # Compatibility name retained for callers; its authority is the model registry above.
 DEEPSEEK_DEFAULT_WINDOW = DEEPSEEK_V41_FLASH_CAPABILITY.context_window
+
+
+# Hosts whose current models refuse a temperature below 1: Anthropic's OpenAI-compatible endpoint (Claude 4.7 and
+# later) and OpenAI (its GPT-5-era reasoning models). Michel, 2026-11-07: "low temperature or no temperature, both
+# are fine with me". Every other connection keeps the temperature it always sent.
+NO_TEMPERATURE_HOSTS = ("api.anthropic.com", "api.openai.com")
+
+
+def sends_temperature(endpoint: str) -> bool:
+    from urllib.parse import urlparse
+    try:
+        host = (urlparse(endpoint or "").hostname or "").lower()
+    except ValueError:
+        return True
+    return host not in NO_TEMPERATURE_HOSTS
 
 
 def select_dialect(endpoint: str, requested: str = "auto") -> Dialect:

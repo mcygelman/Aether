@@ -286,7 +286,9 @@ td.num{font-variant-numeric:tabular-nums;text-align:right}
     <button role="tab" aria-selected="false" data-tab="staff">Staff record</button>
     <button role="tab" aria-selected="false" data-tab="dials">Dials</button>
   </div>
-  <div class="tabpanel on card" id="tab-mem"><div class="tablewrap"><table id="tbl"></table></div></div>
+  <div class="tabpanel on card" id="tab-mem">
+    <p class="muted pad">Recorded is when the memory was first written, shown in your local timezone. Current until is when it starts fading faster unless the agent uses it again; it is not a deletion date.</p>
+    <div class="tablewrap"><table id="tbl"></table></div></div>
   <div class="tabpanel" id="tab-staff"><div class="grid2">
     <div class="card pad"><h3>Levels (earned, never go down)</h3><div id="levels"></div></div>
     <div class="card pad"><h3>Reviews (written by others, read-only)</h3><div id="reviews"></div></div>
@@ -320,6 +322,12 @@ const css = getComputedStyle(document.documentElement);
 const color = (cat) => css.getPropertyValue("--c-" + cat).trim() || "#888";
 const floor = D.settings.floor ?? 0.1, fogMin = D.settings.fog_importance_min ?? 0.9;
 const day = (s) => (s || "").slice(0, 10);
+const recordedDay = (s) => {
+  if (!s) return "";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 let T = 0;                       // index into horizons
 let selected = null;
 
@@ -563,7 +571,7 @@ function show(id) {
 // ---- table ----------------------------------------------------------------
 let sortKey = "strength", sortDir = -1;
 const cols = [["title", "Memory"], ["category", "Category"], ["profile", "Kind"],
-  ["strength", "Strength"], ["importance", "Importance"], ["pulls", "Pulls"], ["switch_at", "Current until"]];
+  ["created_at", "Recorded"], ["strength", "Strength"], ["importance", "Importance"], ["pulls", "Pulls"], ["switch_at", "Current until"]];
 function table() {
   const t = $("tbl"); t.replaceChildren();
   const head = el("tr");
@@ -571,14 +579,15 @@ function table() {
     sortDir = sortKey === k ? -sortDir : -1; sortKey = k; table(); }},
     label + (sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : "")));
   t.append(el("thead", {}, head));
-  const val = (n, k) => k === "strength" ? n.strength[T] : n[k];
+  const val = (n, k) => k === "strength" ? n.strength[T] : k === "created_at" ? (Date.parse(n[k]) || 0) : n[k];
   const rows = notes.filter(visible).sort((a, b) => {
     const x = val(a, sortKey), y = val(b, sortKey); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
   const body = el("tbody");
   for (const n of rows.slice(0, 1000)) {
     body.append(el("tr", {onclick: () => { select(n.id); window.scrollTo({top: 0, behavior: "smooth"}); }},
       el("td", {}, n.title), el("td", {}, el("i", {class: "dot", style: "background:" + color(n.category)}), " ", n.category),
-      el("td", {}, n.profile.replace(/_/g, " ")), el("td", {class: "num"}, n.strength[T].toFixed(2)),
+      el("td", {}, n.profile.replace(/_/g, " ")), el("td", {title: n.created_at || ""}, recordedDay(n.created_at)),
+      el("td", {class: "num"}, n.strength[T].toFixed(2)),
       el("td", {class: "num"}, n.importance.toFixed(2)), el("td", {class: "num"}, n.pulls),
       el("td", {}, day(n.switch_at))));
   }

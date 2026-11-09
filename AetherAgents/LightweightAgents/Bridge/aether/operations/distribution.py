@@ -19,7 +19,7 @@ import sys
 import zipfile
 
 SCHEMA = 'aether-directory-distribution-1'
-DEPENDENCIES = {'Jinja2': '3.1.6', 'MarkupSafe': '2.1.3'}
+DEPENDENCIES = {'Jinja2': '3.1.6', 'MarkupSafe': '2.1.3', 'pypdf': '6.21.2', 'typing_extensions': '4.15.0'}
 
 
 def direct(path):
@@ -68,9 +68,10 @@ def hashes(root):
 
 
 def agent_editor_assets(output):
-    """Copy the exact served Editor resources, including synthetic draft examples."""
+    """Copy both editions' fixed Editor resources, including public authoring."""
     from aether.agent_editor.http import ASSETS, WEB
-    for relative in sorted({entry[0] for entry in ASSETS.values()}):
+    from aether.backends.gui_assets import PUBLIC_EDITOR_ASSETS
+    for relative in sorted({entry[0] for entry in (*ASSETS.values(), *PUBLIC_EDITOR_ASSETS.values())}):
         copy_file(WEB / relative, output / 'code/aether/agent_editor/web' / relative)
 
 
@@ -90,7 +91,7 @@ def application_sources(output, *, bridge=None):
             copy_file(bridge / replacement if replacement else source, output / 'code' / relative)
 
 
-# Generic workflow limits and the disabled historical-reconciliation policy (Praxis, 10-15).
+# Generic workflow limits and the disabled historical-reconciliation policy.
 # Developer runtime settings never ship; the Minder file stays generated and unconfigured.
 WORKFLOW_DEFAULTS = ('planning_defaults.json', 'minder_assessment_defaults.json',
                      'minder_reconciliation_defaults.json', 'historical_reconciliation_defaults.json')
@@ -434,6 +435,7 @@ def serve(app, *, governed, port=0, browser=True, stop_on_stdin=False):
     config = json.loads((app / 'installation.json').read_bytes())
     os.environ['AETHER_INSTALL_DATA_ROOT'] = str(direct(config['data']))
     os.environ['AETHER_INSTALL_RESOURCES_ROOT'] = str(direct(app / 'resources'))
+    os.environ['AETHER_INSTALL_CREDENTIALS_ROOT'] = str(direct(config['credentials']))
     from aether.operations.installed_app import serve_installed
     return serve_installed(app, governed=governed, port=port, browser=browser, stop_on_stdin=stop_on_stdin)
 

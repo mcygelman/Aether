@@ -1,7 +1,8 @@
 """Pure vendor-dialect normalization for model response messages.
 
-The adapter deliberately has no I/O, clock, or network dependency.  Logged
-responses can therefore be replayed through :func:`normalize` byte-for-byte.
+The adapter deliberately has no I/O, clock, or network dependency. Logged
+responses can be replayed without executing tools. Never guess broken arguments,
+execute quoted examples, or release part of an ambiguous call batch.
 """
 from __future__ import annotations
 
@@ -13,16 +14,22 @@ from typing import Callable
 
 QUARANTINE_MARKER = "[unparsed backend markup — see transcript]"
 _PREFIX = "｜｜DSML｜｜"
-_TOOL_CALLS_OPEN = f"<{_PREFIX}tool_calls>"
-_TOOL_CALLS_CLOSE = f"</{_PREFIX}tool_calls>"
-_INVOKE_CLOSE = f"</{_PREFIX}invoke>"
-_PARAMETER_CLOSE = f"</{_PREFIX}parameter>"
+_TOOL_CALLS_RE = re.compile(rf"<{_PREFIX}[ \t]*(?P<kind>tool_calls|calls)>")
+
+
+def _closing_tag(name: str):
+    return re.compile(rf"</{_PREFIX}[ \t]*{name}>")
+
+
+_INVOKE_CLOSE = _closing_tag('invoke')
+_PARAMETER_CLOSE = _closing_tag('parameter')
 _FENCE_LINE_RE = re.compile(
     r"(?m)^[ \t]{0,3}(?P<fence>`{3,}|~{3,})(?P<rest>[^\r\n]*)"
 )
 _INLINE_TICKS_RE = re.compile(r"`+")
-_VENDOR_WRAPPER_RE = re.compile(
-    r"<(?P<signature>｜{1,2}[A-Za-z0-9_-]+｜{1,2})tool_calls>"
+_BACKEND_TAG_RE = re.compile(
+    r"<\s*/?(?:｜{1,2}DSML(?:｜{1,2}|$)|"
+    r"｜{1,2}[A-Za-z0-9_-]+｜{1,2}[ \t]*(?:tool_calls|calls|invoke|parameter)\b)"
 )
 
 
@@ -111,10 +118,7 @@ def _masked(content: str) -> str:
 
 
 def _dsml_present_masked(masked: str) -> bool:
-    start = masked.find(_TOOL_CALLS_OPEN)
-    if start < 0:
-        return False
-    return masked.find(_TOOL_CALLS_CLOSE, start + len(_TOOL_CALLS_OPEN)) >= 0
+    return _TOOL_CALLS_RE.search(masked) is not None
 
 
 def _dsml_present(content: str) -> bool:
@@ -122,21 +126,32 @@ def _dsml_present(content: str) -> bool:
 
 
 def _unknown_vendor_present(masked: str) -> bool:
-    for match in _VENDOR_WRAPPER_RE.finditer(masked):
-        signature = match.group("signature")
-        if masked.find(f"</{signature}tool_calls>", match.end()) >= 0:
-            return True
-    return False
+    return _BACKEND_TAG_RE.search(masked) is not None
+
+
+def has_backend_markup(content: str, *, include_quoted: bool = False) -> bool:
+    """Recognize transport syntax, including fragments, without interpreting prose.
+
+    Closing carries use include_quoted=True: even a quoted transport failure is
+    retained as diagnostic evidence, not certified as the owner's closing words.
+    Ordinary model replies may discuss complete quoted examples without executing them.
+    """
+    if not isinstance(content, str):
+        return False
+    if QUARANTINE_MARKER in content:
+        return True
+    masked, unterminated = _mask_content(content)
+    return _unknown_vendor_present(content if include_quoted or unterminated else masked)
 
 
 _ATTRIBUTE_RE = re.compile(r'([A-Za-z_][A-Za-z0-9_-]*)="([^"]*)"')
 
 
 def _attributes(tag: str, tag_name: str) -> dict[str, str] | None:
-    prefix = f"<{_PREFIX}{tag_name}"
-    if not tag.startswith(prefix) or not tag.endswith(">"):
+    prefix = re.match(rf"<{_PREFIX}[ \t]*{tag_name}(?=[ \t>])", tag)
+    if prefix is None or not tag.endswith(">"):
         return None
-    body = tag[len(prefix):-1]
+    body = tag[prefix.end():-1]
     attributes: dict[str, str] = {}
     cursor = 0
     for match in _ATTRIBUTE_RE.finditer(body):
@@ -178,11 +193,11 @@ def _parse_block(block: str, first_call_index: int) -> tuple[list[dict], str | N
         invoke_attrs = _attributes(invoke_tag, "invoke")
         if invoke_attrs is None or set(invoke_attrs) != {"name"} or not invoke_attrs["name"]:
             return [], "malformed invoke tag"
-        invoke_end = block.find(_INVOKE_CLOSE, tag_end + 1)
-        if invoke_end < 0:
+        invoke_close = _INVOKE_CLOSE.search(block, tag_end + 1)
+        if invoke_close is None:
             return [], "invoke block has no closing tag"
 
-        params_text = block[tag_end + 1:invoke_end]
+        params_text = block[tag_end + 1:invoke_close.start()]
         params: dict[str, object] = {}
         param_cursor = 0
         while param_cursor < len(params_text):
@@ -202,15 +217,15 @@ def _parse_block(block: str, first_call_index: int) -> tuple[list[dict], str | N
                 or param_attrs["name"] in params
             ):
                 return [], "malformed or duplicate parameter"
-            param_end = params_text.find(_PARAMETER_CLOSE, param_tag_end + 1)
-            if param_end < 0:
+            param_close = _PARAMETER_CLOSE.search(params_text, param_tag_end + 1)
+            if param_close is None:
                 return [], "parameter has no closing tag"
-            raw_value = params_text[param_tag_end + 1:param_end]
+            raw_value = params_text[param_tag_end + 1:param_close.start()]
             try:
                 params[param_attrs["name"]] = _parameter_value(raw_value, param_attrs["string"])
             except ValueError as exc:
                 return [], str(exc)
-            param_cursor = param_end + len(_PARAMETER_CLOSE)
+            param_cursor = param_close.end()
 
         if not params:
             return [], "invoke block contains no parameters"
@@ -223,7 +238,7 @@ def _parse_block(block: str, first_call_index: int) -> tuple[list[dict], str | N
                 "arguments": json.dumps(params, ensure_ascii=False, separators=(",", ":")),
             },
         })
-        cursor = invoke_end + len(_INVOKE_CLOSE)
+        cursor = invoke_close.end()
     if not calls:
         return [], "tool_calls block contains no invoke blocks"
     return calls, None
@@ -235,20 +250,24 @@ def _dsml_parse(content: str, masked: str | None = None) -> ParseResult:
     clean_parts: list[str] = []
     cursor = 0
     while True:
-        start = masked.find(_TOOL_CALLS_OPEN, cursor)
-        if start < 0:
+        opening = _TOOL_CALLS_RE.search(masked, cursor)
+        if opening is None:
+            if _unknown_vendor_present(masked[cursor:]):
+                return ParseResult("quarantined", QUARANTINE_MARKER, reason="unparsed trailing backend markup")
             clean_parts.append(content[cursor:])
             break
-        end = masked.find(_TOOL_CALLS_CLOSE, start + len(_TOOL_CALLS_OPEN))
-        if end < 0:
+        start = opening.start()
+        if _unknown_vendor_present(masked[cursor:start]):
+            return ParseResult("quarantined", QUARANTINE_MARKER, reason="unparsed leading backend markup")
+        closing = _closing_tag(opening.group('kind')).search(masked, opening.end())
+        if closing is None:
             return ParseResult("quarantined", QUARANTINE_MARKER, reason="unclosed tool_calls block")
         clean_parts.append(content[cursor:start])
-        body_start = start + len(_TOOL_CALLS_OPEN)
-        block_calls, reason = _parse_block(content[body_start:end], len(calls))
+        block_calls, reason = _parse_block(content[opening.end():closing.start()], len(calls))
         if reason:
             return ParseResult("quarantined", QUARANTINE_MARKER, reason=reason)
         calls.extend(block_calls)
-        cursor = end + len(_TOOL_CALLS_CLOSE)
+        cursor = closing.end()
     cleaned = "".join(clean_parts)
     return ParseResult("parsed", cleaned, tuple(calls))
 
@@ -282,33 +301,23 @@ def normalize(msg: dict, dialect: Dialect) -> dict:
         detected = _dsml_present_masked(masked)
     else:
         detected = dialect.detect(content)
-    if not detected:
-        hidden_complete_wrapper = (
-            unterminated
-            and (
-                _dsml_present_masked(content)
-                or _unknown_vendor_present(content)
-            )
-        )
-        if hidden_complete_wrapper:
-            result = ParseResult(
-                "quarantined",
-                QUARANTINE_MARKER,
-                reason="complete vendor markup hidden by unterminated quoted span",
-            )
-        elif not _unknown_vendor_present(masked):
+    if unterminated and _unknown_vendor_present(content):
+        result = ParseResult("quarantined", QUARANTINE_MARKER,
+                             reason="vendor markup hidden by unterminated quoted span")
+    elif not detected:
+        if not _unknown_vendor_present(masked):
             return msg
-        else:
-            result = ParseResult(
-                "quarantined", QUARANTINE_MARKER,
-                reason="unregistered or incomplete vendor markup"
-            )
+        result = ParseResult("quarantined", QUARANTINE_MARKER,
+                             reason="unregistered or incomplete vendor markup")
     elif dialect == DEEPSEEK:
         result = _dsml_parse(content, masked)
     else:
         result = dialect.parse(content)
 
     normalized = dict(msg)
+    if result.outcome == "parsed" and msg.get("tool_calls"):
+        result = ParseResult("quarantined", QUARANTINE_MARKER,
+                             reason="mixed native and textual tool calls; no calls released")
     if result.outcome == "parsed":
         normalized["content"] = result.content
         normalized["tool_calls"] = [

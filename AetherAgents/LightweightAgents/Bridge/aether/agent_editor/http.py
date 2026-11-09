@@ -1,8 +1,12 @@
-"""Mission Control authoring and project declaration routes; no agent-home access."""
+"""Own fixed editor assets and stateless template authoring routes.
+
+Never open agent homes or expose full-edition lifecycle/publication in Atelier.
+"""
 from pathlib import Path
 import socket
 import time
 from urllib.parse import urlparse
+from aether.backends.gui_assets import PUBLIC_EDITOR_ASSETS
 
 from . import service
 
@@ -69,6 +73,11 @@ def _body(handler, limit=service.MAX_DRAFT_BYTES):
 
 def handle_agent_editor(handler, method, state=None):
     path = urlparse(handler.path).path
+    public = (state or {}).get('edition') == 'atelier'
+    if public and path.startswith('/api/agent-editor/') and path not in (
+            '/api/agent-editor/validate', '/api/agent-editor/export'):
+        handler.send_json({'error': 'Future Feature: this editor action is not available in this edition.'}, 404)
+        return True
     if path in ('/api/agent-editor/consent-policy', '/api/agent-editor/consent-offer'):
         from .consent_http import handle_offer
         return handle_offer(handler, method, path, _body)
@@ -85,7 +94,7 @@ def handle_agent_editor(handler, method, state=None):
             return True
         return False
     if method == 'GET' and path.startswith('/agent-editor/'):
-        asset = ASSETS.get(path[len('/agent-editor/'):])
+        asset = (PUBLIC_EDITOR_ASSETS if public else ASSETS).get(path[len('/agent-editor/'):])
         if asset is None:
             handler.send_json({'error': 'Editor asset not found.'}, 404)
         else:

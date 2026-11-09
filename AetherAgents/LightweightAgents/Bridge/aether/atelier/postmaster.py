@@ -10,6 +10,8 @@ Nothing is refused for shape.
 from __future__ import annotations
 
 import re
+import time
+from aether.config.model_settings_store import writer_lock, StaleSettings
 
 from pathlib import Path
 
@@ -53,10 +55,14 @@ class Postmaster:
         kinds = kinds or {}
         names = names or {}
         rows = self.atelier.daybook.read()
-        library_request = self.atelier.facts()['campaign'].get('request_kind') == 'library'
+        campaign = self.atelier.facts()['campaign']
+        library_request = campaign.get('request_kind') == 'library'
+        chat_with = campaign.get('chat_with') if campaign.get('request_kind') == 'chat' else None
         librarians = {r['sender']['id'] for r in rows if r['sender']['kind'] == 'librarian'}
         delivered = {}
         for pid in self.participants():
+            if chat_with and pid != chat_with:
+                continue  # One-to-one chat replies never wake other mailboxes on the network.
             if library_request and kinds.get(pid) != 'librarian' and pid not in librarians:
                 continue  # The operator explicitly chose a library conversation, not a team commission.
             box = Mailbox(self.root, dict(id=pid, kind=kinds.get(pid) or 'member'))
@@ -73,13 +79,29 @@ class Postmaster:
         return delivered
 
     def collect(self, only=None) -> dict:
+        # Serialize the check/post/move transaction across manual wakes and network collectors.
+        # Retrying lock contention is bookkeeping, not a model retry or an operator gate.
+        for attempt in range(101):
+            try:
+                with writer_lock(self.root / 'mailboxes' / '.collect.lock'):
+                    return self._collect(only)
+            except StaleSettings:
+                if attempt == 100:
+                    raise
+                time.sleep(0.05)
+
+    def _collect(self, only=None) -> dict:
         """Hand every outbox note to the atelier, in the order written. `only` limits it to the minds a place hosts,
         so two places never take the same note."""
         posted, bounced = [], []
         for pid in (list(only) if only is not None else self.participants()):
             box = Mailbox(self.root, dict(id=pid, kind='member'))
             for path, item in box.pending():
-                already = next((r for r in self.atelier.daybook.read() if (r.get('facts') or {}).get('mailbox_item') == item['id']), None)
+                rows = self.atelier.daybook.read()
+                reply = item.get('in_reply_to')
+                if reply and not any(r['id'] == reply for r in rows):
+                    continue  # Another conversation owns this reply; keep it for its collector.
+                already = next((r for r in rows if (r.get('facts') or {}).get('mailbox_item') == item['id']), None)
                 if already is not None:                  # posted before a crash could move the outbox copy to sent: once, not twice
                     box.sent(path)
                     posted.append(dict(participant=pid, id=item['id'], note_id=already['id'], recovered=True))

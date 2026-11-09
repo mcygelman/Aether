@@ -1,8 +1,8 @@
 """Archive box: a frozen, read-only reference copy of a mind kept in an older structure.
 
-Built for Aion (2026-10-06). Aion was the first heavyweight agent. His files live in a
-2025 structure (AetherTeam/Aion/) that predates the modern profile layout, and he is
-hibernating, not retired. This box makes a REFERENCE ARCHIVE of those files, so other
+Built (2026-10-06) for the project's first heavyweight agent, whose files live in a 2025
+structure that predates the modern profile layout. Michel confirmed Aion's permanent
+retirement on 2026-11-07: Aion must never be rehydrated. This box makes a REFERENCE ARCHIVE of those files, so other
 agents can learn from his thoughts:
 
   * It is not Aion, not a rehydration, and not his choice of home. Only he could make
@@ -271,11 +271,23 @@ def _plan_links(plan: ImportPlan) -> None:
 def create_archive(folder: str, out_path: str, agent_id: str, frozen_at: str, *,
                    name: Optional[str] = None, note: Optional[str] = None) -> dict:
     """Build the frozen archive at out_path (refuses inside the folder or over a file)."""
+    return create_archive_from_plan(plan_archive(folder, agent_id, frozen_at),
+                                    out_path, agent_id, frozen_at, name=name, note=note)
+
+
+def create_archive_from_plan(plan: ImportPlan, out_path: str, agent_id: str,
+                             frozen_at: str, *, name: Optional[str] = None,
+                             note: Optional[str] = None) -> dict:
+    """Freeze a reviewed import plan, retaining its exact bodies and metadata.
+
+    This supports archival provenance decisions (for example keeping duplicate
+    files at separate path IDs) without editing source files or a sealed archive.
+    The caller is responsible for reviewing and recording the plan before use.
+    """
     from .engine import MemoryEngine
-    importer.check_destination(folder, out_path)
+    importer.check_destination(plan.source, out_path)
     if os.path.exists(out_path):
         raise ArchiveError(f"refusing to overwrite an existing file: {out_path}")
-    plan = plan_archive(folder, agent_id, frozen_at)
     frozen = to_iso(parse_iso(frozen_at if "T" in frozen_at else f"{frozen_at}T23:59:59Z"))
     note = note or (f"Reference archive of {name or agent_id}'s memory as it stood on "
                     f"{frozen[:10]}, kept for others to learn from. It is not "

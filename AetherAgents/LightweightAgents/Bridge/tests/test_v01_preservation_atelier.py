@@ -1,4 +1,4 @@
-"""Backup and restore of Atelier data through the existing preservation contract (v0.1, Fable, 2026-10-22).
+"""Backup and restore of Atelier data through the existing preservation contract (v0.1).
 
 An Atelier home (participant.json, memory/.cartridge.json, a schema-4 mind.sqlite) and a share (daybook, files store,
 mailboxes) under the installation's data root are backed up with the existing maintenance backup, verified, restored

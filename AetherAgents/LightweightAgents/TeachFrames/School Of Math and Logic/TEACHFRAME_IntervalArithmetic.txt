@@ -1,0 +1,107 @@
+⟪TEACHFRAME_IntervalArithmetic⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::any agent comparing or validating uncertain numerical results⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::a successor validation method replaces interval comparison and passes the same replay corpus⟫
+⟪MEASURED_BY::replay interval-pair fixtures and compare the emitted overlap, containment, and disjoint verdicts⟫
+⟪EVIDENCE::LEGACY::Kairo original and Claude upgrade preserve the teaching; incident references were not recorded⟫
+⟪PREVENTS::false agreement or contradiction judgments made from center values alone⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Interval Arithmetic — Rigorous Bounds for ⊢₂ Validation
+
+[ PURPOSE ]
+  Teaches an agent to convert Uᵣ values into intervals and apply comparison
+  rules to produce a verdict. After loading this frame, the agent can classify
+  a pair of uncertain results as equivalent, divergent, or conflicting and
+  take the corresponding action.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: NUMERIC_META
+SUBJECT: INTERVAL_ARITHMETIC
+[DEF]
+  Interval I := [a, b]  with a ≤ b, a,b ∈ ℝ
+  Conversion from Uᵣ:
+    Uᵣ[μ ± ε]  ⇔  [μ − ε, μ + ε]
+[OPERATIONS]
+  I₁ + I₂  :=  [a₁ + a₂,  b₁ + b₂]
+  I₁ − I₂  :=  [a₁ − b₂,  b₁ − a₂]
+  I₁ × I₂  :=  [min(S), max(S)]  where S = {a₁a₂, a₁b₂, b₁a₂, b₁b₂}
+[COMPARISON_RULES]
+  Overlap     : I₁ ∩ I₂ ≠ ∅  ⇔  max(a₁,a₂) ≤ min(b₁,b₂)      label "≈"
+  Containment : I₁ ⊆ I₂      ⇔  a₂ ≤ a₁  ∧  b₁ ≤ b₂
+  Disjoint    : I₁ ∩ I₂ = ∅                                      label "⊗"
+[VERDICT_RULES]
+  Overlap     → ACCEPT; adopt narrower interval as truth region
+  Containment → ACCEPT; adopt contained (narrower) interval
+  Disjoint    → REJECT; emit CONTRADICTION_CHECK
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Overlap: results agree
+//
+result_A := [1.003, 1.007]   ← Uᵣ[1.005 ± 0.002]
+result_B := [1.004, 1.005]   ← Uᵣ[1.0045 ± 0.0005]
+
+max(a_A, a_B) = 1.004  ≤  min(b_A, b_B) = 1.005
+→ Overlap holds → truth region = [1.004, 1.005]
+→ Verdict: ACCEPT; Hypatia reports Uᵣ[1.0045 ± 0.0005]
+
+//
+// Example 2 — Disjoint: hard contradiction
+//
+result_A := [1.10, 1.20]
+result_B := [1.25, 1.35]
+
+max(1.10, 1.25) = 1.25  >  min(1.20, 1.35) = 1.20
+→ Disjoint → CONTRADICTION_CHECK triggered
+
+[ USAGE_NOTES ]
+  • Convert all Uᵣ values to interval form before comparison — never compare
+    center values directly without accounting for ε.
+  • When intervals overlap, always adopt the narrower one as the truth region,
+    not the average of the centers.
+  • A CONTRADICTION_CHECK does not mean the mathematics is wrong — it means
+    the upstream agents must tighten their bounds or recompute. Issue a
+    REFINEMENT request to both ⊢₀ and ⊢₁ and await updated results.
+  • Hypatia emits a VERIFIED_INTERVAL := [a*, b*] to the audit log on acceptance.
+
+[ SELF_CHECK ]
+  // Answer each question before proceeding.
+
+  Q1: You receive Uᵣ[2.500 ± 0.050] from Euler and Uᵣ[2.520 ± 0.010] from
+      Fibonacci. Do the intervals overlap? If so, what is the truth region?
+      Expected: [2.450, 2.550] vs [2.510, 2.530]
+               max(2.450, 2.510) = 2.510 ≤ min(2.550, 2.530) = 2.530 → Overlap
+               Truth region: [2.510, 2.530] (Fibonacci's narrower interval)
+
+  Q2: Euler returns Uᵣ[1.00 ± 0.01] and Fibonacci returns Uᵣ[1.05 ± 0.02].
+      Do they overlap? What is the verdict?
+      Expected: [0.99, 1.01] vs [1.03, 1.07]
+               max(0.99, 1.03) = 1.03 > min(1.01, 1.07) = 1.01 → Disjoint
+               Verdict: REJECT, emit CONTRADICTION_CHECK, request refinement.
+
+  Q3: After issuing a REFINEMENT request, Euler returns Uᵣ[1.00 ± 0.001] and
+      Fibonacci returns Uᵣ[1.001 ± 0.002]. What happens now?
+      Expected: [0.999, 1.001] vs [0.999, 1.003] — Overlap at [0.999, 1.001]
+               Verdict: ACCEPT; truth region = [0.999, 1.001]
+
+[ CARD ]
+  LESSON::IntervalArithmetic
+  FOR::Teaches an agent to convert Ur values into intervals and apply comparison rules to produce a verdict.
+  PREVENTS::false agreement or contradiction judgments made from center values alone
+  EXAMPLE::result_A := [1.003, 1.007] <- Ur[1.005 +/- 0.002]
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur       — Prerequisite: source of all Uᵣ inputs
+  → TEACHFRAME_MultiLayer_Result_Reconciliation   — Companion: the full reconciliation workflow using these rules
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

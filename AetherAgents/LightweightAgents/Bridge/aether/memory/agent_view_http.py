@@ -4,12 +4,10 @@ Read-only GET routes, answered the way Mission Control's modules answer theirs: 
 handle_agent_view(handler, method, directory) call that returns False for any other path.
 The standalone viewer (tools/agent_dashboards.py) mounts the same function today.
 
-Mounting in Mission Control later (no other change is needed):
-  1. gateway.ROUTES: Route((G,), PAGE, OWNER, page=True) and Route((G,), API + '/', OWNER, prefix=True)
-     beside Route((G,), API, OWNER).
-  2. server.py do_GET: `if handle_agent_view(self, 'GET', state.get('agent_directory')): return`,
-     with state['agent_directory'] = AgentDirectory(<the installation's agent folders>).
-  3. A link to PAGE from the Mission Control home page.
+Mission Control already mounts these handlers with its installation AgentDirectory.
+The public page is /agents/insights; ?view=memory selects the memory tab. Staff → AI
+and Dashboards expose direct entry links. /agents itself belongs to Availability.
+The same read-only backend powers both the standalone prototype and these pages.
 
 Inputs:  the handler (it must offer settings_send(value, status, html=) and .path), the method,
          and an agent_view.AgentDirectory (None answers 503 with the reason).
@@ -27,7 +25,7 @@ from aether.paths import WEB_DIR
 OWNER = 'memory.agent_view_http'
 PAGE = '/agents'
 API = '/api/agents'
-PATHS = {PAGE, API, API + '/card', API + '/sessions', API + '/dashboard', API + '/note', API + '/memory', API + '/history'}
+PATHS = {PAGE, '/agents/insights', API, API + '/card', API + '/sessions', API + '/dashboard', API + '/note', API + '/memory', API + '/history'}
 
 
 def _one(query, name, required=True):
@@ -65,7 +63,7 @@ def handle_agent_view(handler, method, directory) -> bool:
     if method != 'GET':
         handler.settings_send({'error': 'Agent views are read-only; use GET.'}, 405)
         return True
-    if parsed.path == PAGE:
+    if parsed.path in (PAGE, '/agents/insights'):
         _send_page(handler, (WEB_DIR / 'agents.html').read_bytes())
         return True
     if directory is None:

@@ -1,4 +1,4 @@
-"""Decision memory in the atelier (Fable's design, built by Opus, 2026-10-19): the operator's ruling filed into every mind,
+"""Decision memory in the atelier: the operator's ruling filed into every mind,
 the lead recording the operator's words, a member told plainly it does not file decisions, the wake's own block, the link
 to the warning it overrides, replacement, and what a cited decision rests on, said in the room. No model, no network."""
 from __future__ import annotations

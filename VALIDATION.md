@@ -1,30 +1,77 @@
-# Validation and limits
+# Validation scope for v0.2.0
 
-The application code in this public source export is byte-identical to the selected RC1 source candidate. Public repository documentation, CI and the test runner are separately listed in PUBLICATION_MANIFEST.json. No private repository history, resident homes, cartridges or configured credentials are included.
+This document separates retained evidence from checks of the new release candidate.
+The release verification receipt accompanying the candidate supplies its exact hashes
+and current check results. No later build inherits a test count merely by using a version label.
 
-## Existing RC1 evidence
+## Live Chat and memory evidence — November 8, 2026
 
-- 485 public Bridge tests passed, with 11 explicitly skipped historical private-fixture cases.
-- 262 Memory Fabric tests passed.
-- Selected extracted library imports passed with Runtime/private-checkout access blocked and inventory unchanged.
-- Bundled Windows installation, public HTTP/settings actions, fresh mind authoring, upgrade/restart, backup verification, new-root restore and uninstall retaining data passed locally.
-- Five bundled subprocess interruption/restart cases passed using a scripted loopback model through the production adapter. After a durable reply, restart did not send another model request. An interruption before durable send resumed with uncertainty recorded; arbitrary external effects are not promised exactly-once execution.
-- Capacity/profile reload, 20% first/final request margin, adapted seed authorship and Welcome checks are retained from focused tests.
+The repository's running local app used DeepSeek for a four-operation rehearsal:
 
-These are development-machine and deterministic-provider results, not a new independent live performance benchmark. The release owner chose to rely on prior functional evidence and focused RC1 checks and omit repeating the complete installed A -> restart -> B journey before this release. An operator installation walkthrough is planned after deployment. No unmeasured timing, refusal or approval metric is reported as a result.
+| Operation | Requests | Duration |
+|---|---:|---:|
+| Save a fictional rule | 2 | 7 seconds |
+| End first conversation | 4 | 13 seconds |
+| Retrieve in an initially empty new Chat | 7 | 20 seconds |
+| End second conversation | 3 | 12 seconds |
 
-Reference implementations passing Harbor Ledger's 27 A checks and 29 B checks qualify the fixture only. They do not demonstrate distinct agent review, authored closure or actual recall. Benefits across tasks remain under evaluation.
+The original rule note's ID and body were confirmed in storage and in the viewer.
+The new prompt omitted the fact and ID; an actual memory_load read returned that
+same note, and the final answer cited its ID. Both closing messages matched the
+saved closing bodies and closed events. The first close recovered from a rejected
+exact-body claim. The second browser confirmation required the operator's click.
+All evidence, including the rejected call, was retained privately rather than
+publishing the operator's profile or transcripts.
 
-## Public test scope
+The Chat backend in that rehearsal is unchanged in this release alignment. These
+results demonstrate source-note retrieval and closure, not model-weight learning
+or an absence of identity/continuity context. The response was verbose; Current
+until means faster fading, not deletion. Behavior and latency vary by provider.
 
-`AetherPublicFacing/Release/public_surface.json` names the exact test files. The mixed Bridge tier skips 11 cases that need historical private identities/specifications/records. Six full files are outside the public tier: legacy conformance lint, private verdict audit, deferred blind memory-policy research, native staffing revision projection, full-edition installed-route ownership, and full staffing-editor contracts. Public synthetic checks are retained. The runner prints selected files before execution; CI runs the same groups.
+## Package verification
 
-The existing full private suite is not claimed green. Other operating systems, additional providers, a repeated RC1 live A/B journey and GitHub-hosted CI are not claimed tested by these local results.
+The v0.2.0 candidate is checked for exact inventory and hashes, version agreement,
+declared source selection, protected-loop preservation, isolated startup, and an
+upgrade from the preserved prior package. Results are recorded with the candidate.
+These are checks on the development Windows host, not a clean-machine certification.
+The current public test runner uses only the files selected in public_surface.json.
 
-## Runtime and privacy
+On November 8, the extracted public source passed **1,014 tests** on Windows:
+751 Bridge tests and 263 Memory Fabric tests. Thirteen explicit Bridge skips cover
+their named fixture/platform conditions; they are not passes. The disposable
+test copy was removed after its JUnit reports were retained. This is a local run,
+not a GitHub CI result for the unpublished release.
 
-The Windows ZIP retains the qualified existing CPython 3.10.8, OpenSSL 1.1.1q and SQLite 3.37.2 runtime recipe. Jinja2 is 3.1.6; MarkupSafe is 2.1.3. This is an exact-version statement, not a claim that those versions are current upstream. Applicable bundled notices are retained.
+The shipped roadmap is a public snapshot of current roadmap and sprint fields.
+It omits internal change logs and evidence links to files outside the release.
+The canonical development tracker is preserved separately.
 
-Raw content scans flag documentation examples, synthetic test strings and runtime debug/path strings. Findings are retained and assessed against exact file hashes; a scan finding is not silently rewritten as a clean scan. Local byte provenance is distinct from independently reconstructing every upstream runtime component.
+## Earlier evidence
 
-The loopback server and configured file-tool boundaries are not an OS sandbox for hostile code. Hosted models receive the supplied context. Keep evaluator answers, private files and keys outside agent-accessible workspaces. Backup/new-root restore preserves originals; the optional legacy same-path switch retains its unfinished-transaction/history safeguards. Memory and closure add no clearance requirement.
+Praxis18 passed 25 isolated upgrade checks, five bundled native scripted checks,
+and four memory-viewer tests. Its backend was identical to the earlier live-tested
+Chat build: three answers and two exact closings across 21 requests. Malformed
+markup recovery and failed-answer-to-End cases were covered offline.
+
+The [October 28 two-project run](evidence/2026-10-28-two-project-run/README.md) is
+historical evidence for that build. Its 912-test count and its live acceptance
+results do not describe this v0.2.0 artifact. Earlier GitHub CI likewise belongs
+to its recorded commit; a new unpublished candidate has no new GitHub CI run.
+
+## Still separate from these results
+
+- Independent evaluation and installation on a clean Windows machine.
+- Live acceptance of every model provider. The Claude rehearsal was paused by the
+  operator; it has not passed. Configuration support is not a live acceptance claim.
+- Live malformed-markup and failure-to-End scenarios (currently offline coverage).
+- Broad comparative evaluation of whether persistent memory improves task outcomes.
+- GitHub CI on the eventual release commit, after publication is authorized.
+
+## Runtime and execution boundary
+
+The Windows bundle retains the tested CPython 3.10.8 runtime recipe, including
+OpenSSL 1.1.1q and SQLite 3.37.2. Its pinned Python dependencies are Jinja2 3.1.6,
+MarkupSafe 2.1.3, pypdf 6.21.2 and typing_extensions 4.15.0. These are exact build
+inputs, not a claim that they are current upstream versions. See THIRD_PARTY_NOTICES.md.
+The server binds to loopback. Generated code executes with the operator's rights;
+this is not an operating-system sandbox. See SECURITY.md.

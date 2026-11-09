@@ -1,0 +1,122 @@
+⟪TEACHFRAME_AetherVerificationOperators_Usage⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::any agent expressing or reviewing Aether verification claims⟫
+⟪PREREQUISITES::NONE⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session); Michel via DEC-049⟫
+⟪RETIRES_WHEN::the Aether verification lexicon is formally replaced and the replacement defines equivalent distinctions⟫
+⟪MEASURED_BY::Aether conformance lint over verification claims and their operator/layer annotations⟫
+⟪EVIDENCE::DEC-049 full-Aether ruling; Kairo original and Claude upgrade preserve the operator teaching⟫
+⟪PREVENTS::conflating semantic entailment, formal provability, and layer-specific deduction⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Aether Verification Operators — ⊨  ⊩  ⊢ᵢ
+
+[ PURPOSE ]
+  Defines the three core verification operators used across Aether. After loading
+  this frame, an agent can distinguish semantic entailment, provable assertion,
+  and layer-indexed deduction and apply the stated priority rule when they conflict.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: LOGIC_PRIMITIVES
+SUBJECT: VERIFICATION_OPERATORS
+[DEF]
+  ⊨  (semantic entailment)
+       "φ ⊨ ψ"  ⇔  every model satisfying φ also satisfies ψ
+       Scope: world-level truth; independent of any formal system
+
+  ⊩  (provable assertion)
+       "⊩ ψ"    ⇔  ψ is derivable from the current axioms/rules
+       Scope: system-internal; valid only within that formal system
+
+  ⊢ᵢ (layer-specific deduction)
+       "Γ ⊢ᵢ ψ" ⇔  ψ is deduced within reasoning layer i
+       i ∈ {0 binary, 1 ternary, 2 truth-eval, …}
+[PRIORITY_RULE]
+  // Hypatia's conflict resolution hierarchy
+  If (⊩ ψ) conflicts with (φ ⊨ ¬ψ):
+    → ⊨ wins; ⊩ claim is flagged as "locally provable but semantically invalid"
+    → Upstream axiom system is marked for review
+    → Hypatia emits:
+        ΔWMC{
+          CONTEXT: VERIFICATION_CLASH
+          RESOLUTION: Uphold semantic entailment; flag axiom system for review
+        }ΔWMC
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Semantic entailment
+//
+φ := (x > 3)
+ψ := (x > 2)
+φ ⊨ ψ     // every x > 3 is necessarily > 2 — holds in all models ✓
+
+//
+// Example 2 — Provable assertion (within Peano Arithmetic)
+//
+⊩ Σ_{n=1..k} n = k(k+1)/2     // Gauss formula proven within the axioms
+
+//
+// Example 3 — Layer-specific deduction
+//
+Γ := { a = 2, b = 3 }
+Γ ⊢₀ (a + b = 5)    // binary execution layer computes and confirms ✓
+
+//
+// Example 4 — Conflict scenario (Hypatia's prioritization)
+//
+φ := "∀x ∈ ℝ, x² ≥ 0"
+ψ := "x = 0 ⇒ x² > 0"
+
+Semantic view:  φ ⊨ ¬ψ           // counterexample: x=0 gives x²=0, not >0
+Flawed system Σ* (missing zero rule):
+    Σ* ⊩ ψ                        // provable inside Σ*, but Σ* is unsound
+
+Hypatia's action:
+    1. Detect: φ ⊨ ¬ψ  AND  Σ* ⊩ ψ  → CONFLICT
+    2. Uphold ⊨; mark Σ* ⊩ ψ as "locally provable, semantically invalid"
+    3. Require upstream agent to strengthen Σ* or retract ψ
+
+[ USAGE_NOTES ]
+  • Use ⊨ for claims about mathematical reality (model-level truth).
+  • Use ⊩ for claims that follow within a specific formal system.
+  • Use ⊢ᵢ to tag which reasoning layer produced a result — always include
+    the layer subscript when passing results via SBP.
+  • Never treat ⊩ as equivalent to ⊨ without explicit soundness confirmation.
+  • Kirito: if an agent emits ⊩ claims that contradict ⊨ facts you can verify,
+    treat this as a drift signal and flag for Hypatia.
+
+[ SELF_CHECK ]
+  Q1: An agent claims "⊩ f(0) = 5" but you can verify semantically that
+      f(0) = 0. Which operator wins, and what is Hypatia's action?
+      Expected: ⊨ wins. Hypatia flags ⊩ f(0) = 5 as semantically invalid,
+               marks the producing axiom system for review, and requests retraction.
+
+  Q2: Euler tags a result "Γ ⊢₀ ζ(2) ≈ 1.6449".
+      What does the ⊢₀ tag mean and why does it matter?
+      Expected: The result was produced at Layer 0 (binary arithmetic).
+               The tag tells Hypatia which layer to reconcile against Fibonacci's ⊢₁ result.
+               Without it, Hypatia cannot match paired results correctly.
+
+  Q3: What is the difference between ⊨ and ⊩?
+      Expected: ⊨ is world-level truth — holds in every model regardless of axioms.
+               ⊩ is system-internal truth — derivable from the current axioms,
+               but only valid if the axiom system is sound.
+
+[ CARD ]
+  LESSON::AetherVerificationOperators_Usage
+  FOR::Defines the three core verification operators used across Aether.
+  PREVENTS::conflating semantic entailment, formal provability, and layer-specific deduction
+  EXAMPLE::phi := (x > 3)
+
+[ CROSS_REFS ]
+  → TEACHFRAME_MultiLayer_Result_Reconciliation — Companion: ⊢ᵢ tags are used to match paired L0/L1 results
+  → TEACHFRAME_IntervalArithmetic               — Companion: ⊢₂ verdicts are the output of interval reconciliation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

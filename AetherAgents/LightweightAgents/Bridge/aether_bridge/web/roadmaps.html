@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roadmaps · Aether Mission Control</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;background:#f8fafc;color:#172b3d}*{box-sizing:border-box}body{max-width:1160px;margin:0 auto;padding:0 24px 32px}main{padding-top:16px}h1{font-size:28px;letter-spacing:-.5px;margin:0;display:flex;align-items:center}h2{font-size:19px;margin:0}p{line-height:1.6}a{color:var(--ae-link,#215a87);text-decoration:none}a:hover{text-decoration:underline}
+button,input,select{font:inherit;color:inherit}button,.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 13px;border:1px solid var(--ae-line,#b8c7d4);border-radius:6px;background:var(--ae-panel,#fff);font-size:14px;cursor:pointer;text-decoration:none;white-space:nowrap}.button:hover{text-decoration:none}button:disabled{opacity:.5;cursor:default}input,select{border:1px solid var(--ae-line,#b8c7d4);background:var(--ae-panel,#fff);border-radius:6px;padding:10px 12px;max-width:100%}input{width:100%}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ae-link,#215a87);outline-offset:3px}[hidden]{display:none!important}.muted{color:var(--ae-muted,#566b7e)}.sr-only{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:20px}.page-head p{margin:6px 0 0;font-size:14px}.head-actions{display:flex;align-items:center;gap:8px}.sprint-next{font-size:13px;margin:6px 0 0;max-width:80ch;overflow-wrap:anywhere}.history{margin-top:6px;font-size:12px}.history>summary{cursor:pointer;color:var(--ae-link,#215a87)}.history ul{margin:6px 0 0;padding-left:18px;max-width:80ch}.history li{margin:5px 0;overflow-wrap:anywhere}.history .when{color:var(--ae-muted,#566b7e)}
+.overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:25px 0 22px}.metric{display:flex;gap:12px;align-items:center;padding:15px 18px;border:1px solid var(--ae-line,#b8c7d4);background:var(--ae-panel,#fff);border-radius:8px}.metric strong{font-size:27px;font-weight:550;line-height:1}.metric span{font-size:13px;color:var(--ae-muted,#566b7e)}
+.browse{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px}.search{flex:1;min-width:220px}.filters{display:flex;gap:3px;border:1px solid var(--ae-line,#b8c7d4);padding:3px;border-radius:7px;background:var(--ae-panel,#fff)}.filters button{border:0;background:transparent;padding:7px 12px}.filters button[aria-pressed=true]{background:var(--ae-selected,#e5f0fb);color:var(--ae-link,#215a87);font-weight:600}.browse select{font-size:14px;max-width:210px}#results{font-size:13px;margin:0 0 12px}#notice{font-size:14px;color:var(--ae-bad,#a22d39);margin:0 0 14px}#notice:empty{display:none}
+.roadmap-card{background:var(--ae-panel,#fff);border:1px solid var(--ae-line,#b8c7d4);border-radius:10px;margin:0 0 18px;overflow:hidden}.roadmap-head{padding:20px 22px 17px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.roadmap-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px;flex:none}.roadmap-copy{min-width:0;flex:1}.mission-link{display:inline-block;font-size:12px;margin-bottom:8px}.roadmap-title{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.roadmap-title h2{overflow-wrap:anywhere}.roadmap-brief{font-size:14px;margin:8px 0 0;color:var(--ae-muted,#566b7e);max-width:80ch;overflow-wrap:anywhere}.roadmap-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ae-muted,#566b7e);margin-top:13px}.state-pill{font-size:11px;line-height:1.6;padding:2px 8px;border-radius:5px;background:var(--ae-soft,#edf3f8);color:var(--ae-muted,#566b7e);white-space:nowrap}.state-pill.active{color:var(--ae-link,#215a87);background:var(--ae-selected,#e5f0fb)}.state-pill.closed{color:var(--ae-good,#216d4b)}
+.plan{border-top:1px solid var(--ae-line,#b8c7d4)}.plan>summary{cursor:pointer;list-style:none;padding:12px 22px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ae-link,#215a87)}.plan>summary::-webkit-details-marker{display:none}.plan>summary::before{content:'›';font-size:20px;line-height:1;transition:transform .15s}.plan[open]>summary::before{transform:rotate(90deg)}.plan>summary:hover{background:var(--ae-soft,#edf3f8)}.plan-body{padding:0 22px 20px}.plan-body>p{font-size:13px;color:var(--ae-muted,#566b7e)}.sprint-list{list-style:none;margin:5px 0 16px;padding:0}.sprint-item{position:relative;padding:0 0 20px 34px;margin-left:12px;border-left:1px solid var(--ae-line,#b8c7d4)}.sprint-item:last-child{border-left-color:transparent;padding-bottom:0}.sprint-number{position:absolute;left:-13px;top:0;min-width:25px;height:25px;display:flex;justify-content:center;align-items:center;border:1px solid var(--ae-line,#b8c7d4);border-radius:50%;background:var(--ae-soft,#edf3f8);font-size:11px}.sprint-heading{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:25px}.sprint-heading h3{font-size:14px;margin:0}.task-meta{font-size:12px;color:var(--ae-muted,#566b7e);margin:4px 0}.task-details>summary{font-size:12px;cursor:pointer;color:var(--ae-link,#215a87);padding:4px 0}.task-details ul{font-size:13px;line-height:1.6;margin:5px 0 0;padding-left:18px}.task-details li{padding:3px 0;overflow-wrap:anywhere}.task-owner{color:var(--ae-muted,#566b7e)}.plan-note{margin-bottom:0}.plan-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.waiting{margin:28px 0 16px;border:1px dashed var(--ae-line,#b8c7d4);border-radius:9px;background:var(--ae-panel,#fff)}.waiting>summary{padding:18px 20px;font-size:15px;font-weight:600;cursor:pointer}.waiting>p{margin:0 20px 12px;font-size:13px;color:var(--ae-muted,#566b7e)}.waiting-list{list-style:none;padding:0 20px;margin:0}.waiting-list li{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--ae-line,#b8c7d4);padding:14px 0;font-size:14px}.waiting-mission{font-size:12px;color:var(--ae-muted,#566b7e);margin-top:4px}
+.empty-state{text-align:center;padding:45px 20px;border:1px dashed var(--ae-line,#b8c7d4);border-radius:10px;background:var(--ae-panel,#fff)}.empty-state h2{font-size:22px}.empty-state p{max-width:55ch;margin:10px auto 20px;font-size:14px;color:var(--ae-muted,#566b7e)}
+@media(max-width:760px){body{padding:0 12px 22px}.page-head{align-items:flex-start}.page-head h1{font-size:25px}.head-actions{flex-direction:column;align-items:stretch}.overview{gap:7px;margin:20px 0}.metric{padding:12px;flex-direction:column;align-items:flex-start;gap:7px}.metric strong{font-size:23px}.metric span{font-size:12px}.search{min-width:100%}.browse select{max-width:100%;flex:1;min-width:0}.roadmap-head{padding:16px;flex-wrap:wrap}.roadmap-copy{flex-basis:100%}.roadmap-meta{gap:8px 12px}.plan>summary{padding:12px 16px}.plan-body{padding:0 16px 18px}.waiting-list li{align-items:flex-start;flex-wrap:wrap}.sprint-item{padding-left:25px}}
+.plan:not([open])>.plan-body,.waiting:not([open])>:not(summary){display:none}.sprint-heading,.task-meta{overflow-wrap:anywhere}
+@media(max-width:760px){.filters{flex-basis:100%}.browse select{flex:1 1 42%}}
+</style></head><body>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<main>
+<header class="page-head"><div><h1 data-help="roadmaps">Roadmaps</h1><p class="muted">See how each roadmap is taking shape, sprint by sprint.</p></div><div class="head-actions"><button id="refresh">Refresh</button><a class="button" href="/missions">Open Missions</a></div></header>
+<section class="overview" aria-label="Roadmap overview"><div class="metric"><strong id="open-count">—</strong><span>Open roadmaps</span></div><div class="metric"><strong id="closed-count">—</strong><span>Closed roadmaps</span></div><div class="metric"><strong id="sprint-count">—</strong><span>Sprints in open roadmaps</span></div></section>
+<div class="browse"><label class="search"><span class="sr-only">Search roadmaps</span><input id="search" type="search" placeholder="Search roadmaps and missions…" autocomplete="off"></label><div class="filters" role="group" aria-label="Roadmap status"><button data-filter="open" aria-pressed="true">Open</button><button data-filter="closed" aria-pressed="false">Closed</button><button data-filter="all" aria-pressed="false">All</button></div><label class="sr-only" for="mission-filter">Filter by mission</label><select id="mission-filter"><option value="all">All missions</option></select><label class="sr-only" for="sort">Sort roadmaps</label><select id="sort"><option value="recent">Recent activity</option><option value="name">Name A–Z</option></select></div>
+<p id="notice" role="status"></p><p id="results" class="muted" aria-live="polite">Loading roadmaps…</p>
+<div id="list"></div>
+<details id="waiting" class="waiting" hidden><summary id="waiting-title">Awaiting a roadmap</summary><p>These are open and do not have a recorded plan yet.</p><ul id="waiting-list" class="waiting-list"></ul></details>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let projects=[],missions=[],loaded=false,busy=false,filter='open',admin=false;
+function el(tag,attrs,...kids){const e=document.createElement(tag);for(const [k,v]of Object.entries(attrs||{})){if(k==='text')e.textContent=v;else if(k.startsWith('on'))e[k]=v;else if(v!==false&&v!=null)e.setAttribute(k,v===true?'':v);}for(const child of kids)if(child!=null)e.append(child);return e;}
+async function get(url){const r=await fetch(url,{cache:'no-store'});const v=await r.json();if(!r.ok)throw Error(v.error||'Could not load this view.');return v;}
+const projectUrl=p=>'/projects/atelier?commission='+encodeURIComponent(p.id);
+const roadmapUrl=p=>'/projects/campaign?id='+encodeURIComponent(p.id);
+function dateLabel(value){const day=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||''));const d=day?new Date(+day[1],day[2]-1,+day[3]):new Date(value);return Number.isNaN(d.getTime())?'No activity yet':d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}
+function countText(n,word){return n+' '+word+(n===1?'':'s');}
+function setFilter(value){filter=value;for(const b of document.querySelectorAll('[data-filter]'))b.setAttribute('aria-pressed',String(b.dataset.filter===value));if(loaded)render();}
+function clearFilters(){ $('search').value='';$('mission-filter').value='all';setFilter('open');}
+function scope(p){const q=$('search').value.trim().toLocaleLowerCase(),mission=$('mission-filter').value;return (mission==='all'||(mission==='unassigned'?!p.mission:p.mission?.id===mission))&&(!q||(p.name+' '+(p.brief||'')+' '+(p.mission?.name||'')).toLocaleLowerCase().includes(q));}
+async function showPlan(p,body){
+ body.replaceChildren(el('p',{text:'Loading the recorded plan…'}));
+ try{
+  const v=await get('/api/atelier/read?commission='+encodeURIComponent(p.id));
+  if(!body.isConnected)return;
+  const plan=v.facts?.plan?.sprints;
+  if(!Array.isArray(plan))throw Error('The plan could not be read. Try again.');
+  body.replaceChildren();
+  if(!plan.length){body.append(el('p',{text:'There is no recorded plan yet. Refresh Roadmaps to update its summary.'}));return;}
+  const approved=new Set((v.facts.approvals||[]).map(a=>a.sprint));
+  const list=el('ol',{class:'sprint-list','aria-label':'Recorded sprints'});
+  for(const sprint of plan){
+   const tasks=Array.isArray(sprint.tasks)?sprint.tasks:[];
+   const owners=[...new Set(tasks.map(t=>t.who).filter(Boolean))];
+   const item=el('li',{class:'sprint-item'});
+   item.append(el('span',{class:'sprint-number','aria-label':'Sprint '+sprint.number,text:sprint.number}));
+   item.append(el('div',{class:'sprint-heading'},el('h3',{text:sprint.title}),el('span',{class:'state-pill '+(approved.has(sprint.number)?'active':''),text:approved.has(sprint.number)?'Approved':'Planned'})));
+   item.append(el('p',{class:'task-meta',text:countText(tasks.length,'task')+(owners.length?' · '+owners.join(', '):'')}));
+   if(tasks.length){
+    const details=el('details',{class:'task-details'},el('summary',{text:'View tasks'})),ul=el('ul');
+    for(const task of tasks)ul.append(el('li',{},document.createTextNode(task.title||'Untitled task'),task.who?el('span',{class:'task-owner',text:' · '+task.who}):null));
+    details.append(ul);item.append(details);
+   }
+   list.append(item);
+  }
+  body.append(list,el('p',{class:'plan-note',text:'Approvals are shown as recorded; they do not indicate task completion.'}),
+   el('div',{class:'plan-links'},el('a',{class:'button',href:roadmapUrl(p),text:'Roadmap & records'}),el('a',{class:'button',href:projectUrl(p),text:'Open'})));
+ }catch(e){
+  if(!body.isConnected)return;
+  body.replaceChildren(el('p',{text:e.message}),el('button',{type:'button',text:'Try again',onclick:()=>showPlan(p,body)}));
+ }
+}
+// Michel, 2026-11-02: each roadmap card says which mission it belongs to, labelled.
+function missionLabel(p){return el('span',{class:'mission-link'},el('span',{class:'muted',text:'Mission: '}),p.mission?el('a',{href:'/missions#'+encodeURIComponent(p.mission.id),text:p.mission.name}):el('span',{class:'muted',text:'none'}));}
+function roadmapCard(p){
+ const card=el('section',{class:'roadmap-card','data-project':p.id,'aria-labelledby':'roadmap-'+p.id});
+ const copy=el('div',{class:'roadmap-copy'});
+ copy.append(missionLabel(p));
+ copy.append(el('div',{class:'roadmap-title'},el('h2',{id:'roadmap-'+p.id,text:p.name}),el('span',{class:'state-pill '+(p.done?'closed':p.stage==='In progress'?'active':''),text:p.done?'Closed':p.stage})));
+ const brief=String(p.brief||'').replace(/\s+/g,' ').trim();
+ if(brief&&brief!==p.name)copy.append(el('p',{class:'roadmap-brief',text:brief.length>180?brief.slice(0,177)+'…':brief}));
+ copy.append(el('div',{class:'roadmap-meta'},el('span',{text:countText(p.sprints,'sprint')}),el('span',{text:p.sprints_approved+' approved'}),el('span',{text:'Updated '+dateLabel(p.last_at)})));
+ card.append(el('div',{class:'roadmap-head'},copy,el('a',{class:'button',href:projectUrl(p),text:'Open'})));
+ const preview=el('details',{class:'plan'}),summary=el('summary',{text:'View plan'}),body=el('div',{class:'plan-body'});
+ let requested=false;
+ preview.append(summary,body);
+ preview.addEventListener('toggle',()=>{summary.textContent=preview.open?'Hide plan':'View plan';if(preview.open&&!requested){requested=true;showPlan(p,body);}});
+ card.append(preview);return card;
+}
+function render(){
+ const planned=[...projects.filter(p=>p.sprints>0),...folders],open=planned.filter(p=>!p.done);
+ $('open-count').textContent=open.length;$('closed-count').textContent=planned.length-open.length;
+ $('sprint-count').textContent=open.reduce((n,p)=>n+p.sprints,0);
+ const selected=planned.filter(p=>scope(p)&&(filter==='all'||(filter==='closed'?p.done:!p.done)));
+ selected.sort((a,b)=>$('sort').value==='name'?a.name.localeCompare(b.name):String(b.last_at||'').localeCompare(String(a.last_at||'')));
+ $('list').replaceChildren(...selected.map(p=>p.kind==='folder'?folderCard(p):roadmapCard(p)));
+ const total=planned.filter(p=>filter==='all'||(filter==='closed'?p.done:!p.done)).length;
+ $('results').textContent=selected.length+' of '+total+' '+(filter==='all'?'':filter+' ')+'roadmaps';
+ const waiting=filter==='closed'?[]:projects.filter(p=>!p.done&&!p.sprints&&scope(p));
+ $('waiting').hidden=!waiting.length;
+ $('waiting-title').textContent='Awaiting a roadmap · '+countText(waiting.length,'project');
+ $('waiting-list').replaceChildren(...waiting.map(p=>el('li',{},el('div',{},el('strong',{text:p.name}),el('div',{class:'waiting-mission',text:p.mission?.name||'No mission assigned'})),el('a',{class:'button',href:projectUrl(p),text:'Open'}))));
+ if(!selected.length){
+  const constrained=$('search').value.trim()||$('mission-filter').value!=='all';
+  const title=constrained?'No roadmaps match this view':filter==='open'?'No open roadmaps':filter==='closed'?'No closed roadmaps yet':'No roadmaps yet';
+  const message=constrained?'Try another search or mission.':waiting.length?'Work waiting for a plan is listed below.':filter==='closed'?'Finished roadmaps will appear here.':'Add a roadmap to a mission in Missions.';
+  $('list').append(el('section',{class:'empty-state'},el('h2',{text:title}),el('p',{text:message}),
+   constrained?el('button',{type:'button',text:'Clear filters',onclick:clearFilters}):filter==='closed'?el('button',{type:'button',text:'Show open roadmaps',onclick:()=>setFilter('open')}):el('a',{class:'button',href:'/missions',text:'Open Missions'})));
+ }
+}
+// Project-folder roadmaps (Projects/<id>/roadmaps.json), drawn here as Mission Control cards from their data API.
+// Read-only on this page; the standalone Roadmap Tracker is the place that edits them.
+async function loadFolders(){
+ const rows=[];
+ try{
+  const v=await get('/api/project-folders');
+  for(const project of v.projects||[]){
+   if(!(project.roadmap_ids||[]).length)continue;
+   const store=(await get('/project-folders/'+encodeURIComponent(project.id)+'/tracker/api/data')).data||{};
+   for(const r of store.roadmaps||[]){
+    const sprints=(store.sprints||[]).filter(s=>s.roadmapId===r.id).sort((a,b)=>a.sequence-b.sequence);
+    rows.push({kind:'folder',key:project.id+'/'+r.id,id:'folder-'+project.id+'-'+r.id,name:r.name,project,roadmap:r,sprintList:sprints,sprints:sprints.length,
+     done:r.status==='Completed'||r.status==='Aborted',stage:r.status,brief:r.next||r.description,last_at:r.updated,mission:null});
+   }
+  }
+ }catch(e){$('notice').textContent='Roadmaps could not be read: '+e.message;}
+ return rows;
+}
+function historyList(log,label){
+ const entries=[...(log||[])].reverse(),box=el('details',{class:'history'},el('summary',{text:label+' · '+countText(entries.length,'entry').replace('entrys','entries')}));
+ const ul=el('ul');for(const e of entries)ul.append(el('li',{},el('span',{class:'when',text:e.date+(e.by?' · '+e.by:'')+' — '}),document.createTextNode(e.text)));
+ box.append(ul);return box;
+}
+function folderPlan(p,body){
+ const r=p.roadmap;body.replaceChildren();
+ if(r.description&&r.description!==p.brief)body.append(el('p',{class:'roadmap-brief',text:r.description}));
+ if(r.owner)body.append(el('p',{class:'task-meta',text:'Owner: '+r.owner}));
+ const list=el('ol',{class:'sprint-list','aria-label':'Sprints'});
+ for(const s of p.sprintList){
+  const item=el('li',{class:'sprint-item'});
+  item.append(el('span',{class:'sprint-number','aria-label':'Sprint '+s.sequence,text:s.sequence}));
+  item.append(el('div',{class:'sprint-heading'},el('h3',{text:s.name}),el('span',{class:'state-pill '+(s.status==='Closed'?'closed':s.status==='Open'?'active':''),text:s.status})));
+  item.append(el('p',{class:'task-meta',text:(s.updated?'Updated '+dateLabel(s.updated):'Not updated yet')+(s.owner?' · '+s.owner:'')}));
+  if(s.next)item.append(el('p',{class:'sprint-next',text:s.next}));
+  if((s.log||[]).length)item.append(historyList(s.log,'History'));
+  list.append(item);
+ }
+ body.append(list);
+ if((r.log||[]).length)body.append(historyList(r.log,'Roadmap history'));
+}
+function folderCard(p){
+ const card=el('section',{class:'roadmap-card','data-project':p.id,'aria-labelledby':'roadmap-'+p.id});
+ const copy=el('div',{class:'roadmap-copy'});
+ copy.append(missionLabel(p));
+ copy.append(el('div',{class:'roadmap-title'},el('h2',{id:'roadmap-'+p.id,text:p.name}),el('span',{class:'state-pill '+(p.done?'closed':p.stage==='Active'?'active':''),text:p.stage})));
+ const brief=String(p.brief||'').replace(/\s+/g,' ').trim();
+ if(brief)copy.append(el('p',{class:'roadmap-brief',text:brief.length>180?brief.slice(0,177)+'…':brief}));
+ const open=p.sprintList.filter(s=>s.status==='Open'||s.status==='Planned').length;
+ copy.append(el('div',{class:'roadmap-meta'},el('span',{text:countText(p.sprints,'sprint')}),el('span',{text:open+' still open'}),el('span',{text:'Updated '+dateLabel(p.last_at)})));
+ // Michel, 2026-11-02: sprints start from their roadmap; the lead records each outcome back in it.
+ const actions=el('div',{class:'roadmap-actions'});
+ if(!p.done)actions.append(el('a',{class:'button primary',href:'/projects/tasker?roadmap='+encodeURIComponent(p.key),text:'New sprint'}));
+ if(admin)actions.append(el('button',{type:'button',text:p.done?'Reopen roadmap':'Close roadmap',onclick:()=>closeRoadmap(p,!p.done)}));
+ card.append(el('div',{class:'roadmap-head'},copy,actions.childElementCount?actions:null));
+ const preview=el('details',{class:'plan'}),summary=el('summary',{text:'View plan'}),body=el('div',{class:'plan-body'});
+ preview.append(summary,body);
+ preview.addEventListener('toggle',()=>{summary.textContent=preview.open?'Hide plan':'View plan';if(preview.open&&!body.childElementCount)folderPlan(p,body);});
+ card.append(preview);return card;
+}
+// Michel, 11-05: an Admin closes a roadmap that is finished or no longer wanted, and can reopen it. Only statuses
+// change (a published plan's other fields are retained evidence): planned sprints that never started become Aborted.
+let saving=false;
+async function closeRoadmap(p,closing){
+ if(saving)return;saving=true;
+ const base='/project-folders/'+encodeURIComponent(p.project.id)+'/tracker/api/data';
+ try{
+  const v=await get(base),data=v.data,r=(data.roadmaps||[]).find(x=>x.id===p.roadmap.id);
+  if(!r)throw Error('This roadmap is no longer in its project. Refresh Roadmaps.');
+  const mine=(data.sprints||[]).filter(s=>s.roadmapId===r.id);
+  if(closing){
+   if(mine.some(s=>s.status==='Open'))throw Error('A sprint in “'+r.name+'” is still open. Finish it before closing the roadmap.');
+   const live=((await get('/api/tasker/projects')).projects||[]).find(s=>s.roadmap?.key===p.key&&['running','stopping'].includes(s.execution));
+   if(live)throw Error('“'+live.name+'” is still running in this roadmap. Let it finish or stop it first.');
+   const planned=mine.filter(s=>s.status==='Planned'),ran=mine.some(s=>s.status==='Closed'),status=ran?'Completed':'Aborted';
+   if(!confirm('Close “'+r.name+'”?'+(planned.length?' Its '+countText(planned.length,'planned sprint')+' that never started will be marked Aborted.':'')+
+    ' It will show as '+status+(ran?'':', since no sprint ran in it')+'. You can reopen it from Closed.'))return;
+   for(const s of planned)s.status='Aborted';r.status=status;
+  }else{
+   if(!confirm('Reopen “'+r.name+'”? It returns to the open roadmaps and you can start sprints in it again. Sprints marked Aborted stay Aborted.'))return;
+   r.status='Planned';
+  }
+  const res=await fetch(base,{method:'PUT',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({data,expectedRevision:v.revision})});
+  const out=await res.json().catch(()=>({}));
+  if(!res.ok)throw Error((out.details||[]).join(' ')||out.error||'The roadmap could not be saved.');
+  await reload();$('notice').textContent=closing?'“'+r.name+'” is closed.':'“'+r.name+'” is open again.';
+ }catch(e){$('notice').textContent=e.message;}
+ finally{saving=false;}
+}
+let folders=[];
+async function reload(){
+ if(busy)return;busy=true;$('refresh').disabled=true;$('notice').textContent='';
+ try{
+  try{admin=(await get('/api/access/session')).user?.role==='admin';}catch(_){admin=false;}
+  folders=await loadFolders();
+  const data=await get('/api/campaigns');
+  missions=data.campaigns||[];
+  projects=[...(data.unfiled||[]).map(p=>({...p,mission:null})),...missions.flatMap(m=>m.projects.map(p=>({...p,mission:{id:m.id,name:m.name}})))].filter(p=>p.kind!=='library'&&p.kind!=='chat'&&p.kind!=='roadmap');
+  // A project folder's roadmap is drawn from its own data; its mission comes from the campaigns listing.
+  for(const f of folders){const m=missions.find(m=>m.projects.some(p=>p.kind==='roadmap'&&p.folder===f.project.id));f.mission=m?{id:m.id,name:m.name}:null;}
+  const previous=$('mission-filter').value;
+  $('mission-filter').replaceChildren(el('option',{value:'all',text:'All missions'}),...missions.map(m=>el('option',{value:m.id,text:m.name})),el('option',{value:'unassigned',text:'No mission assigned'}));
+  if([...$('mission-filter').options].some(o=>o.value===previous))$('mission-filter').value=previous;
+  loaded=true;render();
+ }catch(e){$('notice').textContent=e.message+' Use Refresh to try again.';if(!loaded)$('results').textContent='Roadmaps could not be loaded.';}
+ finally{busy=false;$('refresh').disabled=false;}
+}
+$('refresh').onclick=reload;$('search').oninput=()=>{if(loaded)render();};$('mission-filter').onchange=()=>{if(loaded)render();};$('sort').onchange=()=>{if(loaded)render();};
+for(const b of document.querySelectorAll('[data-filter]'))b.onclick=()=>setFilter(b.dataset.filter);
+reload();
+</script></body></html>

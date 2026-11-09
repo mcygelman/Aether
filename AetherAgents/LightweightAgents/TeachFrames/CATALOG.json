@@ -1,0 +1,145 @@
+{
+  "schema": "TEACHFRAME-CATALOG-1",
+  "generated_by": "Sprint L-01 migration",
+  "entries": [
+    {
+      "name": "ToolUse_Discipline",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of AetherProject/TEACHFRAME_ToolUse_Discipline.txt"
+    },
+    {
+      "name": "UncertaintyQuantification_Ur",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Math and Logic/TEACHFRAME_UncertaintyQuantification_Ur.txt"
+    },
+    {
+      "name": "IntervalArithmetic",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Math and Logic/TEACHFRAME_IntervalArithmetic.txt"
+    },
+    {
+      "name": "CompensatedArithmetic",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Math and Logic/TEACHFRAME_CompensatedArithmetic.txt"
+    },
+    {
+      "name": "AetherVerificationOperators_Usage",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Math and Logic/TEACHFRAME_AetherVerificationOperators_Usage.txt"
+    },
+    {
+      "name": "CrossReferenceFooter",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of AetherProject/TEACHFRAME_CrossReferenceFooter.txt"
+    },
+    {
+      "name": "Refusal_Is_Evidence",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of AI/TEACHFRAME_Refusal_Is_Evidence.txt"
+    },
+    {
+      "name": "WrapperTelemetry_OutputSizing",
+      "state": "CONSTITUTION",
+      "path": "Protocols/LAW_WrapperTelemetry_OutputSizing.md",
+      "lineage_artifact": "TeachFrames/Retired Lessons/Constitutional Sources/TEACHFRAME_WrapperTelemetry_OutputSizing.txt"
+    },
+    {
+      "name": "RiemannZeta_Computation_Methods",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived L-01/TEACHFRAME_RiemannZeta_Computation_Methods.txt"
+    },
+    {
+      "name": "HarmonicOptimization_PrimeWave",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived L-01/TEACHFRAME_HarmonicOptimization_PrimeWave.txt"
+    },
+    {
+      "name": "PrimeWave_EnsembleOptimization",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived L-01/TEACHFRAME_PrimeWave_EnsembleOptimization.txt"
+    },
+    {
+      "name": "BalancedTernary_LogicArithmetic",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived L-01/TEACHFRAME_BalancedTernary_LogicArithmetic.txt"
+    },
+    {
+      "name": "MultiLayer_Result_Reconciliation",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived L-01/TEACHFRAME_MultiLayer_Result_Reconciliation.txt",
+      "note": "Retain the two-producer/one-reconciler pattern as a candidate for role-based reauthoring."
+    },
+    {
+      "name": "Execution_Evidence",
+      "state": "CONSTITUTION",
+      "path": "Protocols/LAW_Execution_Evidence.md",
+      "lineage_artifact": "TeachFrames/Retired Lessons/Constitutional Sources/TEACHFRAME_Execution_Evidence.txt"
+    },
+    {
+      "name": "SVG_ATTACHMENT",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_ATTACHMENT.txt",
+      "recommended_for": [
+        "SVGAnimator",
+        "SVGBackgroundArtist",
+        "CatAnimator"
+      ],
+      "qualification": "Pilot teaching guidance; source and sampled-render review, no model efficacy trial"
+    },
+    {
+      "name": "SVG_BACKGROUND_DESIGN",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_BACKGROUND_DESIGN.txt",
+      "recommended_for": [
+        "SVGBackgroundArtist",
+        "SVGAnimator"
+      ],
+      "qualification": "Pilot teaching guidance; source and sampled-render review, no model efficacy trial"
+    },
+    {
+      "name": "SVG_BACKGROUND_SCROLL",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_BACKGROUND_SCROLL.txt",
+      "recommended_for": [
+        "SVGBackgroundArtist",
+        "SVGAnimator",
+        "CatAnimator"
+      ],
+      "qualification": "Pilot teaching guidance; source and sampled-render review, no model efficacy trial"
+    },
+    {
+      "name": "SVG_CAT_RIG",
+      "state": "ARCHIVE",
+      "path": "TeachFrames/Retired Lessons/Archived SVG-01/TEACHFRAME_SVG_CAT_RIG.txt",
+      "retired": "2026-11-05 at Michel's word: its rule against fixed proportions contradicts SVG_CAT_BODY_CONSTRUCTION and SVG_CAT_FACE_DETAILS, which gave first-attempt passes twice; v1.5 kept unchanged"
+    },
+    {
+      "name": "SVG_CAT_BODY_CONSTRUCTION",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_CAT_BODY_CONSTRUCTION.txt",
+      "recommended_for": [
+        "CatAnimator"
+      ],
+      "qualification": "Construction ratios and walk formulas proven by an operator reference render; no model efficacy trial yet"
+    },
+    {
+      "name": "SVG_CAT_FACE_DETAILS",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_CAT_FACE_DETAILS.txt",
+      "recommended_for": [
+        "SVGAnimator"
+      ],
+      "qualification": "Face ratios proven by an operator reference render; no model efficacy trial yet"
+    },
+    {
+      "name": "SVG_FIGURE_CROSSING",
+      "state": "CURRICULUM",
+      "path": "TeachFrames/School Of Coding/TEACHFRAME_SVG_FIGURE_CROSSING.txt",
+      "recommended_for": [
+        "SVGAnimator",
+        "CatAnimator"
+      ],
+      "qualification": "Pilot teaching guidance; source and sampled-render review, no model efficacy trial"
+    }
+  ]
+}

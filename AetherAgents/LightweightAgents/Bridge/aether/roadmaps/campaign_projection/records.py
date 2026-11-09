@@ -55,7 +55,7 @@ What it reads under <campaign root>/.aether/ (the stores' own layouts, as of 202
     the operator's activation is its only event, else TASK_BUDGET_CONSUMED (spend belongs to G5)
   overseer/runs/<rid>/{intent,outcome}.json, overseer/plan-changes/NNNNNN-ruling.json,
     overseer/successor-bindings/<uuid>.json, "amendments": the conversation's completed Propose candidates,
-    the plan-change rulings and the successor rebinds (overseer_plan_changes, amendment_successor; Fable, 10-12)
+    the plan-change rulings and the successor rebinds (overseer_plan_changes, amendment_successor)
 Not read (gaps, documented): the
 closure-obligation records of deployment-package controllers (foreground_generation and
 reviewed_generation; no campaign record names their controller directory); the desktop staffing
@@ -133,7 +133,7 @@ HISTORY_STORES = (
 TASK_BUDGETS = "planning/minder/native-task-budgets"
 TASK_BUDGET_LEDGER = "budget.sqlite3"
 MAX_TASK_BUDGET_EVENTS = 4096
-# Overseer conversation stores (Praxis, 10-12; projected here by Fable): completed Propose turns (candidates), the
+# Overseer conversation stores (projected here): completed Propose turns (candidates), the
 # sibling plan-change rulings and the operator's successor staffing rebinds, under <campaign root>/.aether/overseer/.
 OVERSEER_RUNS = "overseer/runs"
 OVERSEER_RULINGS = "overseer/plan-changes"
@@ -644,7 +644,7 @@ def _history_row(read, store, path, status_paths, request_path) -> Optional[dict
     row = dict(store=store, status=status, request_id=request_id, source=str(path))
     # The staffing revision link (lane F, 10-11): a decision's version, and the operator revision a later
     # staffing record pins, so the projection can tell an answered REQUEST_REVISION from a pending one.
-    # Praxis F2 (10-11): the decision's record digest (what a revision_ref's sha256 names: digest of the whole
+    # The decision's record digest (what a revision_ref's sha256 names: digest of the whole
     # record) and the history head it was taken on, and the history record's own version, so the projection
     # can require an exact reference from a LATER staffing record. Nothing here is verified; state.py decides.
     if store == "native-staffing-decisions":
@@ -654,7 +654,7 @@ def _history_row(read, store, path, status_paths, request_path) -> Optional[dict
     elif store == "native-staffing-history":
         row["revision_ref"] = _dig(record, "preparation", "proposal", "selection", "revision_ref")
         row["version"] = _dig(record, "version")
-    elif store == "native-staff-admission":   # 1.2.0: the approved amendment this admission binds (Fable, 10-12)
+    elif store == "native-staff-admission":   # 1.2.0: the approved amendment this admission binds
         row["amendment_approved_sha256"] = _dig(record, "confirmation", "proposal", "amendment", "approved_sha256")
         row["sprint_id"] = _dig(record, "confirmation", "proposal", "sprint_id")
         row["version"] = _dig(record, "confirmation", "proposal", "version")

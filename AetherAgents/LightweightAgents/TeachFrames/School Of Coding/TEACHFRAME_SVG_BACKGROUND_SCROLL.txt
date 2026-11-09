@@ -1,0 +1,85 @@
+⟪TEACHFRAME_SVG_BACKGROUND_SCROLL⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-11-05⟫
+⟪CREATOR::Praxis through Codex, at Michel's request⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::SVGBackgroundArtist, SVGAnimator, CatAnimator; a model building looping SVG scenery or a centered walking scene⟫
+⟪PREREQUISITES::SVG_ATTACHMENT⟫
+⟪LINEAGE::SVG_ATTACHMENT v1.3; Guide B and cat-walking-on-fence.svg; Michel's scrolling-fence observation⟫
+⟪PREVENTS::scroll seams, late scenery, double-speed walking and misleading motion evidence⟫
+⟪EVIDENCE::TeachFrames/School Of Coding/SVG_LESSONS_PROVENANCE.json records original sources and review limits; no generation efficacy trial⟫
+⟪MEASURED_BY::source periods/distances and sampled frames near the fence repeat; no teaching efficacy trial⟫
+⟪RETIRES_WHEN::a checked scrolling-scene controller enforces coverage, periodicity and relative motion⟫
+⟪OBSERVED_BY::Michel and Praxis⟫
+
+[ TITLE ]
+Scroll SVG Scenery Around a Centered Subject
+
+[ PURPOSE ]
+Create continuous scrolling scenery with correct tile seams, coverage and relative motion.
+
+STATUS: PILOT MODULE. It can be used for scenery alone. A cat is optional. When a walking figure
+is present, this module owns scenery motion; the figure's articulation belongs to its rig module.
+
+[ ALGORITHM ]
+1. Declare the camera intent. In SUPPORT_MOVES mode the cat stays approximately fixed in screen x
+   while support landmarks move in the opposite direction to its implied travel. Vertical bob is
+   independent. Avoid also translating the cat unless the relative-speed contract explicitly says so.
+
+2. Establish the true visual repeat distance D, including posts, wood grain, shadows and variations.
+   Move a tiled strip from 0 to -D over period T for rightward apparent travel. Speed magnitude=D/T.
+   A multiple of a complete tile is also valid. One post spacing is insufficient if decorations
+   repeat only every several posts. Endpoint geometry and velocity should match at a smooth seam.
+
+3. Prebuild enough repeated geometry on both sides to cover the entire viewport for every scroll
+   offset. Use reusable defs/use when appropriate. Inspect both canvas edges immediately before
+   and after reset; do not generate a needed post only after an empty region has appeared.
+
+4. A continuous, horizontally invariant rail can remain stationary while periodic posts scroll;
+   a rail with knots, highlights or textures that identify a position must share the intended
+   motion or have its own matching repeat. This is a visual camera construction, not a requirement
+   that every support element have a nonzero transform.
+
+5. For a centered walker, stance paws travel backward at approximately the support's screen
+   velocity; swing paws lift and recover forward. Couple gait to relative speed. Changing stride
+   duration without reconsidering scroll speed can introduce sliding. Validate contact independently.
+
+6. Give background depth layers smaller apparent speeds when that matches the camera design.
+   Example B: fence 70/1.2=58.333 units/s; hedge 196/4.2=46.667 units/s. Each has its own tile width
+   and reset clock. Different periods alone do not establish slower motion or convincing parallax.
+
+7. Test each seam on its own clock, then the assembled scene. For a gait comparison, compare
+   different limb phases while controlling or excluding unrelated motion. In example B a delta
+   of 8.4s aligns fence and hedge but not its 0.45s bob or 0.9s gait. A changed cat crop therefore
+   does not by itself isolate the legs. A delta of 0.45s aligns bob and advances gait half a cycle,
+   but does not align scenery: use a suitable mask, limb transforms, or an explicitly labeled
+   diagnostic copy with unrelated tracks frozen. Preserve the original.
+
+[ EXAMPLES ]
+[Setup]: A fence has identical pickets every 70 units and scrolls -70 units each 1.2 seconds.
+[Process]: Repeat pickets beyond the viewport and inspect t=1.199 and t=1.2, with the clock verified.
+[Result]: The reset can be visually continuous even though the strip's translation jumps back to zero.
+
+[ SELF_CHECK ]
+Q1: Does a stationary cat root mean the scene cannot show walking?
+A1: No. Inspect the gait and moving support landmarks relative to the cat.
+Q2: Is a 4.2-second hedge always slower than a 1.2-second fence?
+A2: Not from periods alone; divide each displacement by its period.
+Q3: Does an 8.4-second screenshot difference prove leg movement in example B?
+A3: No. Bob also changes phase; isolate the limb evidence.
+
+[ CARD ]
+  LESSON::SVG_BACKGROUND_SCROLL
+  FOR::Create continuous scrolling scenery with correct tile seams, coverage and relative motion.
+  PREVENTS::scroll seams, late scenery, double-speed walking and misleading motion evidence
+  EXAMPLE::A fence has identical pickets every 70 units and scrolls -70 units each 1.2 seconds.
+
+[ CROSS_REFS ]
+  SVG_BACKGROUND_DESIGN for scenery; SVG_CAT_BODY_CONSTRUCTION and SVG_CAT_FACE_DETAILS when a cat is present;
+  SVG_ATTACHMENT for review.
+⟪TEACHFRAME_END⟫
+
+[ CHANGE_LOG ]
+v1.1: 2026-11-05, Michel retired SVG_CAT_RIG; the cat cross-reference now names the construction frames. v1.0 bytes
+kept in SVG_CAT_RIG_RETIREMENT_20261105/before.

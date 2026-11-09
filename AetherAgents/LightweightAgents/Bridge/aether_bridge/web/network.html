@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aether Networks · Aether Mission Control</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3}body{max-width:1100px;margin:0 auto;padding:0 1rem 3rem}
+a{color:#a9ddd4}h1{font-size:1.8rem;margin:.2rem 0 .3rem;display:flex;align-items:center}h2{font-size:1.2rem;margin:0 0 .6rem;display:flex;align-items:center;flex-wrap:wrap}p{line-height:1.5}.muted{color:#adc0cb}
+.panel{background:#172630;border:1px solid #39505e;border-radius:10px;padding:1rem 1.1rem;margin:1rem 0}
+.grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:1rem}@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.state{display:flex;align-items:center;gap:.7rem;font-size:1.15rem;font-weight:600;margin:.2rem 0 .8rem}.dot{width:.85rem;height:.85rem;border-radius:50%;background:#56656c;flex:none}.dot.on{background:#7fd6a8;box-shadow:0 0 0 4px #7fd6a833}
+label{display:block;margin:.7rem 0 .25rem;color:#c5d3da}select,input,textarea{font:inherit;background:#101820;color:inherit;border:1px solid #6e8c9a;border-radius:6px;padding:.55rem;box-sizing:border-box;width:100%;max-width:100%}
+button{font:inherit;padding:.6rem 1rem;margin:.7rem .5rem 0 0;border:1px solid #6e8c9a;border-radius:6px;background:transparent;color:inherit;cursor:pointer}button.primary{background:#a5d7ce;color:#102820;border-color:#a5d7ce;font-weight:600}button.small{padding:.3rem .7rem;font-size:.9rem;margin:0 0 0 .6rem}button:disabled{opacity:.5;cursor:default}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #2c4352;vertical-align:top;overflow-wrap:anywhere}th{color:#adc0cb;font-weight:500;font-size:.9rem}
+.badge{font-size:.78rem;border:1px solid #4d646d;border-radius:999px;padding:0 .5rem;margin-left:.4rem;color:#bac9ce}.online{color:#a9ddd4}.offline{color:#8fa6b3}
+ol.steps{padding-left:1.3rem}ol.steps li{margin:.55rem 0;line-height:1.5}code{background:#101820;border:1px solid #39505e;border-radius:4px;padding:.05rem .35rem;overflow-wrap:anywhere}
+#notice{min-height:1.4em;color:#ffe39b}#notice.error{color:#ffb8b8}details>summary{cursor:pointer;font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#c5d3da;font-size:.85rem}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #a9ddd4;outline-offset:3px}
+</style></head><body>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<main>
+<h1 data-help="network">Aether Networks</h1>
+<p class="muted">Join computers that host agents and run their turns for your projects. To connect an inference server on another computer, use <a href="/settings/models-context/">Model connections</a>.</p>
+<p id="notice" role="status" aria-live="polite"></p>
+<div class="grid">
+<section class="panel" aria-labelledby="hereTitle"><h2 id="hereTitle" data-help="this-computer">This computer</h2>
+<div class="state"><span class="dot" id="dot"></span><span id="state" role="status">Loading…</span></div>
+<p id="working" class="muted"></p>
+<label for="network">Network</label><select id="network"></select>
+<div id="otherBox" hidden><label for="other">Network folder</label><input id="other" placeholder="\\machine1\aether"><button id="chooseFolder" type="button" data-permission="manage_settings">Choose folder…</button><p class="muted">Choosing fills the path only. Select Join network when ready.</p></div>
+<button id="join" class="primary" type="button">Join network</button><button id="leave" type="button">Leave network</button><button id="look" type="button">Look for networks</button>
+</section>
+<section class="panel" aria-labelledby="addTitle"><h2 id="addTitle" data-help="add-computers">Add your other computers</h2>
+<ol class="steps">
+<li>On the computer that keeps the network, share its network folder on your home network:<br><code id="folderPath">—</code></li>
+<li>On each other computer, install Aether and open <strong>Settings → Aether Networks</strong>.</li>
+<li>Choose <strong>Another network folder…</strong>, type the shared address (for example <code id="example">\\<span id="host">this-computer</span>\<span id="share">aether</span></code>) and select <strong>Join network</strong>.</li>
+</ol></section>
+</div>
+<section class="panel" aria-labelledby="nodesTitle"><h2 id="nodesTitle"><span data-help="computers" id="nodesHeading">Computers in this network</span><button id="rename" class="small" type="button">Rename network</button></h2>
+<form id="renameForm" hidden><label for="newName">Network name</label><input id="newName" maxlength="80"><button class="primary" type="submit">Save name</button><button type="button" id="renameCancel">Cancel</button></form>
+<table><thead><tr><th scope="col">Computer</th><th scope="col">Status</th><th scope="col">Agents it hosts</th></tr></thead><tbody id="nodes"></tbody></table>
+</section>
+<details class="panel" id="options"><summary data-help="network-options">Options for this computer</summary>
+<label for="nodeName">This computer’s name in the network</label><input id="nodeName" placeholder="machine1">
+<label for="homes">Additional agent homes hosted by this network computer, one per line (optional)</label><textarea id="homes" rows="3"></textarea>
+<p class="muted">These are specific agent homes for network hosting, not discovery search folders. Project teams are hosted without this list. Manage discovery folders in <a href="/agents?from=settings">Agents → Set folder location</a>.</p>
+<label for="profiles">Model connections file for those agents</label><input id="profiles">
+<button id="saveOptions" type="button">Save options</button><p class="muted" id="optionsNote">Options can be changed while this computer is out of the network.</p>
+<details><summary>Activity on this computer</summary><pre id="activity"></pre><p class="muted" id="settings"></p></details>
+</details>
+</main>
+<script>
+const $=id=>document.getElementById(id);let nets=[],status=null,busy=false,filled=false,here='this-computer';
+function notice(text,error){$('notice').textContent=text||'';$('notice').className=error?'error':'';}
+async function api(path,body){const options={cache:'no-store'};if(body!==undefined){options.method='POST';options.headers={'Content-Type':'application/json'};options.body=JSON.stringify(body);}
+ const r=await fetch('/api/places'+path,options);let v={};try{v=await r.json();}catch(_){v={error:'Unexpected response ('+r.status+')'};}if(!r.ok)throw Error(v.error||'This computer could not answer.');return v;}
+function current(){return nets.find(n=>n.current)||null;}
+function chosen(){const v=$('network').value;return v==='other'?{folder:$('other').value.trim(),other:true}:nets.find(n=>n.folder===v)||null;}
+function label(n){const online=n.online?n.online+' computer'+(n.online>1?'s':'')+' online':'no computer online';
+ return n.name+' — '+(n.reachable?online:'not reachable now')+(n.local?' (on this computer)':'');}
+function fillNetworks(keep){const select=$('network'),before=keep&&select.value;select.replaceChildren();
+ for(const n of nets){const o=document.createElement('option');o.value=n.folder;o.textContent=label(n);select.append(o);}
+ const other=document.createElement('option');other.value='other';other.textContent='Another network folder…';select.append(other);
+ const pick=before&&[...select.options].some(o=>o.value===before)?before:(current()||nets[0]||{folder:'other'}).folder;select.value=pick;$('otherBox').hidden=select.value!=='other';}
+function row(body,cells,cls){const tr=document.createElement('tr');for(const c of cells){const td=document.createElement('td');if(c instanceof Node)td.append(c);else td.textContent=c;tr.append(td);}if(cls)tr.className=cls;body.append(tr);}
+function render(){const s=status||{},c=s.config||{},on=!!s.running,net=current()||nets.find(n=>c.share&&n.folder===c.share)||null;
+ $('dot').className='dot'+(on?' on':'');
+ $('state').textContent=on?(s.stopping?'Leaving after the current turn…':'In the network “'+(net?net.name:'Aether network')+'”, working'):'Not in a network';
+ if(s.error)$('state').textContent+=' — last problem: '+s.error;
+ const w=s.working;$('working').textContent=on&&w?('Taking a turn now: '+(typeof w==='object'?(w.participant||'an agent')+' in project '+(w.commission||'?'):String(w))+'.'):on?'Agents take their turns here as messages arrive.':'Join a network so agents can work on this computer.';
+ const pick=chosen(),same=on&&pick&&!pick.other&&net&&pick.folder===net.folder;
+ $('join').hidden=!!same;$('join').disabled=busy||!pick||(pick.other&&!pick.folder);$('join').textContent=on?'Switch to this network':'Join network';
+ $('leave').hidden=!on;$('leave').disabled=busy||!!s.stopping;$('leave').textContent=w?'Leave after this turn':'Leave network';
+ const shown=pick&&!pick.other?pick:net;$('nodesHeading').textContent=shown?'Computers in “'+shown.name+'”':'Computers in this network';
+ $('rename').hidden=!shown||!shown.reachable;
+ const body=$('nodes');body.replaceChildren();const nodes=shown?shown.nodes:[];
+ for(const n of nodes){const name=document.createElement('span');name.textContent=n.name||'?';if(n.name===(c.name||here)&&shown&&shown.current){const b=document.createElement('span');b.className='badge';b.textContent='this computer';name.append(b);}
+  const st=document.createElement('span');st.className=n.online?'online':'offline';st.textContent=n.online?'Online':n.stopped?'Left the network':'Not heard from'+(n.age!=null?' for '+Math.round(n.age)+' s':'');
+  row(body,[name,st,(n.agents||[]).join(', ')||'Project teams only']);}
+ if(!nodes.length)row(body,['No computer has joined this network yet.','','']);
+ const folder=(shown||{}).folder||c.share||'';$('folderPath').textContent=folder||'—';$('host').textContent=here;$('share').textContent=folder.split(/[\\/]/).filter(Boolean).pop()||'aether';
+ if(!filled&&(c.name||here)){filled=true;$('nodeName').value=c.name||here;$('homes').value=(c.homes||[]).join('\n');$('profiles').value=c.profiles||'';}
+ $('saveOptions').disabled=busy||on;$('optionsNote').hidden=!on;
+ $('activity').textContent=(s.messages||[]).join('\n')||'Nothing yet.';$('settings').textContent=s.settings?'Saved on this computer: '+s.settings:'';}
+async function look(){try{const v=await api('/networks');nets=v.networks||[];here=v.here||here;status=v.status;fillNetworks(true);render();}catch(e){notice(e.message,true);}}
+async function poll(){if(busy)return;try{status=await api('');const net=current();if(net&&status.places)net.nodes=status.places.map(n=>({name:n.name,host:n.host,online:!!n.alive,stopped:!!n.stopped,age:n.age,agents:n.minds||[]}));render();}catch(e){notice(e.message,true);}}
+async function act(path,body,done){if(busy)return;busy=true;render();notice('');
+ try{await api(path,body);busy=false;await look();notice(done);if(globalThis.aetherNav)globalThis.aetherNav.refresh();}catch(e){busy=false;notice(e.message,true);render();}}
+$('network').onchange=()=>{$('otherBox').hidden=$('network').value!=='other';if(!$('otherBox').hidden)$('other').focus();render();};
+$('other').oninput=render;
+$('chooseFolder').onclick=async()=>{const b=$('chooseFolder');b.disabled=true;notice('Choose a folder on this installation’s computer.');try{const v=await api('/choose-folder',{});if(v.path){$('other').value=v.path;render();notice('Folder selected. Join network when ready.');}else notice('Folder selection cancelled.');}catch(e){notice(e.message,true);}finally{b.disabled=false;}};
+$('join').onclick=()=>{const pick=chosen();if(!pick)return;act('/join-network',{folder:pick.folder,node:$('nodeName').value.trim()||undefined},'This computer joined the network. Agents take their turns here as messages arrive.');};
+$('leave').onclick=()=>act('/stop',{},'Leaving the network; a turn in progress finishes first. Nothing is deleted.');
+$('look').onclick=()=>{notice('Looking for networks…');look().then(()=>notice(nets.length+' network'+(nets.length===1?'':'s')+' found.'));};
+$('rename').onclick=()=>{const pick=chosen(),net=pick&&!pick.other?pick:current();if(!net)return;$('renameForm').hidden=false;$('newName').value=net.name;$('newName').focus();$('newName').select();};
+$('renameCancel').onclick=()=>{$('renameForm').hidden=true;};
+$('renameForm').onsubmit=e=>{e.preventDefault();const pick=chosen(),net=pick&&!pick.other?pick:current();if(!net)return;$('renameForm').hidden=true;act('/name-network',{folder:net.folder,name:$('newName').value},'Network renamed.');};
+$('saveOptions').onclick=()=>{const pick=chosen()||{};const folder=(pick.folder||(status&&status.config&&status.config.share)||'');
+ act('/join',{share:folder,name:$('nodeName').value,homes:$('homes').value.split('\n').map(s=>s.trim()).filter(Boolean),profiles:$('profiles').value},'Options saved. Join the network to use them.');};
+look();setInterval(poll,3000);
+</script></body></html>

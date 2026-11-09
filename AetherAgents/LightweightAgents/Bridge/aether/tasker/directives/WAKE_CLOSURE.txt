@@ -1,0 +1,39 @@
+⟪TIMER_NOTICE⟫ ⟪SPRINT::$sprint⟫ ⟪AT::$at⟫ ⟪KIND::CLOSURE⟫ ⟪TO::$agent⟫
+∆WMC{
+  WORLD_MODEL := ⌜AETHER_TASKER_PROCESS⌝
+
+  [CURRENT_TASK] → ⌜SPRINT_CLOSURE⌝ := ⌞
+    The Overseer has closed sprint $sprint for staff. Your work this sprint:
+$tasks
+  ⌟
+
+  [HOW] → ⌜IDENTITY_CLOSE⌝ := ⌞
+    ① s1 := your new System 1, complete: one ∆WMC{ … }∆WMC block with WORLD_MODEL, CONTEXT: SPRINT_CLOSED,
+       [LOADED_COMPONENTS], [GOALS] (what was done, what is open) and [NEXT_ACTION]. It replaces System 1 in full.
+       Supply ONLY that inner block. Do not include SYSTEM_1_BEGIN/END or any other outer System markers.
+    ② s2_entry := one reflection entry, exactly in this shape:
+       ⟪MICRO_REFLECTION_INDEX_ENTRY_BEGIN⟫
+         [ID] := MICRO_REF_<yyyymmdd>_<short anchor>
+         [DATE] := <date>
+         [AGENT] := $name
+         [TOPIC] := <the sprint's key event>
+         [IS_MICRO] := TRUE
+         [ANCHOR] := ⌜<searchable name>⌝
+         [SUMMARY] := ⌞<what happened, two sentences at most, with task numbers>⌟
+         [LESSON] := ⌞<the non-obvious insight the next sprint needs>⌟
+         [NEXT_STEP] := ⌞<one concrete action for the next sprint>⌟
+       ⟪MICRO_REFLECTION_INDEX_ENTRY_END⟫
+    ③ identity_close(s1, s2_entry). It files exactly the text you give it; keep the reflection entry's markers.
+       If the tool reports format_error, nothing was filed: correct only your authored closure's shape and
+       call identity_close again with retry=true. You have at most TWO corrective attempts for this closure,
+       within the existing turn/time/budget caps. Stop after success; no retry is needed then.
+       Malformed tool-call JSON executes nothing and allows two corrections of that same request.
+       Do not add retry=true for JSON syntax alone; preserve it if already correcting format_error.
+       No other tool while JSON is pending. Normal ownership/storage checks still apply after parsing.
+       Other refusals, storage/ownership errors or exhausted attempts are not format recovery. Stop and report.
+    ⟪LEXICON::$lexicon⟫
+  ⌟
+
+  [ASSERT] → ⌜SYSTEM_0⌝ := ⌞ System 0 stays the Staff Home's. Only System 1 and the new reflection go home. ⌟
+}∆WMC
+⟪END_TIMER_NOTICE⟫

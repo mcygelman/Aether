@@ -1,0 +1,76 @@
+⟪TEACHFRAME_SVG_BACKGROUND_DESIGN⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.0⟫
+⟪DATE::2026-11-03⟫
+⟪CREATOR::Praxis through Codex, at Michel's request⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::SVGBackgroundArtist, SVGAnimator; a model creating an SVG background or support environment⟫
+⟪PREREQUISITES::SVG_ATTACHMENT⟫
+⟪LINEAGE::both local AI guides and supplied SVG scenes; v1.3 support/transfer lessons; Michel's background-only request⟫
+⟪PREVENTS::missing support, unintended occlusion, distracting scenery and copying unrequested scene elements⟫
+⟪EVIDENCE::TeachFrames/School Of Coding/SVG_LESSONS_PROVENANCE.json records original sources and review limits; no generation efficacy trial⟫
+⟪MEASURED_BY::source and sampled scene inspection; composition guidance is synthesis, not a scored result⟫
+⟪RETIRES_WHEN::the scene specification and renderer enforce composition and support requirements⟫
+⟪OBSERVED_BY::Michel and Praxis⟫
+
+[ TITLE ]
+Design an SVG Background and Its Support Surface
+
+[ PURPOSE ]
+Build readable SVG scenery with deliberate depth, complete support and restrained secondary motion.
+
+STATUS: PILOT MODULE. Background-only work is a complete task. Do not insert a cat, a walk or a
+fence unless requested. This module owns scenery geometry and visual treatment; scrolling uses
+SVG_BACKGROUND_SCROLL, and figure travel uses SVG_FIGURE_CROSSING.
+
+[ ALGORITHM ]
+1. Extract the requested setting, mood, palette, display size and focal subject. If another agent
+   will provide a figure, agree on viewBox, facing direction, support height/depth band, depth order,
+   reserved silhouette area and motion ownership. Supply these as a small interface note.
+
+2. Plan layers: sky/light, distant land, near scenery, support, optional figure slot, foreground.
+   This is a starting layout, not a universal paint order. A near post or grass tuft can occlude a
+   figure intentionally; document that choice so a reviewer can distinguish it from a missing part.
+
+3. Build the requested support before decorative detail. For a fence, make rails and posts coherent
+   where the design requires them, continue the surface under the visible travel route, and inspect
+   both edges. A fence can legitimately have a different rail count or style than the examples.
+   For a grass scene, the ground is the support; importing a fence is a transfer error.
+
+4. Use repeated geometry deliberately. Specify post pitch and decorative repeat; align the last
+   interval as well as the first. Use defs/use, gradients and clipping where they simplify work.
+   Parse and check their references. Define the full repeat unit before promising a seamless scroll.
+
+5. Use contrast and scale to keep the focal area readable. Check a small preview: the silhouette
+   should remain clear against scenery. If the background itself is the requested focus, spend
+   detail there without adding a character to justify it.
+
+6. Add independent secondary motion where it supports the scene: clouds, light, foliage or distant
+   creatures. Vary phase and period deliberately. Finite decimal periods are rational and can share
+   a long common repeat; do not claim they are mathematically incommensurate. Keep background motion
+   evidence separate from evidence about a character's gait.
+
+7. Deliver the background alone and its interface note if that is the task. Inspect static quality,
+   clipping and seams at target size, then any animation extrema. Document the target embed and a
+   reduced-motion/static treatment when required. No need to load the character lesson for this work.
+
+[ EXAMPLES ]
+[Setup]: The task asks for a sunset fence background that another agent will place a cat upon.
+[Process]: Supply the complete fence and scenery, plus its support band and layer/motion contract.
+[Result]: The background is independently reviewable; character geometry and gait stay in their own module.
+
+[ SELF_CHECK ]
+Q1: Should a fox-on-grass request inherit the fence from these examples?
+A1: No. Preserve the new brief's support and setting.
+Q2: Is identical post spacing enough for a seamless wooden fence?
+A2: Only if all visible details repeat at that spacing; otherwise use the full visual tile.
+
+[ CARD ]
+  LESSON::SVG_BACKGROUND_DESIGN
+  FOR::Build readable SVG scenery with deliberate depth, complete support and restrained secondary motion.
+  PREVENTS::missing support, unintended occlusion, distracting scenery and copying unrequested...
+  EXAMPLE::The task asks for a sunset fence background that another agent will place a cat upon.
+
+[ CROSS_REFS ]
+  SVG_BACKGROUND_SCROLL for moving scenery; SVG_ATTACHMENT for assembly and checks.
+⟪TEACHFRAME_END⟫

@@ -19,6 +19,12 @@ from importlib import import_module as _import_module
 _SUBMODULES = ('board', 'operators', 'plan_ruling_contract', 'plan_rulings_http', 'planning_contract', 'project_engagement', 'project_engagement_contract', 'project_folders', 'project_planning', 'project_roadmaps', 'project_setup', 'projects', 'roadmap_evidence', 'roadmap_evidence_http', 'roadmap_publication', 'roadmap_publication_http', 'tracker')
 _NAMES = {'RoadmapStore': 'tracker.tracker_store', 'validate_data': 'tracker.tracker_store', 'migrate_to_v2': 'tracker.tracker_store', 'DataValidationError': 'tracker.tracker_store', 'RevisionConflictError': 'tracker.tracker_store'}
 
+# An export that leaves some submodules out (the public repository) lists only those it contains.
+_HERE = __import__("pathlib").Path(__file__).parent
+_PRESENT = lambda m: (_HERE / (m.replace(".", "/") + ".py")).is_file() or (_HERE / m.replace(".", "/") / "__init__.py").is_file()
+_SUBMODULES = tuple(m for m in _SUBMODULES if _PRESENT(m))
+_NAMES = {name: module for name, module in _NAMES.items() if _PRESENT(module)}
+
 __all__ = sorted(set(_SUBMODULES) | set(_NAMES))
 
 

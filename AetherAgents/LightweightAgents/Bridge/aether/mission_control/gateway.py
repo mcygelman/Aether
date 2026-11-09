@@ -82,6 +82,8 @@ ROUTES: Tuple[Route, ...] = (
     Route((P,), "/api/agents/", SERVER, changes_state=True, prefix=True),           # validate, ack-test
     Route((G, P), "/api/heavyweight-runs", SERVER, changes_state=True),
     Route((G, P), "/api/heavyweight-runs/", SERVER, changes_state=True, prefix=True),  # active, events, pause...
+    Route((G, P), "/settings/api-keys/", "backends.model_settings_http", changes_state=True, prefix=True),
+    Route((G,), "/settings/api-keys", "backends.model_settings_http"),
     # Models & Deployments settings (backends.model_settings_http)
     # G9 runtime admission: observe writes RuntimeEvidence; admit writes host files on confirmation.
     Route((P,), "/settings/models-context/api/observe", "backends.model_settings_http", changes_state=True),
@@ -113,14 +115,19 @@ ROUTES: Tuple[Route, ...] = (
     Route((P,), "/api/overseer-conversation/recovery/confirm", "mission_control.overseer_host_http", changes_state=True),
     Route((P,), "/api/overseer-conversation/recovery/hardware-preview", "mission_control.overseer_host_http", changes_state=True),
     Route((P,), "/api/overseer-conversation/recovery/hardware-confirm", "mission_control.overseer_host_http", changes_state=True),
-    # The atelier (Fable's design, 10-18): one thread per commission; open, read, post, wake, files by hash.
+    # The atelier: one thread per commission; open, read, post, wake, files by hash.
     Route((G,), "/projects/atelier", "atelier.atelier_http", page=True),
     Route((G,), "/projects/places", "atelier.workplace_http", page=True),
     Route((G,), "/api/places", "atelier.workplace_http"),
     Route((P,), "/api/places/join", "atelier.workplace_http", changes_state=True),
     Route((P,), "/api/places/start", "atelier.workplace_http", changes_state=True),
+    Route((P,), "/api/places/start-here", "atelier.workplace_http", changes_state=True),
     Route((P,), "/api/places/stop", "atelier.workplace_http", changes_state=True),
     Route((P,), "/api/places/prepare-library", "atelier.workplace_http", changes_state=True),
+    Route((G,), "/api/places/networks", "atelier.workplace_http"),
+    Route((P,), "/api/places/join-network", "atelier.workplace_http", changes_state=True),
+    Route((P,), "/api/places/name-network", "atelier.workplace_http", changes_state=True),
+    Route((P,), "/api/places/choose-folder", "atelier.workplace_http"),
     Route((G,), "/api/atelier", "atelier.atelier_http"),
     Route((G,), "/api/atelier/read", "atelier.atelier_http"),
     Route((G,), "/api/atelier/file", "atelier.atelier_http"),
@@ -200,21 +207,78 @@ ROUTES: Tuple[Route, ...] = (
 )
 
 
-# The Atelier edition (v0.1, Michel 10-22): the routes of the public surfaces only. Every other route,
+# The Atelier edition (v0.1): the routes of the public surfaces only. Every other route,
 # including the private full edition's, is undeclared there and answers 404 before any module sees it.
+# Full-edition staffing/Runtime remain excluded. Public template authoring was explicitly
+# requested for this edition; only its page and stateless validate/export routes are added.
 ATELIER_SERVER = "mission_control.atelier_server"
-_PUBLIC_OWNERS = frozenset({"atelier.atelier_http", "atelier.workplace_http", "roadmaps.project_folders",
-                            "roadmaps.project_roadmaps", "roadmaps.project_setup", "mission_control.tool_registry_http",
-                            "backends.model_settings_http", "agent_editor.http"})
+_PUBLIC_OWNERS = frozenset({"atelier.atelier_http", "atelier.workplace_http", "backends.model_settings_http"})
 _PUBLIC_CAMPAIGN = frozenset({"/api/campaign-state", "/api/campaign-receipts", "/projects/campaign",
                               "/projects/campaign-receipts"})
 PUBLIC_ROUTES: Tuple[Route, ...] = (
+    Route((G,), '/projects/tasker', 'mission_control.tasker_http', page=True),
+    # Michel, 2026-11-02: the Roadmap Tracker for project folders ships, so testers see real roadmaps.
+    Route((G, P, U), "/api/project-folders", "roadmaps.project_folders", changes_state=True, prefix=True),
+    Route((G, P, U), "/project-folders/", "roadmaps.project_folders", changes_state=True, prefix=True, page=True),
+    *(Route((G,), '/api/tasker/'+action, 'mission_control.tasker_http')
+      for action in ('options', 'team', 'school', 'school-frame', 'plan', 'projects', 'project', 'output')),
+    *(Route((P,), '/api/tasker/'+action, 'mission_control.tasker_http', changes_state=True)
+      for action in ('create', 'lead', 'staff', 'specialist-preview', 'specialist', 'start', 'stop', 'resume',
+                     'continue', 'budget', 'accept', 'accept-anyway')),
     Route((G,), "/", ATELIER_SERVER, page=True),
-    Route((G,), "/projects", ATELIER_SERVER, page=True),
     Route((G,), "/api/health", ATELIER_SERVER),
+    Route((G,), "/api/readiness", ATELIER_SERVER),   # GUI review S4: information, never a gate
+    Route((G,), "/network", ATELIER_SERVER, page=True),          # Join Network
+    Route((G,), "/login", ATELIER_SERVER, page=True),
+    Route((G, P), "/api/access/", "atelier.operator_access_http", prefix=True, changes_state=True),
+    Route((G,), "/chat", ATELIER_SERVER, page=True),             # model-only Chat
+    Route((G,), "/missions", ATELIER_SERVER, page=True),
+    Route((G,), "/roadmaps", ATELIER_SERVER, page=True),
+    Route((G,), "/workspace", ATELIER_SERVER, page=True),
+    Route((G,), "/workspace-assets/", ATELIER_SERVER, prefix=True),
+    Route((G, P), "/api/workspace", "atelier.workspace_store", changes_state=True),
+    Route((G,), "/api/workspace/installation", "atelier.workspace_store"),
+    Route((G,), "/api/workspace/storage", ATELIER_SERVER),
+    # Admin backup coverage and recovery details (10-27): read-only; the backup itself runs offline.
+    Route((G,), "/api/maintenance/coverage", "mission_control.maintenance_http"),
+    Route((P,), "/api/maintenance/check", "mission_control.maintenance_http"),
+    Route((P,), "/api/maintenance/recovery-report", "mission_control.maintenance_http"),
+    Route((G,), "/api/model-chat", "atelier.model_chat"),
+    Route((G,), "/api/data-sources", "data_sources.http"),
+    Route((G,), "/api/data-sources/runs", "data_sources.http"),
+    Route((G,), "/api/data-sources/jobs", "data_sources.http"),
+    Route((G,), "/api/data-sources/export", "data_sources.http"),
+    Route((P,), "/api/data-sources/settings", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/discover", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/run", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/stop", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/save-report", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/run-report", "data_sources.http", changes_state=True),
+    Route((P,), "/api/data-sources/remove-report", "data_sources.http", changes_state=True),
+    Route((G,), "/api/model-chat/cartridge", "atelier.personal_chat_http"),
+    Route((G,), "/api/model-chat/files/preview", "atelier.model_chat"),
+    Route((P,), "/api/model-chat/", "atelier.model_chat", changes_state=True, prefix=True),
+    Route((G, P), "/api/campaigns", "atelier.campaigns", changes_state=True),
+    Route((G,), "/projects/roster", "atelier.campaign_roster_http", page=True),
+    Route((G, P), "/api/campaign-roster", "atelier.campaign_roster_http", changes_state=True),
     *(r for r in ROUTES if r.owner in _PUBLIC_OWNERS),
     *(r for r in ROUTES if r.owner == "campaign.campaign_http" and r.path in _PUBLIC_CAMPAIGN),
     Route((G,), "/agents", "memory.agent_view_http", page=True),
+    Route((G,), "/agents/insights", "memory.agent_view_http", page=True),
+    Route((G,), "/agent-editor/", "agent_editor.http", page=True, prefix=True),
+    Route((P,), "/api/agent-editor/validate", "agent_editor.http"),
+    Route((P,), "/api/agent-editor/export", "agent_editor.http"),
+    Route((G,), "/api/agent-availability", "atelier.agent_registry_http"),
+    Route((G,), "/api/agent-catalog/learning", "atelier.specialist_http"),
+    Route((G,), "/api/agent-catalog/learning/history", "atelier.specialist_http"),
+    Route((P,), "/api/agent-catalog/learning/transition", "atelier.specialist_http", changes_state=True),
+    Route((G,), "/api/agent-catalog", "atelier.specialist_http"),
+    Route((G,), "/api/agent-catalog/custom", "atelier.specialist_http"),
+    Route((G,), "/api/agent-catalog/custom/template", "atelier.specialist_http"),
+    Route((P,), "/api/agent-catalog/custom/save", "atelier.specialist_http", changes_state=True),
+    Route((P,), "/api/agent-catalog/custom/install", "atelier.specialist_http", changes_state=True),
+    Route((P,), "/api/agent-catalog/install", "atelier.specialist_http", changes_state=True),
+    Route((P,), "/api/agent-availability/", "atelier.agent_registry_http", changes_state=True, prefix=True),
     Route((G,), "/api/agents", "memory.agent_view_http"),
     Route((G,), "/api/agents/", "memory.agent_view_http", prefix=True),
 )

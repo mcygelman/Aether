@@ -1,0 +1,10 @@
+/* Owner: personal Chat dashboard/context presentation. Never style agent viewers. */
+.personal-note-body,.personal-briefing{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.personal-briefing{font:inherit;border:1px solid currentColor;border-radius:6px;padding:12px;max-height:40vh;overflow:auto}
+#personal-context-dialog{color:var(--ae-text,#172b3d);background:var(--ae-panel,#fff)}
+#personal-context-dialog label{display:block;margin-block:12px}
+.personal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-block:16px}
+.personal-toggle{display:flex;align-items:center;gap:10px;margin-block:14px}
+.personal-toggle input[type=checkbox]{width:auto;flex:none;margin:0}
+.personal-toggle label{margin:0}
+@media(max-width:700px){.personal-stats{grid-template-columns:1fr}.personal-chat-dashboard .page-head{flex-direction:column;align-items:stretch}.personal-chat-dashboard .head-actions{flex-direction:row;flex-wrap:wrap}}

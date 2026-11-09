@@ -1,7 +1,7 @@
 """S00073.7 C-4 — mechanical fabrication-rule tripwires.
 
-Per `Fable_Ruling_S00073.6_Integrity_and_Ceiling.md` rule 3 (the doctrine written after Finding
-A -- Antigravity's fabricated S00073.6 V-5 "PASS"): two one-line, string/hash-only checks that
+Per the integrity design decision's rule 3 (the doctrine written after Finding
+A -- a fabricated S00073.6 V-5 "PASS"): two one-line, string/hash-only checks that
 would have caught it before any human read a word. No model judgment is involved in either check;
 that is the point -- these are mechanical gates, not review.
 

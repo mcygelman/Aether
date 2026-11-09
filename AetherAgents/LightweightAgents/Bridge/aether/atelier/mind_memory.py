@@ -1,5 +1,5 @@
-"""A mind's memory: its Memory Fabric cartridge, in its home (Fable, 2026-10-19; Michel: "wire cartridges into the
-atelier minds now: file closures as lessons and warnings, wake with recall headers instead of a dump").
+"""A mind's memory: its Memory Fabric cartridge, in its home. Closures are filed as lessons and warnings, and a
+mind wakes with recall headers instead of a dump.
 
   <home>/memory/mind.sqlite          the cartridge (one mind, one file; the engine is AetherMemory/memory_fabric)
   <home>/memory/.cartridge.json      {"path": "mind.sqlite", "owner": "<participant id>"}; the path is relative to memory/
@@ -14,16 +14,16 @@ What a wake shows: recall headers chosen by the commission's words (title, kind,
 The mind reads what it chooses with load_memory; loading is what keeps a memory alive. A mind without a cartridge keeps
 the older folder memory (carry, experiences, index) untouched.
 
-The side log (Michel, 2026-10-19: "a log of changes and actions, just a pointer with minimal tags and text"): one row per
+The side log (a log of changes and actions: a pointer with minimal tags and text): one row per
 action, in the cartridge file, table `sidelog`, written by the turn from what it already sees (a file written, tests run, a
 memory read, a note posted, an item lent, a closure filed) and by the mind itself when it says so (log_action). A row is
 when, which commission, what kind of action, a pointer (a file's hash, a note's id, a memory's id), a few tags, one line.
-Never the content. Since schema 3 (Opus, 2026-10-19) the log is the engine's own box, memory_fabric.sidelog: sealed like the
+Never the content. Since schema 3 the log is the engine's own box, memory_fabric.sidelog: sealed like the
 mind's memories, not captured into their history, append-only. This module calls the box and keeps its own function names.
 A cartridge written by the schema-2 engine is carried forward the engine's way the first time the atelier opens it
 (carry_forward); the log the atelier kept in it comes along, every row.
 
-Decisions (Fable's design and Michel's three decisions, 2026-10-19 evening; built by Opus): a ruling is its own kind of
+Decisions: a ruling is its own kind of
 memory, the `decision` profile. Only the operator files one (a "Decision:" or "Decided:" line in the operator's note,
 filed by the place into every mind of the commission) or the lead recording the operator's words (its file_decision
 tool). A decision binds its project (the commission id without its last one-letter or numeric segment:
@@ -443,7 +443,7 @@ def project_of(commission_id: str | None) -> str:
 
 
 def scope_for(words_text: str, commission_id: str | None) -> str:
-    """Michel: project-only unless he declares it standing."""
+    """Project-only unless the operator declares it standing."""
     return 'standing' if re.search(r'\bstanding\b', words_text or '', re.I) else f'project:{project_of(commission_id)}'
 
 
@@ -636,7 +636,7 @@ SPECIALTY = dict(member='implementation', reviewer='review', lead='leading', lib
 
 
 def file_record(home: Path, facts: dict, mind: dict, commission_id: str) -> dict:
-    """At closure, what others said and verified goes into the mind's own record (Michel, 10-19): every reviewer's
+    """At closure, what others said and verified goes into the mind's own record: every reviewer's
     verdicts become one review in the cartridge of every other mind of the commission (text: PASS/FAIL per subject;
     rating 1..5 from the share that passed); the operator's acceptance becomes an outcome verified by the operator
     (success; partial when a FAIL verdict stands unanswered), in the mind's specialty by kind, difficulty 2 for one

@@ -1,4 +1,4 @@
-"""Run a place, or speak as the operator (Fable, 2026-10-18).
+"""Run a place, or speak as the operator.
 
   py -3.10 tools/atelier_place.py open  --share S --commission C "letter text"      the operator opens a commission
   py -3.10 tools/atelier_place.py say   --share S --commission C "go"               the operator posts a note

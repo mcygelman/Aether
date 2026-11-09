@@ -1,4 +1,4 @@
-"""A mind's cartridge in the atelier (Fable, 2026-10-19): authored with one, closes into lessons, warnings and facts,
+"""A mind's cartridge in the atelier: authored with one, closes into lessons, warnings and facts,
 wakes with headers, loads what it chooses, and an older home moves in. No model, no network."""
 from __future__ import annotations
 

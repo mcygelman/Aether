@@ -9,6 +9,8 @@ A participant is a directory (its home) plus a record. The home carries what the
   <home>/memory/archive/experiences/        its own experiences (one .md each), written at closure in its own words
   <home>/memory/.cartridge.json             pointer to the mind's Memory Fabric cartridge (mind_memory.py; every authored mind has one)
 
+Never import project continuity into a technical specialist cartridge.
+
 The record (participant.json beside the home, or passed in) says: id, kind (lead, member, reviewer), name, home,
 deployment (which profile in runtime_profiles.json), roots (what it may read and write under the commission root),
 and the mailboxes root it reads. Nothing here checks anything at a door: wake() reads the home and offers it;
@@ -22,7 +24,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import mind_memory
+from . import mind_memory, specialist_learning, specialist_context
 
 KINDS = ('lead', 'member', 'reviewer', 'librarian')
 CARTRIDGE_POINTER = 'memory/.cartridge.json'
@@ -39,10 +41,14 @@ class Participant:
     mailboxes: Path | None = None
     tags: list = field(default_factory=list)
     library: str | None = None                 # a librarian's collection on the share (<share>/libraries/<name>)
+    allowed_tools: list | None = None          # None preserves legacy tools; [] grants no tools
 
     def __post_init__(self):
         if self.kind not in KINDS:
             raise ValueError('A participant is a lead, a member, a reviewer or a librarian')
+        if self.allowed_tools is not None and (not isinstance(self.allowed_tools,list) or
+                any(not isinstance(x,str) for x in self.allowed_tools) or len(set(self.allowed_tools))!=len(self.allowed_tools)):
+            raise ValueError('allowed_tools must be a list of distinct tool names or null.')
         self.home = Path(self.home)
         if self.mailboxes is not None:
             self.mailboxes = Path(self.mailboxes)
@@ -62,7 +68,7 @@ class Participant:
     def load(cls, home: Path) -> 'Participant':
         data = json.loads((Path(home) / 'participant.json').read_text(encoding='utf-8'))
         # The record remembers where the home was saved; the home is where it is found. A restored or moved home
-        # works from its new place, and nothing is rewritten by a load (v0.1, Fable 10-22).
+        # works from its new place, and nothing is rewritten by a load (v0.1).
         data['home'] = Path(home); data['mailboxes'] = Path(data['mailboxes']) if data.get('mailboxes') else None
         return cls(**data)
 
@@ -89,6 +95,7 @@ class Participant:
 
     def move_in(self) -> dict:
         """Give this home a cartridge and file the experiences it already holds (see mind_memory.move_in)."""
+        if self.technical(): return dict(mode='technical-v1',history_imported=False)
         report = mind_memory.move_in(self.home, self.id, self.name)
         from . import seeds
         report['seeds'] = seeds.plant(self.home, self.id, self.name)
@@ -100,11 +107,17 @@ class Participant:
         return path.read_text(encoding='utf-8', errors='replace')[:limit] if path.is_file() else ''
 
     def system_text(self) -> str:
-        protocols = '\n\n'.join(self._read('protocols/' + p.name) for p in sorted((self.home / 'protocols').glob('*.md'))) if (self.home / 'protocols').is_dir() else ''
+        protocols = '\n\n'.join(self._read(p.relative_to(self.home).as_posix())
+                                 for p in sorted((self.home / 'protocols').rglob('*.md'))) if (self.home / 'protocols').is_dir() else ''
         return (self._read('identity/System_0.txt') + ('\n\n' + protocols if protocols else '')).strip()
+
+    def technical(self):
+        return specialist_learning.active(self.home)
 
     def continuity(self, *, max_experiences: int = 6, tags: list | None = None) -> dict:
         """The mind's own carry, index and a few experiences, newest first or by tag overlap. Offered, never checked."""
+        if self.technical():
+            return dict(carry='',index='',experiences=[],cartridge=self.cartridge())
         carry = self._read('workspace/SESSION_CURRENT.txt', 8_000)
         index = self._read('memory/index/experience_index.md', 8_000)
         folder = self.home / 'memory/archive/experiences'
@@ -123,6 +136,8 @@ class Participant:
 
     def recall(self, tags: list, limit: int = 8) -> list:
         """Recall from the cartridge by tag, when the mind has one; otherwise from its experience files."""
+        if self.technical():
+            return specialist_learning.recall(self.home,list(tags),limit)
         if self.cartridge():
             try:
                 return mind_memory.recall(self.home, list(tags), limit=limit)
@@ -132,6 +147,8 @@ class Participant:
 
     def load_memory(self, note_ids: list, session: str = 'turn') -> list:
         """The bodies of the memories the mind chose (cartridge), or the named experience files (folder memory)."""
+        if self.technical():
+            return specialist_learning.load(self.home,list(note_ids))
         if self.cartridge():
             try:
                 return mind_memory.load(self.home, list(note_ids), session=session)
@@ -142,6 +159,10 @@ class Participant:
 
     def file_now(self, kind: str, title: str, body: str, tags: list, *, commission_id: str | None) -> dict:
         """A memory filed by the mind during a commission (cartridge minds only)."""
+        if self.technical():
+            if kind in ('fact','todo'):
+                return specialist_context.local(self,commission_id).file_now(kind,title,body,tags,commission_id=commission_id)
+            return specialist_learning.call(self.home,'lesson',dict(title=title,body=body,tags=tags,qualifications='Pitfall' if kind=='warning' else ''))
         if not self.cartridge():
             return dict(text='You have no cartridge; say it in your closing words instead.')
         try:
@@ -152,6 +173,8 @@ class Participant:
     def file_decision(self, words: str, *, subject: str | None, scope: str, decided_by: str, source_ref: str,
                       decided_at: str | None = None, commission_id: str | None = None) -> dict | None:
         """A ruling into this mind's cartridge (cartridge minds only); see mind_memory.file_decision."""
+        if self.technical():
+            return specialist_context.local(self,commission_id).file_decision(words,subject=subject,scope=scope,decided_by=decided_by,source_ref=source_ref,decided_at=decided_at,commission_id=commission_id)
         if not self.cartridge():
             return None
         try:
@@ -162,6 +185,8 @@ class Participant:
 
     def file_record(self, facts: dict, commission_id: str) -> dict | None:
         """Reviews by others and the operator's acceptance into this mind's record (cartridge minds only)."""
+        if self.technical():
+            return specialist_context.local(self,commission_id).file_record(facts,commission_id)
         if not self.cartridge():
             return None
         try:
@@ -170,6 +195,7 @@ class Participant:
             return dict(error=f'{type(exc).__name__}: {str(exc)[:160]}')
 
     def card_line(self) -> str | None:
+        if self.technical(): return 'Specialist technical memory: authored personality, evolving understanding.'
         if not self.cartridge():
             return None
         try:
@@ -179,6 +205,8 @@ class Participant:
 
     def log(self, rows: list, *, commission_id: str | None, session: str = 'turn') -> int:
         """Append to the side log (cartridge minds only; a folder mind keeps no log)."""
+        if self.technical():
+            return mind_memory.log_actions(specialist_context.home(self,commission_id),rows,commission_id=commission_id,session=session)
         if not self.cartridge() or not rows:
             return 0
         try:
@@ -187,6 +215,7 @@ class Participant:
             return 0
 
     def log_recent(self, commission_id: str | None = None, limit: int = 8) -> list:
+        if self.technical(): return specialist_context.local(self,commission_id).log_recent(commission_id,limit)
         if not self.cartridge():
             return []
         try:
@@ -195,6 +224,7 @@ class Participant:
             return []
 
     def log_search(self, words: list, limit: int = 10) -> list:
+        if self.technical(): return specialist_context.local(self).log_search(words,limit)
         if not self.cartridge():
             return []
         try:
@@ -205,6 +235,10 @@ class Participant:
     def wake_memory(self, tags: list, commission_id: str | None = None) -> str | None:
         """The memory block for a wake: the decisions that bind here (whole), the skips, then recall headers, for a mind
         with a cartridge; None for the folder memory."""
+        if self.technical():
+            heads=self.recall(tags)
+            self.last_offered=[h['id'] for h in heads if h.get('id')]; self.last_decisions=[]
+            return 'TECHNICAL LEARNING:\n'+json.dumps(heads,ensure_ascii=False)+'\n'+specialist_context.wake(self,commission_id)
         if not self.cartridge():
             return None
         try:
@@ -221,6 +255,8 @@ class Participant:
     # -- closure: the mind's own words, filed into its own home ---------------------------------------------
     def file_closure(self, text: str, *, commission_id: str, tags: list | None = None) -> dict:
         """File authored words with stable receipts; publish verified closure, never a partial pass."""
+        if self.technical():
+            return specialist_context.closure(self,text,commission_id,tags)
         import hashlib
         from aether.integrity.sealbox import atomic_write_bytes
         closure_id = hashlib.sha256((commission_id + '\0' + text).encode('utf-8')).hexdigest()

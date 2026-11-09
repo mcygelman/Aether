@@ -1,6 +1,6 @@
 # Contributing
 
-Aether v0.1 is an experimental Atelier developer preview. Keep changes focused, preserve agent authorship and automatic recovery, and keep memory/closure advisory. Host budget, consent, secret and harm boundaries remain.
+Aether v0.2.0 is a prototype. Keep changes focused, and keep two design rules: an agent's memory is never a gate (no step waits for an agent to acknowledge or clear its memory), and the work stops only for money, consent, secrets and harm. Interrupted work must keep recovering on its own. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/EXTENDING.md](docs/EXTENDING.md) are the places to start.
 
 Use Windows, Python 3.10 and the versions in `requirements-dev.txt`. From the repository root, `python tools/run_public_tests.py --list` prints the exact public selection. Run a specific file with `python tools/run_public_tests.py --group bridge --select tests/test_v01_integration_recovery.py`, or omit selection to run the public tier. The runner creates disposable scratch state and propagates test failures to its exit status.
 

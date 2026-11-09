@@ -1,4 +1,4 @@
-"""Mailboxes: a mind anywhere joins the atelier through a directory it can reach (Fable, 2026-10-18).
+"""Mailboxes: a mind anywhere joins the atelier through a directory it can reach.
 
 The master and an assistant never touch the daybook directly. Each has a mailbox (a directory; on a share it would
 be another machine). The postmaster delivers the commission letter and every later note to the mailboxes it

@@ -1,4 +1,4 @@
-"""Side-log box: a mind's journal of actions, beside its memories in the same cartridge (Michel and Fable, 2026-10-19).
+"""Side-log box: a mind's journal of actions, beside its memories in the same cartridge.
 
 Inputs:  an open Cartridge; rows of (kind, pointer, tags, line, by), each optionally with `at` and `commission`.
 Outputs: how many rows were appended; rows newest first (recent, search); repeats, in the host's words.

@@ -1,4 +1,4 @@
-"""S00073.7 C-5 / Roadmap_Ultralight.md U-01 -- microcase.py tests.
+"""S00073.7 C-5 / Ultralight roadmap item U-01 -- microcase.py tests.
 
 Mock-client / string-only tests (no live model -- the Roadmap's sequencing rule holds no
 ultralight LIVE gate runs until the lightweight-tier prerequisite gate is proven; U-01 is

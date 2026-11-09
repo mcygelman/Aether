@@ -73,7 +73,7 @@ def seal_gate(bc: Briefcase, ack: BriefcaseAck) -> SealGate:
 
 # Reply classifiers (moved from the Runtime tool loop, 2026-10-07): empty_reply-class detection.
 def is_blank_reply(text: str) -> bool:
-    """Blank or whitespace-only counts as empty_reply-class (Fable ruling Q1.5)."""
+    """Blank or whitespace-only counts as empty_reply-class (design decision Q1.5)."""
     substantive = (text or "").replace("[…continued]", "")
     return not substantive.strip()
 

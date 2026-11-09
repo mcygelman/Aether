@@ -25,7 +25,7 @@ def read_receipt_history(read, home):
     run's captured evidence directory; never traverse an identity or cartridge.
     """
     folders = {'planning/proposals', 'staffing', 'closure-packets', 'closure-dialogue',
-               'closure-dialogue/operator-decisions', 'closure-staff', 'closure-staff/outcomes'}   # staff memory step 4 (Fable, 10-12)
+               'closure-dialogue/operator-decisions', 'closure-staff', 'closure-staff/outcomes'}   # staff memory step 4
     folders.update(row[1] for row in HISTORY_STORES)
     nested = {'execution', 'planning/minder/native-artifact-effects'}
     nested.update(row[1] for row in RUN_STORES)

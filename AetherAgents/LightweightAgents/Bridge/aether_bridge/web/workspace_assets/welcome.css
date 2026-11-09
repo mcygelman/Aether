@@ -1,0 +1,8 @@
+/* Own the one-time welcome layout; never override shared theme colors. */
+.wl-form{max-width:620px;display:grid;gap:16px}
+.wl-form .ui-card h2{margin:0 0 6px}
+.wl-field{margin:12px 0 0}
+.wl-field>label{display:block;font-weight:600;font-size:14px;margin:0 0 4px}
+.wl-field>.small{margin:0 0 6px}
+.wl-field input{width:100%}
+.wl-form .actions{display:flex;justify-content:flex-end;gap:10px}

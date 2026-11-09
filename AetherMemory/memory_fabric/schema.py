@@ -14,10 +14,10 @@ SCHEMA_VERSION = 4
 ENGINE_NAME = "memory_fabric"
 ENGINE_REVISION = "memory-fabric-4-foundations"
 
-# Structural role of a note (Gemini draft, axis 1).
+# Structural role of a note (design draft, axis 1).
 CATEGORIES = ("Alert", "Information", "Revelation", "Reflection", "Task", "Thread")
 
-# Epistemic stratum (Gemini draft, axis 2). Optional on a note.
+# Epistemic stratum (design draft, axis 2). Optional on a note.
 STRATA = ("Experience", "Perception", "Introspection", "Reflection", "Insight", "Abstract")
 
 # Why two notes are linked (restored from the 2025 Librarian design).

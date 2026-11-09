@@ -1,0 +1,31 @@
+/* Owner: public Agent Editor layout and shared-theme adaptation. No behavior or permissions. */
+html[data-aether-theme] {
+  --bg-primary:var(--ae-bg);--bg-secondary:var(--ae-panel);--bg-tertiary:var(--ae-soft);
+  --border-color:var(--ae-line);--border-active:var(--ae-accent);
+  --text-primary:var(--ae-text);--text-secondary:var(--ae-muted);--text-muted:var(--ae-muted);
+  --accent-blue:var(--ae-link);--accent-green:var(--ae-good);--accent-amber:var(--ae-warn);--accent-red:var(--ae-bad);
+}
+body[data-editor-edition]{height:auto;min-height:100vh;overflow:visible}
+body[data-editor-edition]>header,body[data-editor-edition]>nav.tab-nav,body[data-editor-edition]>main{width:100%;max-width:1160px;margin:0 auto}
+body[data-editor-edition]>header{flex-wrap:wrap;gap:12px}
+.header-status,nav.tab-nav{flex-wrap:wrap}
+body[data-editor-edition] .content-area{overflow:visible;display:block}
+#editor-fields{border:0;min-width:0;padding:0;margin:0}
+#editor-fields:disabled{opacity:.7}
+.editor-legend{font-size:1.15rem;font-weight:600;margin:16px 0}
+.editor-actions{display:flex;flex-wrap:wrap;gap:10px}
+.editor-actions p{flex-basis:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+main>.panel{margin:16px 0}main>.panel p{margin:10px 0}
+.layout-split,.pane-form,.pane-preview{min-width:0}
+.custom-templates{overflow-wrap:anywhere}
+.custom-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.custom-templates select,.custom-templates input[type=text]{background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:5px;padding:8px;max-width:100%;min-width:0}
+.custom-toolbar select{max-width:100%}
+.custom-authoring{min-width:0;border:1px solid var(--border-color);padding:14px;margin:16px 0;display:grid;gap:10px}
+.custom-authoring>label{display:grid;gap:6px}
+.custom-authoring legend{padding:0 8px;font-weight:600}
+.custom-authoring:disabled{opacity:.65}
+.custom-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.custom-tools label{display:flex;align-items:center;gap:8px}
+#custom-status{white-space:pre-wrap}
+@media(max-width:800px){.layout-split{display:flex;flex-direction:column}.pane-form,.pane-preview{width:100%;max-width:none}.header-status{gap:8px}}

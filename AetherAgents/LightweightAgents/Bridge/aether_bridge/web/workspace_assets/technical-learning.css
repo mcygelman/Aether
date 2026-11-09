@@ -1,0 +1,8 @@
+/* Technical learning layout; shared theme owns colors. */
+.learning-lessons{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))}
+.learning-lessons .ui-card{min-width:0;overflow-wrap:anywhere}
+.learning-body{white-space:pre-wrap}
+#page-content pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;max-height:32rem;overflow:auto}
+
+.learning-view>.ui-card{margin:16px 0}
+.learning-view details section{margin:12px 0;padding-left:12px;border-left:2px solid var(--ae-line,#b8c7d4)}

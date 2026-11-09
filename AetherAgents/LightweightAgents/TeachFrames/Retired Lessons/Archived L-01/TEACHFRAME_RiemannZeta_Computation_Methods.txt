@@ -1,0 +1,110 @@
+⟪TEACHFRAME_RiemannZeta_Computation_Methods⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of AetherProject⟫
+⟪AUDIENCE::an agent computing or validating the Riemann zeta function⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur · TEACHFRAME_CompensatedArithmetic⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::already retired from live curriculum; preserve until an operator-authorized archival policy supersedes it⟫
+⟪MEASURED_BY::UNMEASURABLE::archived retired-use-case artifact; efficacy is not evaluated while inactive⟫
+⟪EVIDENCE::LEGACY::retired mathematics use case; Kairo original and Claude upgrade preserved⟫
+⟪PREVENTS::unbounded or numerically unstable zeta approximations⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Riemann Zeta Function — Computational and Symbolic Methods
+
+[ PURPOSE ]
+  Equips Euler and Fibonacci with the two primary methods for computing ζ(s),
+  including tail bound handling, precision limitations, and the symbolic
+  fallback path when ε exceeds tolerance. After loading this frame, the agent
+  will produce Uᵣ-wrapped ζ(s) estimates, recognize when to escalate to a
+  higher-precision method, and pass conformant SBP payloads to Hypatia.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: NUMERIC_APPROX
+SUBJECT: RIEMANN_ZETA
+[DEF]
+  ζ(s) := Σ_{n=1..∞} 1/nˢ          // Dirichlet series, Re(s) > 1
+  ζ(s) = ∏_p (1 − p^{−s})^{−1}     // Euler product over primes p
+[METHODS]
+  ① Dirichlet Series Truncation
+      ζ_N(s) := Σ_{n=1..N} 1/nˢ
+      tail bound := ∫_N^∞ x^{−s} dx = N^{1−Re(s)} / (Re(s)−1)
+      error ~ O(N^{1−Re(s)})
+
+  ② Euler Product (first k primes)
+      ζ_k(s) := ∏_{p≤p_k} (1 − p^{−s})^{−1}
+      Use log-domain accumulation to avoid overflow:
+        log ζ_k(s) = −Σ_{p≤p_k} log(1 − p^{−s})
+
+[CLOSED_FORMS]
+  ζ(2) = π²/6 ≈ 1.6449340668...   (Basel problem)
+  ζ(4) = π⁴/90
+[ASSERT]
+  ⊨ All ζ estimates must be wrapped in Uᵣ before SBP handoff
+  ⊢₀ carries hi ⊕ lo compensation pair (see CompensatedArithmetic)
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Dirichlet truncation at N=20 for ζ(2)
+//
+ζ_20(2) = Σ_{n=1..20} 1/n² = 1.596163
+tail    = ∫_20^∞ x^{−2} dx = 1/20 = 0.05
+Result  := Uᵣ[1.596163 ± 0.05]   ⊢₀
+
+Comparison to exact: ζ(2) = 1.6449... lies in [1.546163, 1.646163] ✓
+
+//
+// Example 2 — Log-domain Euler product (first 5 primes: 2,3,5,7,11), s=2
+//
+log ζ_5(2) ≈ −[log(1−1/4) + log(1−1/9) + log(1−1/25) + log(1−1/49) + log(1−1/121)]
+           ≈ −[−0.2877 − 0.1178 − 0.0408 − 0.0206 − 0.0083]
+           = 0.4752
+ζ_5(2) ≈ e^{0.4752} ≈ 1.608   (coarse; more primes needed for tight ε)
+
+[ USAGE_NOTES ]
+  • Dirichlet truncation error decays as O(N^{1−Re(s)}). For s=2, doubling N
+    halves the error. Compensated arithmetic (see cross-ref) tightens ε further.
+  • Euler product is sensitive to missing large primes; use log-domain
+    accumulation to avoid float overflow.
+  • Always pair ζ computation with compensated arithmetic hi/lo tracking.
+  • Symbolic fallback — if ε_bound > τ⊢₂, do not guess; emit:
+      ΔWMC{
+        CONTEXT: REFINEMENT_REQUEST
+        SUBJECT: zeta_s
+        ACTION: INCREASE_BOUNDS
+        METHOD_HINT: Euler-Maclaurin acceleration | Mellin transform
+      }ΔWMC
+
+[ SELF_CHECK ]
+  Q1: You truncate the Dirichlet series for ζ(3) at N=50.
+      The tail bound is ∫_50^∞ x^{−3} dx = 1/(2·50²) = 0.0002.
+      What is the Uᵣ expression if the partial sum is 1.2019?
+      Expected: Uᵣ[1.2019 ± 0.0002]
+
+  Q2: Hypatia's tolerance is τ⊢₂ = 0.0001 and you produced Uᵣ[1.6449 ± 0.0003].
+      What should you do?
+      Expected: Emit a REFINEMENT_REQUEST — ε = 0.0003 exceeds τ⊢₂ = 0.0001.
+               Suggest Euler-Maclaurin acceleration or increase N.
+
+  Q3: Why use log-domain accumulation in the Euler product?
+      Expected: Because multiplying many terms (1 − p^{−s})^{−1} together risks
+               float overflow as the product grows. Summing logs is numerically stable.
+
+[ CARD ]
+  LESSON::RiemannZeta_Computation_Methods
+  FOR::Equips Euler and Fibonacci with the two primary methods for computing zeta(s), including tail bound handling,...
+  PREVENTS::unbounded or numerically unstable zeta approximations
+  EXAMPLE::zeta_20(2) = _{n=1..20} 1/n2 = 1.596163
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur   — Prerequisite: Uᵣ wrapping for all results
+  → TEACHFRAME_CompensatedArithmetic          — Prerequisite: hi/lo splitting for tighter ε
+  → TEACHFRAME_IntervalArithmetic             — Companion: Hypatia's validation of the output
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

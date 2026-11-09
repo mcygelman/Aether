@@ -7,8 +7,8 @@ import urllib.request
 from aether.config.context_configuration import ContextConfigurationError
 from aether.backends.deployment_profiles import ADAPTER_TYPES, AVAILABLE_ADAPTERS, validate_deployments
 from aether.config.model_settings_store import StaleSettings, utc_now
-from aether.credentials.provider_credentials import resolve_reference, CredentialError
-from aether.credentials.redaction import register_secret, redact
+from aether.keys.provider_credentials import resolve_reference, CredentialError
+from aether.keys.redaction import register_secret, redact
 
 # Availability is shared with preparation; never guess a fallback route.
 PROBE_ADAPTERS = AVAILABLE_ADAPTERS
@@ -62,6 +62,54 @@ class HealthClient:
             return False
 
 
+def list_models(adapter_type, endpoint, credential_ref, timeout_seconds):
+    """The model IDs a server lists, for a connection not saved yet (Model connections' "Load models from server").
+    The same GET /models and the same key rules as probe_saved; nothing is saved, loaded or run."""
+    from aether.models.deployment_profiles import CredentialRef, endpoint_identity
+    from aether.models.runtime_profiles import RuntimeProfileError
+    if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
+            or not 0 < timeout_seconds <= 60):
+        raise ContextConfigurationError('Listing models requires a timeout between 0 and 60 seconds')
+    if adapter_type not in PROBE_ADAPTERS:
+        raise ContextConfigurationError('Choose a provider')
+    try:
+        endpoint_identity(endpoint)
+        reference = CredentialRef.from_mapping(credential_ref)
+    except RuntimeProfileError as exc:
+        raise ContextConfigurationError(str(exc)) from None
+    reference = reference.to_mapping() if reference else None
+    if reference and reference['kind'] == 'vault':
+        from urllib.parse import urlsplit
+        route = urlsplit(endpoint)
+        if route.scheme != 'https' and not (route.scheme == 'http' and route.hostname in ('127.0.0.1', '::1')):
+            raise CredentialError('Saved API keys require HTTPS, or loopback for local testing.')
+    try:
+        key = resolve_reference(reference)
+    except CredentialError:
+        raise CredentialError('Unlock your API keys on the API keys page, then load the models again.') from None
+    register_secret(key)
+    try:
+        client = HealthClient(endpoint, key)
+        reachable = client.probe(timeout_secs=timeout_seconds)
+    except Exception:
+        raise ContextConfigurationError('The model list could not be read; no inference was performed') from None
+    finally:
+        key = None
+        if 'client' in locals():
+            client.headers.pop('Authorization', None)
+    status = client.http_status
+    if status in (401, 403):
+        code, message = 'bad_credential', 'The server refused the API key.'
+    elif not reachable:
+        code, message = 'unreachable', 'The server did not answer at this address.'
+    elif not client.model_ids:
+        code, message = 'invalid_model_listing', 'The server answered but listed no models.'
+    else:
+        code, message = 'listed', f'The server lists {len(client.model_ids)} model(s).'
+    return dict(code=code, message=message, reachable=reachable, http_status=status, inference_performed=False,
+                model_ids=[redact(model) for model in client.model_ids])
+
+
 def probe_saved(store, profile_id, expected_revision, timeout_seconds):
     if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
             or timeout_seconds <= 0):
@@ -76,14 +124,21 @@ def probe_saved(store, profile_id, expected_revision, timeout_seconds):
     if profile.adapter_type not in PROBE_ADAPTERS:
         raise ContextConfigurationError('Selected adapter unavailable for probe')
     reference = profile.credential_ref.to_mapping() if profile.credential_ref else None
+    if reference and reference.get('kind') == 'vault':
+        from urllib.parse import urlsplit
+        route = urlsplit(profile.endpoint)
+        if route.scheme != 'https' and not (route.scheme == 'http' and route.hostname in ('127.0.0.1', '::1')):
+            raise CredentialError('Saved API keys require HTTPS, or loopback for local testing.')
     if profile.adapter_type == 'deepseek' and reference is None:
         raise CredentialError('Missing credential reference. Select an environment variable or sealed entry name, never the key.')
     try:
         key = resolve_reference(reference)
     except CredentialError:
+        if reference and reference.get('kind') == 'vault':
+            raise CredentialError('Unlock your API keys on the API keys page, then check again.') from None
         raise CredentialError('Missing credential. Configure the selected environment variable in the Mission Control process '
                               'or use an existing sealed entry; restart Mission Control after changing its environment.') from None
-    register_secret(key)  # Registered before anything can format an error or log line (Praxis M02).
+    register_secret(key)  # Registered before anything can format an error or log line.
     try:
         # Every operation gets detached headers and a detached route, never a live store lookup.
         client = HealthClient(profile.endpoint, key)

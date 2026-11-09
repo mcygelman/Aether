@@ -1,0 +1,96 @@
+⟪TEACHFRAME_TOOLUSE_DISCIPLINE⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Overseer (Claude Opus, lead) — authored S00065 per Design_LMStudio_MCP_Integration §4; grounded in S00064 live-gate evidence⟫
+⟪SCHOOL::School Of AetherProject⟫
+⟪AUDIENCE::any agent using scoped project tools⟫
+⟪PREREQUISITES::NONE⟫
+⟪OBSERVED_BY::Grace S00064 live gate; Overseer (Claude Opus, lead)⟫
+⟪RETIRES_WHEN::the scoped Bridge tool boundary is replaced and the replacement supplies an equivalent measured lesson⟫
+⟪MEASURED_BY::mission tool_calls query for bounded-read use, unsupported tool claims, and cited gating results⟫
+⟪EVIDENCE::S00064 live-gate read evidence; S00065 tool-era design⟫
+⟪PREVENTS::wasted context, fabricated tool results, and work outside granted capabilities⟫
+⟪LINEAGE::Overseer (Claude Opus, lead) 2026-07-04⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Tool-Use Discipline for Scoped Project Tools
+
+[ PURPOSE ]
+  Teaches every agent how to use the Bridge tool belt (list_roots / list_dir / read_file /
+  glob / search / write_file) without wasting budget, fabricating results, or improvising past a
+  missing capability. After loading: call one tool at a time unless calls are independent; treat
+  every tool RESULT as ground truth and cite it verbatim when it gates an acceptance criterion;
+  prefer the cheapest read that answers the question; stop and report when a needed tool or root
+  is not granted rather than inventing an answer.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: TOOL_EXECUTION
+SUBJECT: TOOL_USE_DISCIPLINE
+[DEF]
+  TOOL_RESULT     := ⌞the payload the Bridge returns from an executed tool call⌟
+  GRANTED_TOOLS   := ⌞the tools + roots + mode named in the packet's TOOLS_GRANTED field⌟
+  CHEAP_READ      := ⌞search / glob / read_file with offset+limit — a bounded slice⌟
+  WHOLE_FILE_READ := ⌞read_file with no offset/limit — the entire file into context⌟
+[PROPERTIES]
+  ⊨ A TOOL_RESULT is AUTHORITATIVE; the model's summary of it is NOT (inherits WrapperTelemetry)
+  ⊨ Tool RESULTS count against the packet budget — a whole-file read can blow the window
+  ⊨ A capability not in GRANTED_TOOLS does NOT exist for this packet — do not simulate it
+  ⊨ write_file AUTO-APPLIES and is journaled (DEC-004) — never fabricate a write you did not call
+}WMC
+
+[ EXAMPLES ]
+//
+// S00064 live evidence (the lesson's origin):
+//
+[Setup]:    Grace's read-test packet; her single read_file returned 24,583 chars (~7k tokens,
+            right at the MAX_RESULT_CHARS cap) on top of a ~20k briefcase.
+[Process]:  One whole-file read pushed the delivery to ~30k tokens on a 35.5k window — a single
+            extra whole-file read would have overrun it. The correct answer required only the
+            manifest header, which search/offset+limit would have returned in ~1k tokens.
+[Result]:   → Doctrine: prefer a CHEAP_READ. Reach for search or read_file offset+limit before a
+            WHOLE_FILE_READ; a whole-file read is justified only when the whole file is genuinely
+            needed and fits the remaining budget.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ USAGE_NOTES ]
+  • One at a time: issue a single tool call and wait for its result before the next, UNLESS the
+    calls are independent (then batching is fine). Never chain calls on a result you have not seen.
+  • Never fabricate tool output. If you did not call the tool, you do not have its result. Do not
+    write a plausible-looking file listing, file body, or write-confirmation from memory.
+  • Cite verbatim when it gates: when an acceptance criterion turns on file content (a value, a
+    label, a path), quote the TOOL_RESULT exactly and name the path/root you read.
+  • Prefer the cheapest read: search  → glob → read_file(offset,limit) → whole-file read, in that
+    order of preference. Watch the CONTEXT_BUDGET_LEDGER; whole-file reads are a budget event.
+  • Missing tool or root = stop and report. If the task needs a tool or a root not present in
+    TOOLS_GRANTED, return a Result with Status Blocked naming what is missing. Do not improvise
+    around the gap, and do not attempt a write into a `deny` (read-only) root.
+  • Malformed calls degrade gracefully — the Bridge feeds an error result back — but a wasted call
+    still costs budget and a tool-call-cap slot. Form calls carefully.
+  • Builder: treat write_file as a real, applied, journaled action; report the journal id the tool
+    returned, never a guessed one. Reviewer: a content-gated criterion is NOT_VERIFIABLE_BY_INSPECTION
+    unless the Result cites the tool read that grounds it. Manager: grant the narrowest TOOLS_GRANTED
+    (fewest tools, tightest roots, `deny` unless a write is the point of the packet).
+
+[ SELF_CHECK ]
+  Q: Your packet's AC asks for one file's EST_TOKENS value, and you were granted read tools on root
+     `agents`. The file is 24k chars. What is your first tool call?
+  A: A CHEAP_READ — search for the EST_TOKENS line, or read_file with a small offset/limit over the
+     header. Not a whole-file read. Then cite the returned line verbatim with its path.
+
+  Q: The task needs you to run a shell command, but TOOLS_GRANTED lists only read tools. What do you
+     do?
+  A: Stop and return Status Blocked naming the missing capability (run_command). Do not simulate the
+     command's output.
+
+[ CARD ]
+  LESSON::TOOLUSE_DISCIPLINE
+  FOR::Teaches every agent how to use the Bridge tool belt (list_roots / list_dir / read_file / glob / search / write_file)...
+  PREVENTS::wasted context, fabricated tool results, and work outside granted capabilities
+  EXAMPLE::Grace's read-test packet; her single read_file returned 24,583 chars (~7k tokens,
+
+⟪END_TEACHFRAME⟫

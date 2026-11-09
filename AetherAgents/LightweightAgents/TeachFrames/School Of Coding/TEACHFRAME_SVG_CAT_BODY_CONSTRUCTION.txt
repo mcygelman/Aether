@@ -1,0 +1,158 @@
+⟪TEACHFRAME_SVG_CAT_BODY_CONSTRUCTION⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::0.3-DRAFT⟫
+⟪DATE::2026-11-05⟫
+⟪CREATOR::Opus 5.5, at Michel's direction: construction by shapes, ratios and positions; body first⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::The body agent of a two-agent cat: builds the silhouette and hands the head circle to the face agent⟫
+⟪PREREQUISITES::SVG_ATTACHMENT⟫
+⟪LINEAGE::SVG_CAT_RIG v1.5 (rigging, contact; archived 2026-11-05); fresh-scene trial 2026-11-04/05 (stretched cat, stride longer than legs)⟫
+⟪PREVENTS::stretched tube bodies, stilt legs without hocks, stick tails, floating heads, and strides longer than the legs⟫
+⟪EVIDENCE::Opus built a reference cat ONLY from the RATIOS table and rendered it (SVG_FRESH_SCENE_20261104/teachframe-draft/out); no agent trial yet⟫
+⟪MEASURED_BY::rendered reference and Michel's review; no teaching-efficacy score⟫
+⟪RETIRES_WHEN::a checked cat generator owns these ratios in code⟫
+⟪OBSERVED_BY::Michel (direction and review), Opus (reference render)⟫
+
+[ TITLE ]
+Construct a Cat Body from Shapes, Ratios and Positions
+
+[ PURPOSE ]
+Build the cat's silhouette in a fixed order, body then head circle then ears then legs then tail, from the ratios below.
+
+Every number is in units of R, the chest circle's radius. Pick R from the space you have, then compute everything
+else. Refine style only after the construction passes its checks. You own the silhouette; the face agent owns the
+eyes, nose, muzzle, mouth and whiskers and works inside the head circle you hand over.
+
+[ COORDINATES ]
+x grows right, y grows down. The cat faces right; for a cat facing left, negate every x offset. Angles on a circle
+are measured counterclockwise from +x with y up: point(cx, cy, r, deg) = (cx + r*cos(deg), cy - r*sin(deg)).
+"From vertical, + forward" means a segment leaning toward the face. G is the ground or support line.
+
+[ CHOOSING_R ]
+Whole cat including the tail is about 6.7R wide and 5.1R tall (ground to ear tip). Nose to rump is about 5.3R.
+Example: a cat one third of a 1920-px frame (640 px with tail) has R = 640 / 6.7 = 95 px.
+
+[ RATIOS ]
+1 BODY (two circles joined by a back line and a belly line)
+  chest circle      radius 1.0R, centre C = (cx, G - 2.7R)          chest bottom sits 1.7R above the ground
+  hip circle        radius 0.85R, centre P = C + (-2.35R, -0.05R)
+  back line         quadratic from hip-circle top to chest-circle top, control at the midpoint raised 0.12R
+  belly line        quadratic from chest-circle bottom to hip-circle bottom, control at the midpoint raised 0.20R
+  torso path        chest front arc (top to bottom) + belly line + hip rear arc (bottom to top) + back line
+2 HEAD CIRCLE (placement only; the face agent fills it)
+  head circle       radius h = 0.72R, centre H = C + (1.35R, -1.25R)
+  neck back edge    from point(C, 1.0R, 105) to point(H, h, 205), bulging up 0.05R
+  neck front edge   from point(H, h, 240) to point(C, 1.0R, 30), bulging out 0.05R; fill through C
+3 EARS (triangles whose base sits on the head circle, inset to 0.92h so they overlap it)
+  far ear           base between angles 53 and 87; apex at distance 1.70h, angle 62
+  near ear          base between angles 90 and 130; apex at distance 1.80h, angle 118
+  inner ear         the ear triangle scaled 0.58 toward its base midpoint, raised 0.04R, pink
+4 LEGS (three segments each; anchors inside the circles; one length L solved so the paw lands on G)
+  shoulder joint    C + (0.20R, 0.25R)          hip joint    P + (0.05R, 0.20R)
+  fore split        upper arm 0.46L, forearm 0.41L, pastern 0.13L     widths 0.62R, 0.40R, 0.34R
+  hind split        thigh 0.36L, shin 0.38L, metatarsus 0.26L         widths 1.15R, 0.42R, 0.30R
+  haunch            ellipse centred 0.45 of the way down the thigh; long axis 0.70 x thigh length along the
+                    thigh, short axis 0.55R; same colour as the leg
+  paw               ellipse rx 0.30R, ry 0.16R, centred 0.3 x rx forward of the leg end
+  neutral pose      from vertical, + forward:  fore (-26, 16, 22)   hind (24, -42, 3)
+                    all four legs use the neutral pose; the walk moves them (WALK); far legs are 15-20% darker
+  solve L           L = (G - 0.16R - joint_y) / sum(split_i * cos(angle_i)); expect fore 2.4-2.5R, hind 2.7-2.8R
+  slack             the neutral pose must be bent: sum(split_i * cos(angle_i)) <= 0.93, or the leg cannot reach
+                    the ends of its stride
+  the hock          the shin angle is always negative (shin runs back and down) so the heel points backward;
+                    the fore elbow points back (first angle negative)
+5 TAIL (one tapered shape around a cubic centreline)
+  root              point(P, 0.9 x 0.85R, 150)
+  centreline        cubic: root, root + (-1.0R, -0.15R), root + (-1.8R, -1.3R), root + (-1.3R, -2.6R)
+  width             0.34R at the root tapering to 0.18R, round tip; length about 3.3R
+6 MARKINGS (when the brief asks for them; colours come from the brief)
+  white chest       ellipse centre C + (0.80R, -0.30R), rx 0.42R, ry 0.75R, clipped to the torso and neck shapes
+  white socks       the lower 40% of each leg's last segment plus the paw
+  tail rings        bands across the tail at 25%, 45%, 65% and 85% of its length, each 0.08 of the length wide
+
+[ ALGORITHM ]
+1. Choose R and G. Compute C, P and draw the two circles as construction guides (not shipped).
+2. Build the torso path from the two arcs, the back line and the belly line.
+3. Place the head circle H and the neck edges. Publish the HEAD INTERFACE before the face agent starts.
+4. Place both ears from their angles; inset bases into the head circle; add the inner ears.
+5. For each leg compute the joint anchor, solve L for its pose angles, place joints segment by segment, draw each
+   segment as a tapered quad with a round cap at its lower joint, then the paw; add the haunch to hind legs.
+6. Build the tail polygon from the sampled centreline and its normals; round the tip.
+7. Paint in depth order: tail, far legs (15-20% darker), torso, neck, near legs, ears, head circle. Group each part
+   with its own pivot: a translate group at the joint holding the rotating group, so animation never replaces the
+   placement transform or moves the construction.
+8. Animate with the WALK steps. Compute every coordinate and keyframe list in ONE inline Python program from the
+   RATIOS and WALK numbers, then write the SVG from its output; do not type geometry by hand.
+9. Run SELF_CHECK on the numbers you printed from the written file. Then hand over to the face agent.
+10. Colours come from the current brief, never from an earlier cat. Whoever places the cat into a scene keeps the
+   cat's own title and desc.
+
+[ GAIT_LIMITS ]
+Choose ground speed from the legs, never the legs from a speed. Stance travel S = v * duty * T (v ground speed,
+T stride period). Require S <= 0.62 * L_fore (the shorter leg). If a given v breaks it, lengthen T only within
+1.0-1.6 s, lower duty only within 0.55-0.65, or enlarge R; otherwise report the conflict. The lead's interface states
+R and L before it states a speed.
+
+[ WALK ]
+A walk is a paw path per leg plus two-bone inverse kinematics, emitted as rotate keyframes in nested joint groups.
+1 Clock       T = stride period, duty 0.6, phase offsets near hind 0, near fore 0.25, far hind 0.5, far fore 0.75.
+              u = (t / T + phase) mod 1. N keyframes per stride with N * duty and N * 0.25 whole numbers (N = 40).
+2 Body bob    the whole body group moves y = -0.015R * cos(4 * pi * t / T). The legs' paw paths include this bob.
+3 Paw path    relative to the leg's top joint; x0 = neutral paw-end x; ground_y = G - 0.16R - (joint_y + bob).
+              stance (u < duty):  x = x0 + S/2 - S * u / duty;            y = ground_y
+              swing  (u >= duty): s = (u - duty) / (1 - duty);  x = x0 - S/2 + S * (3s^2 - 2s^3);
+                                  y = ground_y - lift * sin(pi * s);  lift fore 0.35R, hind 0.30R
+4 Last joint  a3 = a3_neutral + tilt * (x - x0) / (S/2), minus flex * sin(pi * s) during swing only;
+              tilt fore 25, hind 15 degrees; flex fore 40, hind 15 degrees
+5 IK          target for the two upper segments: q = paw end - l3 * (sin a3, cos a3); d = min(|q|, 0.999 (l1 + l2));
+              phi = atan2(qx, qy); a = acos((l1^2 + d^2 - l2^2) / (2 l1 d));
+              a1 = phi + a for a hind leg (knee forward), phi - a for a fore leg (elbow back);
+              knee = l1 * (sin a1, cos a1); a2 = atan2(qx - knee_x, qy - knee_y). All angles from vertical, + forward.
+6 Emit        each segment is drawn pointing down its own local +y and nested:
+              <g transform="translate(joint)"><g><animateTransform type="rotate" values="-a1 ..."/> upper
+                <g transform="translate(0 l1)"><g><animateTransform type="rotate" values="-(a2-a1) ..."/> middle
+                  <g transform="translate(0 l2)"><g><animateTransform type="rotate" values="-(a3-a2) ..."/> last, paw
+              (SVG rotate turns clockwise, so a forward lean is a negative value for a right-facing cat.)
+7 Tail        rotate the tail group about its root by +/-6 degrees over 2T.
+8 Check       recompute the paw from the emitted keyframes at 8 points between each pair: stance paws within
+              1 px of the ground and moving back at v within 5%. Print both numbers, and the tail sway
+              amplitude (it must be +/-6 degrees), before closing.
+
+[ HEAD_INTERFACE ]
+Publish for the face agent: head centre H, head radius h, facing (right or left), the group id holding the head
+(cat-head) and the ear apexes. The face agent adds a cat-face group inside cat-head and never moves or resizes the
+head circle. Blink lids belong to the face agent.
+
+[ EXAMPLES ]
+[Setup]: R = 80, G = 640, cx = 700, facing right.
+[Process]: C = (700, 424); P = (512, 420); H = (808, 324), h = 57.6; fore L solves to 2.47R, hind 2.74R.
+[Result]: nose to rump 5.33R, shoulder height 3.7R: renders as a cat, not a tube on stilts. At R = 95, v = 200 px/s,
+T = 1.2 s, duty 0.6: S = 144 px = 0.61 L_fore; the WALK steps keep stance paws within 0.2 px of the ground.
+
+[ SELF_CHECK ]
+Q1: Nose to rump is 7R and the legs are 1.5R. What went wrong?
+A1: The hip circle moved too far back or the legs were drawn before R was fixed; return to the RATIOS.
+Q2: The brief's speed needs a stance travel of 0.95L. Draw longer strides?
+A2: No. Report it; the speed must come from the legs (GAIT_LIMITS), or the legs get longer by ratio.
+Q3: Can I check the silhouette without seeing it?
+A3: Partly: print the measured ratios from the written file and compare with the table; appearance stays
+UNVERIFIED until someone renders it.
+
+[ CARD ]
+  LESSON::SVG_CAT_BODY_CONSTRUCTION
+  FOR::Build the cat's silhouette in a fixed order, body then head circle then ears then legs then tail, from the ratios below.
+  PREVENTS::stretched tube bodies, stilt legs without hocks, stick tails, floating heads, and...
+  EXAMPLE::R = 80, G = 640, cx = 700, facing right.
+
+[ CROSS_REFS ]
+  SVG_CAT_FACE_DETAILS (the face agent's frame); SVG_ATTACHMENT.
+⟪TEACHFRAME_END⟫
+
+[ CHANGE_LOG ]
+v0.1-DRAFT: Michel 2026-11-05: construction by shapes, ratios and positions, body first, then head, ears, legs,
+tail; one agent for the body and one for the face. Ratios proven by Opus's reference render; not yet taught.
+v0.2-DRAFT: taught-cat trial 1 (first submission passable): the WALK check also prints the tail sway (it was +/-1.25
+instead of +/-6); colours from the brief; keep the cat's title/desc when integrating. v0.1 bytes kept in
+SVG_TAUGHT_CAT_20261105/teachframes-v0.1.
+v0.3-DRAFT: Michel retired SVG_CAT_RIG on 2026-11-05: step 7 states the pivot rule it borrowed (rig step 4), and the
+cross-reference is gone. No ratio, formula or check changed. v0.2 bytes kept in SVG_CAT_RIG_RETIREMENT_20261105/before.

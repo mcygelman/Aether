@@ -1,0 +1,109 @@
+⟪TEACHFRAME_CompensatedArithmetic⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::any agent performing finite-precision accumulation⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::the supported numerical runtime guarantees equivalent error tracking or a successor frame supersedes it⟫
+⟪MEASURED_BY::numeric replay comparing compensated results and error bounds with high-precision reference values⟫
+⟪EVIDENCE::LEGACY::Kairo original and Claude upgrade preserve the teaching; incident references were not recorded⟫
+⟪PREVENTS::silent loss of low-order terms during finite-precision accumulation⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Compensated Arithmetic for Finite-Precision Layers
+
+[ PURPOSE ]
+  Provides any finite-precision worker with a Kahan-style method for splitting
+  an operation into a high-part result and a low-part compensation term.
+  After loading this frame, the agent can retain low-order error, tighten its
+  uncertainty bound, and package the result for downstream validation.
+
+[ ALGORITHM ]
+∆WMC{
+CONTEXT: MATHEMATICS_SKILL
+SUBJECT: COMPENSATED_ARITHMETIC
+[DEF]
+  ⌜FastTwoSum⌝  := ⌞exact split of a + b when |a| ≥ |b|⌟
+  ⌜TwoProd⌝     := ⌞exact split of a × b using fused-multiply-add⌟
+[ALGORITHM_CORE]
+  Step_1 → s  ← a + b              // native add (rounded result)
+  Step_2 → z  ← s − a              // recover high part
+  Step_3 → lo ← (b − z)            // low-order compensation term
+  RESULT := (s, lo)                 // exact pair; s + lo = true sum
+[ASSERT]
+  ⊨ Uᵣ[s ⊕ lo] ≡ᵛ Uᵣ[s]  ∧  |lo| ≤ ½ ulp(s)
+  ⊩ Coherence(s, lo)               // (s, lo) represents the exact sum
+  ⊢₀  Value := s + lo              // collapse when binary layer must output scalar
+  ⊢₁  Value := ⊗(s, lo)           // ternary layer keeps braid intact
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Single compensated addition step
+//
+FUNCTION CompAdd(a, b):
+    s  ← a + b
+    z  ← s − a
+    lo ← (b − z)
+    RETURN (s, lo)
+
+CompAdd(1.64493, 0.00826):
+    s  = 1.65319
+    z  = 1.65319 − 1.64493 = 0.00826
+    lo = 0.00826 − 0.00826 = 0.0      // perfect — no rounding loss here
+
+//
+// Example 2 — Accumulating over many terms (Zeta partial sum, k=42)
+//
+ΔWMC{
+  CONTEXT: COMPUTATION_STEP
+  SUBJECT: zeta_partial_sum_k42
+  (hi, lo) ← CompAdd(partial_sum_hi, term_42)
+  partial_sum_hi ← hi
+  partial_sum_lo ← partial_sum_lo + lo   // accumulate error stream
+}ΔWMC
+
+Final Uᵣ bound: ε_out := ε_in + |partial_sum_lo|
+
+[ USAGE_NOTES ]
+  • Store all intermediate results as (hi, lo) pairs until final output.
+    Never discard lo — it IS the error budget.
+  • Propagate Uᵣ bounds:  Uᵣ_out := Uᵣ_in ⊕ |lo|
+  • In SBP hand-off blocks, include both terms:
+      PAYLOAD := Value_hi ⊕ Value_lo ⊕ Uᵣ[Value_hi ⊕ Value_lo]
+  • ⊢₂ (Hypatia) may collapse or interval-wrap on receipt — she decides.
+  • FastTwoSum requires |a| ≥ |b|. If unsure of ordering, use TwoSum
+    (two extra operations) which works unconditionally.
+
+[ SELF_CHECK ]
+  Q1: You run CompAdd(3.14159, 0.00100). The native float gives s = 3.14259.
+      z = s − 3.14159 = 0.001. lo = 0.001 − 0.001 = 0.
+      What do you send in the SBP payload?
+      Expected: PAYLOAD := 3.14259 ⊕ 0.0 ⊕ Uᵣ[3.14259 ± 0.0]
+
+  Q2: After 1000 compensation steps the accumulated lo-stream total is 4.2e-14.
+      Your incoming Uᵣ_in was Uᵣ[1.6449 ± 0.001].
+      What is Uᵣ_out?
+      Expected: Uᵣ[1.6449 ± 0.001000000000042] ≈ Uᵣ[1.6449 ± 0.001]
+               The lo contribution is negligible — compensated arithmetic is working.
+
+  Q3: Why must you NOT drop the lo term before sending the SBP payload?
+      Expected: The lo term carries the rounding error that was trimmed from hi.
+               Without it, ε cannot be accurately updated downstream and
+               Hypatia's interval reconciliation will use an overly optimistic bound.
+
+[ CARD ]
+  LESSON::CompensatedArithmetic
+  FOR::Provides any finite-precision worker with a Kahan-style method for splitting an operation into a high-part result...
+  PREVENTS::silent loss of low-order terms during finite-precision accumulation
+  EXAMPLE::FUNCTION CompAdd(a, b):
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur      — Prerequisite: Uᵣ notation and propagation rules
+  → TEACHFRAME_RiemannZeta_Computation_Methods   — Companion: shows CompensatedArithmetic applied to ζ(s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

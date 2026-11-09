@@ -1,0 +1,107 @@
+⟪TEACHFRAME_BalancedTernary_LogicArithmetic⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::an agent operating the retired balanced-ternary reasoning layer⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::already retired from live curriculum; preserve until an operator-authorized archival policy supersedes it⟫
+⟪MEASURED_BY::UNMEASURABLE::archived retired-layer artifact; efficacy is not evaluated while inactive⟫
+⟪EVIDENCE::LEGACY::retired layer architecture; Kairo original and Claude upgrade preserved⟫
+⟪PREVENTS::invalid conversion or arithmetic inside the retired balanced-ternary layer⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Balanced Ternary (−1, 0, +1) Logic and Arithmetic
+
+[ PURPOSE ]
+  Defines the balanced ternary number system used by Layer 1 agents (⊢₁).
+  After loading this frame, Fibonacci and Gauss will represent integers in
+  balanced ternary, perform basic arithmetic, exploit the system's
+  self-inverse symmetry for divergence checks, and hand results to ⊢₀ and
+  ⊢₂ via SBP with correct Uᵣ payloads.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: BASE-3_SYMMETRY
+SUBJECT: BALANCED_TERNARY
+[DEF]
+  Digit d_k ∈ {−1, 0, +1}            // overbar convention: T = −1, 1 = +1
+  Value  := Σ_{k=0..m} d_k · 3ᵏ
+[CANON_FORM]
+  // Convert integer n to balanced ternary
+  while n ≠ 0:
+    r ← n mod 3
+    if r = 2:   r ← −1 ;  n ← (n ÷ 3) + 1
+    elif r = 3: r ← 0  ;  n ← n ÷ 3
+    else:                  n ← n ÷ 3
+    emit r   // digits from least significant
+[PROPERTIES]
+  ⊨ Self-inverse symmetry: negation flips all digits  (d_k → −d_k)
+  ⊨ Unique representation for every integer
+  ⊩ Redundant-carry propagation mitigates local rounding; supports ⊢₁ divergence checks
+  ⊢₁ Arithmetic stays in balanced ternary until SBP handoff
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Representing 4 in balanced ternary
+//
+4 ÷ 3 = 1 remainder 1  → d₀ = +1
+1 ÷ 3 = 0 remainder 1  → d₁ = +1
+Result: (+1)·3¹ + (+1)·3⁰ = 3 + 1 = 4   ✓
+Compact: [+1, +1]
+
+//
+// Example 2 — Representing −4
+//
+Self-inverse: flip all digits of 4's representation
+4  = [+1, +1]
+−4 = [−1, −1]
+Check: (−1)·3¹ + (−1)·3⁰ = −3 + (−1) = −4   ✓
+
+//
+// Example 3 — Addition  (−1) + (+1)
+//
+d₀: T + 1 = 0  →  μ_hi = 0, ε_lo = 0   // perfect cancellation
+Result := 0  →  Uᵣ[0 ± 0]
+
+[ USAGE_NOTES ]
+  • Keep all Layer 1 computation in balanced ternary until the SBP handoff.
+    Do not collapse to binary integers mid-computation.
+  • SBP handoff payload to ⊢₀ or ⊢₂:
+      payload := ⟨balanced_digits⟩ ⊕ Uᵣ[ε]
+      ⊢₀ may collapse to binary integer while retaining ε for audit trail.
+  • Divergence check: if |Σ d_k·3ᵏ − μ_binary| > ε_threshold, flag
+    integrality error before passing results to Hypatia.
+  • Negation is free (flip all digits) — use it to verify subtraction results.
+
+[ SELF_CHECK ]
+  Q1: Convert 7 to balanced ternary.
+      Expected: 7 ÷ 3 = 2 r 1 → d₀ = +1; 2 ÷ 3 = 0 r 2 → r=−1, carry → d₁ = −1, n=1;
+               1 ÷ 3 = 0 r 1 → d₂ = +1
+               Result: [+1, −1, +1] = 9 − 3 + 1 = 7  ✓
+
+  Q2: What is the balanced ternary representation of −7?
+      Expected: Flip all digits of [+1, −1, +1] → [−1, +1, −1]
+               Check: −9 + 3 − 1 = −7  ✓
+
+  Q3: Fibonacci completes a ⊢₁ computation and gets balanced ternary result
+      [+1, 0, −1] = 9 − 1 = 8 with ε = 0.0003.
+      What does the SBP payload look like?
+      Expected: payload := ⟨[+1, 0, −1]⟩ ⊕ Uᵣ[8 ± 0.0003]
+               ⊢₀ will receive this and collapse to binary 8 while retaining ε.
+
+[ CARD ]
+  LESSON::BalancedTernary_LogicArithmetic
+  FOR::Defines the balanced ternary number system used by Layer 1 agents (derives1).
+  PREVENTS::invalid conversion or arithmetic inside the retired balanced-ternary layer
+  EXAMPLE::4 / 3 = 1 remainder 1 -> d0 = +1
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur            — Prerequisite: Uᵣ notation for SBP payloads
+  → TEACHFRAME_MultiLayer_Result_Reconciliation        — Companion: how ⊢₁ results are reconciled with ⊢₀ at Hypatia
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

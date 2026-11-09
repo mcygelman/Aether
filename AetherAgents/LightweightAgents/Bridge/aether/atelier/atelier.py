@@ -18,12 +18,29 @@ from . import facts as facts_module
 
 HOST = dict(id='host', kind='host', name='Aether')
 STOP_REASONS = ('money', 'consent', 'secrets', 'harm')
+QUIET_NOTES_PER_MIND = 2    # notes with nothing new, per member of the team, before the operator is told (Atelier._signpost)
 
 
 def is_capacity_failure(note: dict) -> bool:
     """Physical request limits are host evidence, not mail or policy refusals."""
     return (note.get('kind') == 'turn_failed' and note.get('sender', {}).get('kind') == 'host'
             and 'context' in (note.get('facts', {}).get('evidence') or {}))
+
+
+PLACEHOLDER_ENDPOINT = 'http://127.0.0.1:9/'     # installed_app.unconfigured_profiles: the setup placeholder answers nowhere
+
+
+def setup_failure(note: dict) -> str | None:
+    """'credentials', 'placeholder' or 'unreachable' when a turn never reached its model: setup, not a refusal.
+    Read from the recorded reason (`<Type>: <message>`, as the place and the wake write it)."""
+    if note.get('kind') != 'turn_failed' or note.get('sender', {}).get('kind') != 'host':
+        return None
+    reason = (note.get('text') or '').partition(': your last turn did not complete: ')[2]
+    if reason.startswith(('CredentialError: ', 'VaultError: ')):
+        return 'credentials'
+    if reason.startswith('ModelError: model endpoint unreachable at '):
+        return 'placeholder' if reason.startswith('ModelError: model endpoint unreachable at ' + PLACEHOLDER_ENDPOINT) else 'unreachable'
+    return None
 
 
 class AtelierStop(Exception):
@@ -119,13 +136,17 @@ class Atelier:
             unread = self.daybook.read(since_id=since)
         except DaybookError:
             unread = self.daybook.read()
-        unread = [m for m in unread if self._for(m, participant)]
-        return dict(campaign=state['campaign'], plan=state['plan'], roster=state['roster'],
+        # The last note this wake shows. A turn marks read through it, not through whatever arrived while it ran (run
+        # a90: "Accepted." and the closing-words invitation came mid-turn, were marked read unseen, and Auditor never closed).
+        seen_through = unread[-1]['id'] if unread else since
+        unread = [m for m in unread if self._for(m, participant) and (m.get('sender') or {}).get('id') != participant['id']]
+        return dict(campaign=state['campaign'], plan=state['plan'], roster=state['roster'], seen_through=seen_through,
                     approvals=state['approvals'], acceptance=state['acceptance'],
                     unread=unread[-allowance_messages:], unread_total=len(unread),
                     prior_closures=self.prior_closures(participant), budget_left=self.budget_left(state),
                     questions_for_me=[m['facts']['question'] for m in unread if m['kind'] == 'host' and m.get('facts', {}).get('question')
-                                      and (m.get('to') or {}).get('id') in (participant['id'], participant['kind'])])
+                                      and str((m.get('to') or {}).get('id') or '').lower() in
+                                      {str(participant.get(k) or '').lower() for k in ('id', 'kind', 'name')} - {''}])
 
     def mark_read(self, participant: dict, message_id: str | None = None) -> None:
         last = message_id or (self.daybook.last() or {}).get('id')
@@ -192,7 +213,8 @@ class Atelier:
         approvals per sprint."""
         rows = self.daybook.read()
         if not rows:
-            return dict(thinking_per_harness=None, refusals_per_hundred=None, approvals_per_sprint=None, capacity_failures=0)
+            return dict(thinking_per_harness=None, refusals_per_hundred=None, approvals_per_sprint=None, capacity_failures=0,
+                        setup_failures=0)
         from datetime import datetime
         first, last = datetime.fromisoformat(rows[0]['at']), datetime.fromisoformat(rows[-1]['at'])
         wall = max((last - first).total_seconds(), 0.0)
@@ -201,12 +223,13 @@ class Atelier:
         state = self.facts()
         calls = max(sum((r.get('cost') or {}).get('model_calls') or (1 if r['kind'] == 'message' and r['sender']['kind'] != 'operator' else 0) for r in rows), 1)
         capacity_failures = sum(is_capacity_failure(row) for row in rows)
-        refused = state['failed_turns'] - capacity_failures + state['withheld']
+        setup_failures = sum(bool(setup_failure(row)) for row in rows)
+        refused = state['failed_turns'] - capacity_failures - setup_failures + state['withheld']
         sprints = max(len(state['plan']['sprints']), 1)
         return dict(thinking_per_harness=round(thinking / harness, 3) if harness else None,
                     refusals_per_hundred=round(100.0 * refused / calls, 2),
-                    capacity_failures=capacity_failures,
-                    approvals_per_sprint=round(len(state['approvals']) / sprints, 2),
+                    capacity_failures=capacity_failures, setup_failures=setup_failures,
+                    approvals_per_sprint=round(facts_module.go_notes(state) / sprints, 2),
                     thinking_seconds=round(thinking, 1), harness_seconds=round(harness, 1), calls=calls)
 
     # -- internals -----------------------------------------------------------------------------------------
@@ -220,7 +243,35 @@ class Atelier:
         question the atelier could not see at post time (or after a repair to its reading) is still asked."""
         state = self.facts()
         self._ask(state)
+        self._signpost(state)
         return state
+
+    def _signpost(self, state: dict) -> None:
+        """When the minds keep writing to one another with nothing new (no file, no word from the operator), tell the
+        operator once, in a note only the operator receives. Nothing is held: the minds keep their rhythm, the wake's
+        wording leads them to say readiness once and then rest, and the budget stays the backstop (Paved Roads, Not
+        Fences). Rehearsal F6 (2026-10-27): three minds holding at the close woke each other for forty notes; in
+        rehearsal 2 the wording alone kept the room quiet, and a hold placed here stopped a working team (F8)."""
+        if state['acceptance'] or state['campaign'].get('request_kind') in ('chat', 'library') or self.waiting_for_operator():
+            return
+        notes = self.daybook.read()
+        quiet = 0
+        for note in reversed(notes):
+            kind = note['sender'].get('kind')
+            if kind == 'operator' or note.get('files'):
+                break
+            if note['kind'] == 'host' and (note.get('facts') or {}).get('signpost'):
+                return                                   # said once since the operator last spoke
+            if note['kind'] == 'message' and kind != 'host':
+                quiet += 1
+        # The team is every mind that has written here, as well as any the plan names: a team assigned on the Team page
+        # is not in the plan's roster (rehearsal 2 rested after two notes because the plan named only one mind).
+        team = {str(n['sender'].get('id')) for n in notes if n['kind'] == 'message' and n['sender'].get('kind') not in ('operator', 'host')}
+        team |= {str(m.get('id') or m.get('name')) for m in state['roster']}
+        if quiet >= QUIET_NOTES_PER_MIND * max(2, len(team)):
+            self.note(f'The team has written {quiet} notes since the last file or word from you, with nothing new. They may '
+                      'be waiting for your ruling: accept the result, say what to change, or say "carry on".',
+                      facts=dict(signpost='circles'), to=dict(id='operator', kind='operator', name='Operator'))
 
     def _ask(self, state: dict) -> None:
         for q in facts_module.questions(state):

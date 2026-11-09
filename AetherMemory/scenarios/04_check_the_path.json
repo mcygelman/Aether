@@ -1,6 +1,6 @@
 {
   "name": "04_check_the_path",
-  "origin": "Claude's own mistake (2026-10-05): a DeepSeek task asked for tool_choice on a paid path that refuses it",
+  "origin": "An agent's own mistake (2026-10-05): a DeepSeek task asked for tool_choice on a paid path that refuses it",
   "start": "2026-10-05T14:15:00Z",
   "agent": "claude",
   "memories": [

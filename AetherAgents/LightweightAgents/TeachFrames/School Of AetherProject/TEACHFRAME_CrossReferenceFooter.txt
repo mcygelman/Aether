@@ -1,0 +1,71 @@
+⟪TEACHFRAME_CROSSREFERENCEFOOTER⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Overseer (Claude, acting) — promoted from S00060 R1 / S00061 mission evidence⟫
+⟪SCHOOL::School Of AetherProject⟫
+⟪AUDIENCE::any agent authoring a standalone quick-card or reference document⟫
+⟪PREREQUISITES::NONE⟫
+⟪OBSERVED_BY::S00060 and S00061 builders/reviewers; Overseer (Claude, acting)⟫
+⟪RETIRES_WHEN::the documentation system supplies equivalent navigation automatically or no standalone cards remain⟫
+⟪MEASURED_BY::lint standalone cards and references for a final-line companion/master cross-reference⟫
+⟪EVIDENCE::S00060 R1; S00061 repeated mission evidence⟫
+⟪PREVENTS::standalone reference documents becoming orphaned from their companion set⟫
+⟪LINEAGE::Overseer (Claude, acting) 2026-06-14⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Cross-Reference Footer on Every Quick-Card and Reference
+
+[ PURPOSE ]
+  Teaches every agent to end any standalone quick-card or reference document with a one-line
+  cross-reference footer linking its companion documents and the master card. Prevents orphaned
+  documentation and lets a reader navigate the set from any single document without loading the
+  whole protocol corpus.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: DOCUMENTATION_HYGIENE
+SUBJECT: CROSS_REFERENCE_FOOTER
+[DEF]
+  QUICK_CARD       := ⌞a small standalone staff reference (one screen)⌟
+  XREF_FOOTER      := ⌞a one-line footer naming companion docs + the master card⌟
+[PROPERTIES]
+  ⊨ Every standalone card/reference SHOULD end with an XREF_FOOTER
+  ⊨ The footer is the LAST line; it adds ~one markdown line (~20 tokens)
+  ⊨ Discoverability of the set MUST NOT depend on loading the full corpus
+}WMC
+
+[ EXAMPLES ]
+//
+// S00060/S00061 live evidence (the lesson's origin):
+//
+[Setup]:    Three learning-artifact quick-cards drafted independently (Micro-Reflection,
+            TeachFrame Candidate, Resume Update).
+[Process]:  All three shipped WITHOUT a footer; the gap recurred across independent drafts and
+            again on the consolidated reference (S00061), each caught only at review.
+[Result]:   → Promoted to doctrine: every card/reference ends with a footer naming its companions
+            and the master Aether_v11_Staff_Quick_Card.md. Footer form below.
+
+  Companion cards: <Card_A> · <Card_B> · <Card_C>. See the master Aether_v11_Staff_Quick_Card.md.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ USAGE_NOTES ]
+  • Builder: add the XREF_FOOTER as the final line of any standalone card/reference you produce.
+  • Reviewer: treat a missing footer on a standalone card as a one-line REVISE finding.
+  • Manager: when a card set grows, ensure footers list the current companions (update on add).
+  • Scope: applies to standalone cards/references — NOT to task packets, results, or canvas entries.
+
+[ SELF_CHECK ]
+  Q: You finished a new standalone quick-card. What is its last line?
+  A: A cross-reference footer naming its companion cards and the master card.
+
+[ CARD ]
+  LESSON::CROSSREFERENCEFOOTER
+  FOR::Teaches every agent to end any standalone quick-card or reference document with a one-line cross-reference footer...
+  PREVENTS::standalone reference documents becoming orphaned from their companion set
+  EXAMPLE::Three learning-artifact quick-cards drafted independently (Micro-Reflection,
+
+⟪END_TEACHFRAME⟫

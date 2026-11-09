@@ -1,0 +1,209 @@
+{
+  "date": "2026-11-03 America/New_York",
+  "authorization": "Michel requested availability for SVGAnimator, SVGBackgroundArtist and CatAnimator while preserving identities/memories and the working loop.",
+  "qualification": "Pilot guidance available through the existing curriculum catalog; not an efficacy or release acceptance result.",
+  "source_attribution": "Frame Smith/Fable earlier lesson; two unnamed local AI authors supplied by Michel; synthesis and modularization by Praxis at Michel's request.",
+  "review": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/COMPARISON.md",
+  "input_hashes": [
+    {
+      "copy": "AetherPlanAndAnalysis\\CaseStudies\\SVG_Teachframe_Pilot\\revisions_20261103\\inputs\\svg-animation-lessons.md",
+      "bytes": 8179,
+      "sha256": "9aac15bca284ea4234abe9e1e5e0cc777a3e8b8cb2d2d59f95aec1ff1ab95c7d",
+      "source_filename": "svg-animation-lessons.md"
+    },
+    {
+      "copy": "AetherPlanAndAnalysis\\CaseStudies\\SVG_Teachframe_Pilot\\revisions_20261103\\inputs\\cat-on-fence.svg",
+      "bytes": 14053,
+      "sha256": "efb80413ee02b4a02cb1c9c840cb7e405b75a3ff83e9ea4e93c9f057dcd3d39e",
+      "source_filename": "cat-on-fence.svg"
+    },
+    {
+      "copy": "AetherPlanAndAnalysis\\CaseStudies\\SVG_Teachframe_Pilot\\revisions_20261103\\inputs\\cat_svg_guide.md",
+      "bytes": 15002,
+      "sha256": "efe6d473e006618b9c8594f940eb5137b90ad6a519a92ece349d0c0108d2f6bc",
+      "source_filename": "cat_svg_guide.md"
+    },
+    {
+      "copy": "AetherPlanAndAnalysis\\CaseStudies\\SVG_Teachframe_Pilot\\revisions_20261103\\inputs\\cat-walking-on-fence.svg",
+      "bytes": 19986,
+      "sha256": "41fc6206f93c97428b135c6f5fd56479edc1fa735bdb028bf23e0c6b3bcda765",
+      "source_filename": "cat-walking-on-fence.svg"
+    },
+    {
+      "copy": "AetherPlanAndAnalysis\\CaseStudies\\SVG_Teachframe_Pilot\\revisions_20261103\\inputs\\TEACHFRAME_SVG_ATTACHMENT_v1.3.txt",
+      "bytes": 18105,
+      "sha256": "3cf49e3b9987d76e0369b90dfeb0bbfafbb70c9700c91f6ce4b38b5ac029fd93",
+      "source_filename": "TEACHFRAME_SVG_ATTACHMENT_v1.3.txt"
+    }
+  ],
+  "evidence": "Original source/example checks retained. Two real DeepSeek attempts: invalid cat baseline, then valid rendered integration; both ended incomplete on command recovery violations. No controlled efficacy score or expertise claim.",
+  "availability_adaptations": [
+    "Explicit SVG-agent audiences",
+    "Real catalog prerequisite names",
+    "Product provenance pointer",
+    "Current availability status and existing-tool selection instructions",
+    "Generated cards; teaching algorithms otherwise retained"
+  ],
+  "lessons": [
+    {
+      "name": "SVG_ATTACHMENT",
+      "source": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/TEACHFRAME_SVG_ATTACHMENT_v1.4.txt",
+      "source_sha256": "991d67a696a31b68151e6389479715de2518cb9d265833ea2164bc307b31ccf9",
+      "product": "AetherAgents/LightweightAgents/TeachFrames/School Of Coding/TEACHFRAME_SVG_ATTACHMENT.txt",
+      "product_sha256": "7d50de596ca6a6ff53bc6d3f83acead251cb712ae75786c033ac80aacdd8292e",
+      "card_tokens": 90,
+      "current_revision_source": "AetherSprints/Sprint_Active/SVG_TAIL_FILL_REPAIR_20261104/teachframes-postrun/TEACHFRAME_SVG_ATTACHMENT.txt",
+      "version": "1.10"
+    },
+    {
+      "name": "SVG_BACKGROUND_DESIGN",
+      "source": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/TEACHFRAME_SVG_BACKGROUND_DESIGN_v1.0.txt",
+      "source_sha256": "9f9592790a4698b8d0f7bc0d330b61491612942e1fc9caef1ec1bd4345727e4f",
+      "product": "AetherAgents/LightweightAgents/TeachFrames/School Of Coding/TEACHFRAME_SVG_BACKGROUND_DESIGN.txt",
+      "product_sha256": "d331771420ec295788c69f181cc5e2ed465fe3f19b0710dad43e1e4da8c036d9",
+      "card_tokens": 97
+    },
+    {
+      "name": "SVG_BACKGROUND_SCROLL",
+      "source": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/TEACHFRAME_SVG_BACKGROUND_SCROLL_v1.0.txt",
+      "source_sha256": "1d49bc7faaebc46b2d0c85043199bcc84c7ced5ea78f6bed505e0423c2f102c2",
+      "product": "AetherAgents/LightweightAgents/TeachFrames/School Of Coding/TEACHFRAME_SVG_BACKGROUND_SCROLL.txt",
+      "product_sha256": "087aaae377b7f9ecec9bffff54e9e469bacf7163a6b3e436edb481ecf7254c19",
+      "card_tokens": 93
+    },
+    {
+      "name": "SVG_CAT_RIG",
+      "source": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/TEACHFRAME_SVG_CAT_RIG_v1.0.txt",
+      "source_sha256": "0d21ddcb20c717d24cd0740b97e79804eb1e65c125b77d754bb5b8aff94a5d98",
+      "product": "AetherAgents/LightweightAgents/TeachFrames/School Of Coding/TEACHFRAME_SVG_CAT_RIG.txt",
+      "product_sha256": "8d2f8360a047508b5667a8001986517d88defcb21b70856c4c2cefaf1556aa9a",
+      "card_tokens": 91,
+      "current_revision_source": "AetherSprints/Sprint_Active/SVG_EYES_FORWARD_20261104/teachframes-updated/TEACHFRAME_SVG_CAT_RIG.txt",
+      "version": "1.5"
+    },
+    {
+      "name": "SVG_FIGURE_CROSSING",
+      "source": "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/revisions_20261103/TEACHFRAME_SVG_FIGURE_CROSSING_v1.0.txt",
+      "source_sha256": "03738d056fd771a44a77aa2920508ad3caef77aa5dfe25c0ac4e482aa91b37f4",
+      "product": "AetherAgents/LightweightAgents/TeachFrames/School Of Coding/TEACHFRAME_SVG_FIGURE_CROSSING.txt",
+      "product_sha256": "4484a40ccf227be319eba94ae83042e8a5948e9a5f75ebaa30d2ec5da3b0dc37",
+      "card_tokens": 96
+    }
+  ],
+  "revision_history": [
+    {
+      "operator_date": "2026-11-03",
+      "authorization": "Michel: update the Teachframes with these lessons and let the SVG team try again with a $5 budget",
+      "evidence": "AetherSprints/Sprint_Active/SVG_CAT_POLISH_20261103/OPERATOR_REVIEW.txt",
+      "preserved_prior": "AetherSprints/Sprint_Active/SVG_CAT_REPAIR_20261103/teachframes-before",
+      "scope": "SVG_ATTACHMENT 1.5 and SVG_CAT_RIG 1.1; existing XML/recovery protocol, no loop change"
+    },
+    {
+      "operator_date": "2026-11-03",
+      "authorization": "Michel: find why retry=true keeps being missed and fix guidance; preserve both runs and loop; prepare morning handoff",
+      "evidence": "AetherSprints/Sprint_Active/SVG_RECOVERY_GUIDANCE_20261103/DIAGNOSIS.txt",
+      "preserved_prior": "AetherSprints/Sprint_Active/SVG_RECOVERY_GUIDANCE_20261103/teachframes-before",
+      "scope": "SVG_ATTACHMENT1.6 / SVG_CAT_RIG1.2 plus existing briefcase directive; no new paid run"
+    },
+    {
+      "operator_date": "2026-11-05",
+      "authorization": "Michel: \"Retire it\" (SVG_CAT_RIG, after accepting taught cat trial 2)",
+      "evidence": "AetherSprints/Sprint_Active/SVG_TAUGHT_CAT_20261105/RETROSPECTIVE.md",
+      "preserved_prior": "AetherSprints/Sprint_Active/SVG_CAT_RIG_RETIREMENT_20261105/before",
+      "scope": "SVG_CAT_RIG archived unchanged at v1.5 (TeachFrames/Retired Lessons/Archived SVG-01); SVG_ATTACHMENT1.11, SVG_BACKGROUND_SCROLL1.1, SVG_FIGURE_CROSSING1.1, SVG_CAT_BODY_CONSTRUCTION0.3 and SVG_CAT_FACE_DETAILS0.4 route cats to the construction frames; no ratio, check or loop change; no paid run"
+    }
+  ],
+  "trial_results": [
+    {
+      "run": "S-20261104-svg-cat-repair",
+      "versions": {
+        "SVG_ATTACHMENT": "1.5",
+        "SVG_CAT_RIG": "1.1"
+      },
+      "result": "Working SVG delivered; run stopped incomplete during participant review after a diagnostic failure and omitted retry flag. Some earlier bounded recoveries succeeded. No identity closure or reliable transfer demonstrated.",
+      "evidence": "AetherSprints/Sprint_Active/SVG_CAT_REPAIR_20261103/OPERATOR_REVIEW.txt",
+      "reported_cost_estimate": 3.169041
+    }
+  ],
+  "evidence_updates": [
+    {
+      "date": "2026-11-04",
+      "authorization": "Michel: fix hollow tail with $2.08; Teachframes updated and reinjected; loop/GUI untouched",
+      "evidence": "AetherSprints/Sprint_Active/SVG_SYNTAX_RECOVERY_20261104/OPERATOR_REVIEW.txt",
+      "revisions": [
+        {
+          "name": "SVG_ATTACHMENT",
+          "prior_version": "1.6",
+          "version": "1.7",
+          "before_sha256": "4fd4908e750a3f19b6dbedcea87663188f2a518f3525cbea8c8f50494836c083",
+          "sha256": "f5ff7bb449697bb70753a6b9d5ef39add9932ca9536b5b10be63a6d602485d96",
+          "card_tokens": 90
+        },
+        {
+          "name": "SVG_CAT_RIG",
+          "prior_version": "1.2",
+          "version": "1.3",
+          "before_sha256": "f8c80088b8cce32b9fd4881d1598695f79c0014198b730c8ba994a10bb3d48c4",
+          "sha256": "9fb77946b89d3bdf48e300a153aea39a40e379241eb0692a1b3e8a89f13576bb",
+          "card_tokens": 91
+        }
+      ]
+    },
+    {
+      "date": "2026-11-04",
+      "version": "SVG_ATTACHMENT1.8",
+      "evidence": "AetherSprints\\Sprint_Active\\SVG_TAIL_FILL_REPAIR_20261104\\LESSON_UPDATE_02.txt",
+      "qualification": "Current native integration errors recovered; efficacy not established"
+    },
+    {
+      "date": "2026-11-04",
+      "version": "SVG_ATTACHMENT1.9",
+      "evidence": "AetherSprints\\Sprint_Active\\SVG_TAIL_FILL_REPAIR_20261104\\LESSON_UPDATE_03.txt",
+      "qualification": "Byte normalization demonstrated independently; native final reports preserved"
+    },
+    {
+      "date": "2026-11-04",
+      "kind": "post_run_observation",
+      "sprint": "S-20261104-svg-tail-fill",
+      "revisions": [
+        {
+          "name": "SVG_ATTACHMENT",
+          "version": "1.10",
+          "sha256": "7d50de596ca6a6ff53bc6d3f83acead251cb712ae75786c033ac80aacdd8292e",
+          "prior_sha256": "e4d7305653c44d0caf037b37ae15bae681613d9e46d496f4d1f4bd540fc48d25",
+          "card_tokens": 90
+        },
+        {
+          "name": "SVG_CAT_RIG",
+          "version": "1.4",
+          "sha256": "315d8ede2574e5028d9b4825d35078efff834520377703ea54f80e1a5e1ff7a2",
+          "prior_sha256": "9fb77946b89d3bdf48e300a153aea39a40e379241eb0692a1b3e8a89f13576bb",
+          "card_tokens": 91
+        }
+      ],
+      "source_review": "OPERATOR_REVIEW.txt in SVG_TAIL_FILL_REPAIR_20261104",
+      "tail_crop_equal_samples": 8,
+      "estimate": 0.614863,
+      "delivery": "Post-run editions not yet injected into a paid wake. Actual earlier delivery recorded in TEACHFRAME_ACTUAL_DELIVERY.json."
+    },
+    {
+      "date": "2026-11-04",
+      "version": "SVG_CAT_RIG1.5",
+      "evidence": "User-selected original/eyes-forward mockup; new round authorized",
+      "qualification": "Approved design preference, not a general anatomy law"
+    },
+    {
+      "date": "2026-11-04",
+      "kind": "eyes_forward_result",
+      "sprint": "S-20261104-svg-eyes-forward",
+      "versions": [
+        "SVG_ATTACHMENT1.10",
+        "SVG_CAT_RIG1.5"
+      ],
+      "actual_staff_wakes": 6,
+      "review": "AetherSprints/Sprint_Active/SVG_EYES_FORWARD_20261104/OPERATOR_REVIEW.txt",
+      "render_samples": 9,
+      "scope": "Four eye/lid translations only; sampled open/blink/closed appearance inspected; no general efficacy proof"
+    }
+  ]
+}

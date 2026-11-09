@@ -15,6 +15,12 @@ from importlib import import_module as _import_module
 _SUBMODULES = ('deposit', 'school', 'teachframe')
 _NAMES = {}
 
+# An export that leaves some submodules out (the public repository) lists only those it contains.
+_HERE = __import__("pathlib").Path(__file__).parent
+_PRESENT = lambda m: (_HERE / (m.replace(".", "/") + ".py")).is_file() or (_HERE / m.replace(".", "/") / "__init__.py").is_file()
+_SUBMODULES = tuple(m for m in _SUBMODULES if _PRESENT(m))
+_NAMES = {name: module for name, module in _NAMES.items() if _PRESENT(module)}
+
 __all__ = sorted(set(_SUBMODULES) | set(_NAMES))
 
 

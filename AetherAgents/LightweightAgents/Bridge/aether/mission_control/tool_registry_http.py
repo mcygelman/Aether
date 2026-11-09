@@ -178,7 +178,7 @@ def list_servers(registry, settings) -> dict:
         source = 'mcp:' + entry['name']
         servers.append(dict(name=entry['name'], source=source, command=entry['command'],
                             timeout_seconds=entry['timeout_seconds'], configured=True,
-                            status='configured; not started here (starting configured servers needs Michel\'s go)',
+                            status='configured; not started here (starting a configured server needs the operator\'s approval)',
                             tools=by_source.pop(source, [])))
     for source, tools in sorted(by_source.items()):
         servers.append(dict(name=source[4:], source=source, configured=False,

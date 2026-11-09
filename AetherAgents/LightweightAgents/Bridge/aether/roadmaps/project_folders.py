@@ -17,12 +17,13 @@ import re
 import stat
 import tempfile
 import threading
+import time
 import unicodedata
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 from aether.roadmaps.tracker import tracker_http
-from aether.roadmaps.tracker.tracker_store import ROADMAP_STATUSES, DataValidationError, RoadmapStore
+from aether.roadmaps.tracker.tracker_store import ROADMAP_STATUSES, DataValidationError, RoadmapStore, migrate_to_v2
 
 PROJECT_FILE = 'project.json'
 ROADMAP_FILE = 'roadmaps.json'
@@ -127,6 +128,35 @@ def _write_json(path: Path, value) -> None:
             os.unlink(temporary)
 
 
+# The shipped example project: the Aether MVP roadmap (AetherPublicFacing/Release/build_roadmap_seed.py).
+SEED = Path(__file__).resolve().parent / 'seed'
+SEEDED_MARKER = '.aether-seeded'
+
+
+def seed_first_run(root, seed=SEED) -> list[str]:
+    """Copy the shipped projects into a data folder's Projects/ once (Michel, 2026-11-02).
+
+    The marker makes it once only: a project the operator later removes or edits is never restored over.
+    An existing folder of the same name is never touched."""
+    root = Path(root)
+    if not seed.is_dir() or (root / SEEDED_MARKER).exists():
+        return []
+    root.mkdir(parents=True, exist_ok=True)
+    _direct(root)
+    added = []
+    for project in sorted(p for p in seed.iterdir() if p.is_dir()):
+        target = root / project.name
+        if target.exists() or not valid_id(project.name):
+            continue
+        target.mkdir()
+        for name in (PROJECT_FILE, ROADMAP_FILE):
+            if (project / name).is_file():
+                (target / name).write_bytes((project / name).read_bytes())
+        added.append(project.name)
+    (root / SEEDED_MARKER).write_bytes(b'')
+    return added
+
+
 class ProjectFolders:
     """The projects held in one Projects/ folder."""
 
@@ -176,6 +206,57 @@ class ProjectFolders:
         except (ValueError, OSError) as exc:
             view.update(roadmap_ids=[], roadmap_error=f'roadmaps.json could not be read: {exc}')
         return view
+
+    def roadmap_rows(self) -> dict:
+        """Every roadmap, as a row a mission can file (kind 'roadmap'), keyed '<folder>/<roadmap id>'; read-only.
+
+        Michel, 2026-11-02: the pages say Mission -> Roadmap -> Sprint -> Task; the folder is only storage."""
+        rows = {}
+        for project in self.list().get('projects', []):
+            if not project.get('roadmap_ids'):
+                continue
+            try:
+                entry, _ = self.project(project['id'])
+                data, _ = self.store(entry).read()
+            except (ValueError, OSError, ProjectNotFound):
+                continue
+            for roadmap in data['roadmaps']:
+                sprints = [s for s in data['sprints'] if s['roadmapId'] == roadmap['id']]
+                dates = [roadmap.get('updated', '')] + [s.get('updated', '') for s in sprints]
+                key = project['id'] + '/' + roadmap['id']
+                rows[key] = dict(id='folder:' + key, key=key, folder=project['id'], roadmap=roadmap['id'],
+                                 kind='roadmap', name=roadmap['name'],
+                                 brief=roadmap.get('next') or roadmap['description'], stage=roadmap['status'],
+                                 done=roadmap['status'] in ('Completed', 'Aborted'), opened_at='',
+                                 last_at=max(dates, default=''), sprints=len(sprints),
+                                 sprints_closed=sum(s.get('status') == 'Closed' for s in sprints))
+        return rows
+
+    def create_roadmap(self, name, description='') -> str:
+        """A new, empty roadmap in its own folder; returns its key '<folder>/<roadmap id>'."""
+        name = ' '.join(str(name or '').split())
+        description = ' '.join(str(description or '').split()) or 'Roadmap for ' + name
+        view = self.create(dict(name=name, description=description[:LIMITS['description']], status='Planned'))
+        entry, _ = self.project(view['id'])
+        rid = 'roadmap-' + view['id'].lower()
+        store = self.store(entry)
+        data, revision = store.read()
+        data = migrate_to_v2(data)
+        data['roadmaps'].append(dict(id=rid, name=view['name'], description=view['description'], status='Planned',
+                                     updated=time.strftime('%Y-%m-%d')))
+        store.write(data, revision)
+        return view['id'] + '/' + rid
+
+    def roadmap(self, key) -> tuple[Path, str, str]:
+        """The store path, roadmap id and name for a key '<folder>/<roadmap id>'."""
+        folder, _, rid = str(key or '').partition('/')
+        entry, _ = self.project(folder)
+        store = self.store(entry)
+        data, _ = store.read()
+        found = next((r for r in data['roadmaps'] if r['id'] == rid), None)
+        if found is None:
+            raise ProjectNotFound('That roadmap is no longer here; choose another')
+        return store.path, rid, found['name']
 
     def project(self, pid) -> tuple[Path, dict]:
         """The folder and record of an existing project, matched exactly by id."""

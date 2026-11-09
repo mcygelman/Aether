@@ -1,0 +1,81 @@
+⟪TEACHFRAME_SVG_CAT_FACE_DETAILS⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::0.4-DRAFT⟫
+⟪DATE::2026-11-05⟫
+⟪CREATOR::Opus 5.5, at Michel's direction: one agent for the body, one for the face details⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::The face agent of a two-agent cat: eyes, nose, muzzle, mouth, whiskers and blink inside a given head circle⟫
+⟪PREREQUISITES::SVG_CAT_BODY_CONSTRUCTION, SVG_ATTACHMENT⟫
+⟪LINEAGE::SVG_CAT_RIG v1.5 face and blink lessons; fresh-scene trial 2026-11-04/05⟫
+⟪PREVENTS::faces drawn outside the head, eyes that drift from their lids, invisible whiskers and floating noses⟫
+⟪EVIDENCE::Opus built the face ONLY from the RATIOS table on its reference head and rendered it (teachframe-draft/out/head-zoom.png)⟫
+⟪MEASURED_BY::rendered reference and Michel's review; no teaching-efficacy score⟫
+⟪RETIRES_WHEN::a checked cat generator owns these ratios in code⟫
+⟪OBSERVED_BY::Michel (direction and review), Opus (reference render)⟫
+
+[ TITLE ]
+Draw a Cat's Face Inside a Given Head Circle
+
+[ PURPOSE ]
+Place muzzle, eyes, nose, mouth, whiskers and lids by ratios of the head radius h, after the body agent has finished.
+
+Start only from the body agent's HEAD_INTERFACE: head centre H = (hx, hy), radius h, facing. All offsets below are
+from H in units of h, for a cat facing right; for facing left, negate every x offset. Never move or resize the head.
+
+[ RATIOS ]
+  colours       every colour comes from the CURRENT brief; never reuse a colour from an earlier cat or memory
+  muzzle        white ellipse, centre (0.72h, 0.36h), rx 0.40h, ry 0.30h; it may stick out of the head circle
+                at the front by up to 0.2h, which reads as the cheek and chin; the nose and mouth may reach
+                0.3h past the circle and the whiskers further, as these ratios place them
+  near eye      ellipse centre (0.36h, -0.06h), rx 0.19h, ry 0.15h
+  far eye       ellipse centre (0.80h, -0.08h), rx 0.11h, ry 0.14h (narrower: it turns away from the viewer;
+                0.02h higher than the near eye on purpose, for the head's perspective)
+  pupils        vertical ellipse, rx 0.32 x eye rx, ry 0.85 x eye ry, centre shifted 0.1 x eye rx toward the face
+  nose          size n = 0.10h; centre at muzzle centre + (0.92 x muzzle rx, -0.55 x muzzle ry);
+                triangle (-n, -0.6n), (+0.6n, -0.6n), (0, +0.6n), pink
+  mouth         a line from the nose tip down to nose y + 1.6n, then two quadratic arcs: back to -2.0n and
+                forward to +0.25n, each dipping about one n, so it ends inside the muzzle; stroke 0.22n
+  whiskers      three lines from muzzle centre + (0.55 x muzzle rx, 0.10 x muzzle ry) at -12, 0 and +12 degrees,
+                length 1.0h, stroke 0.14n, mid grey: never white on a white muzzle or a pale sky
+  blink lids    one lid per eye with the eye's own centre and size, in the eye's group, so head motion moves both
+
+[ ALGORITHM ]
+1. Read the HEAD_INTERFACE. Add a cat-face group inside cat-head.
+2. Muzzle first, then far eye, near eye (each eye group holds its pupil and then its lid), nose, mouth, whiskers.
+3. Keep both eyes and lids wholly inside the head circle; the muzzle, nose, mouth and whiskers may extend past it
+   at the front exactly as the ratios place them. Keep the nose on the muzzle's front-top edge.
+4. Print every placed centre and size from the written file and compare it with the table before closing.
+
+[ EXAMPLES ]
+[Setup]: Head centre (808, 324), h = 57.6, facing right.
+[Process]: muzzle centre (849.5, 344.7), rx 23.0; near eye (828.7, 320.5) rx 10.9; nose size 5.8.
+[Result]: a readable three-quarter cat face with visible whiskers inside the body agent's head circle.
+
+[ SELF_CHECK ]
+Q1: The near eye's centre is 1.1h from the head centre. Allowed?
+A1: No. Both eyes stay inside the head circle; recompute from the ratios.
+Q2: The whiskers pass every source check but nobody can see them. What changes?
+A2: Their colour: mid grey against both the white muzzle and the background.
+
+[ CARD ]
+  LESSON::SVG_CAT_FACE_DETAILS
+  FOR::Place muzzle, eyes, nose, mouth, whiskers and lids by ratios of the head radius h, after the body agent has finished.
+  PREVENTS::faces drawn outside the head, eyes that drift from their lids, invisible whiskers and...
+  EXAMPLE::Head centre (808, 324), h = 57.6, facing right.
+
+[ CROSS_REFS ]
+  SVG_CAT_BODY_CONSTRUCTION (HEAD_INTERFACE).
+⟪TEACHFRAME_END⟫
+
+[ CHANGE_LOG ]
+v0.1-DRAFT: Michel 2026-11-05: one agent for the body, one for the face details; the body comes first. Ratios proven
+on Opus's reference head; not yet taught.
+v0.2-DRAFT: taught-cat trial 1 (first submission passable): colours from the brief, never memory (green eyes on an
+amber brief); features allowed past the circle at the front stated (reviewer CONFLICT rows); forward mouth arc
++1.2n -> +0.6n so it ends inside the muzzle; eye height offset declared deliberate. v0.1 bytes kept in
+SVG_TAUGHT_CAT_20261105/teachframes-v0.1.
+v0.3-DRAFT: taught-cat trial 2 (first submission passable, closed-pass): forward mouth arc +0.25n (at +0.6n it still ended
+0.028h outside the muzzle); lids paint inside their eye groups, matching RATIOS. v0.2 bytes kept in
+SVG_TAUGHT_CAT_20261105/teachframes-v0.2.
+v0.4-DRAFT: Michel retired SVG_CAT_RIG on 2026-11-05; its cross-reference is gone (the lids and blink are taught here).
+No ratio changed. v0.3 bytes kept in SVG_CAT_RIG_RETIREMENT_20261105/before.

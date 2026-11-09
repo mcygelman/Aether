@@ -90,7 +90,7 @@ def test_assembler_refuses_hand_edited_canonical_card():
 
 def test_catalog_paths_and_all_curriculum_frames_validate():
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-    assert len(catalog["entries"]) == 14
+    assert len(catalog["entries"]) == 21
     assert {entry["state"] for entry in catalog["entries"]} == {
         "CURRICULUM",
         "ARCHIVE",
@@ -100,8 +100,8 @@ def test_catalog_paths_and_all_curriculum_frames_validate():
         "CURRICULUM", "ARCHIVE", "CONSTITUTION"
     }}
     assert counts == {
-        "CURRICULUM": 7,
-        "ARCHIVE": 5,
+        "CURRICULUM": 13,
+        "ARCHIVE": 6,
         "CONSTITUTION": 2,
     }
     for entry in catalog["entries"]:
@@ -111,4 +111,9 @@ def test_catalog_paths_and_all_curriculum_frames_validate():
             text = path.read_text(encoding="utf-8")
             validate(text)
             if entry["state"] == "ARCHIVE":
-                assert "Kairo(o3)" in metadata(text)["LINEAGE"]
+                assert "/Retired Lessons/" in entry["path"], entry["name"]
+                if "/Archived L-01/" in entry["path"]:
+                    assert "Kairo(o3)" in metadata(text)["LINEAGE"]
+    # Retired 2026-11-05 at Michel's word: the construction frames teach the cat now.
+    rig = next(entry for entry in catalog["entries"] if entry["name"] == "SVG_CAT_RIG")
+    assert rig["state"] == "ARCHIVE" and "recommended_for" not in rig

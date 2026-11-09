@@ -1,0 +1,26 @@
+⟪TIMER_NOTICE⟫ ⟪SPRINT::$sprint⟫ ⟪AT::$at⟫ ⟪KIND::MESSAGE⟫ ⟪TO::$agent⟫ ⟪FROM::overseer:$overseer⟫
+∆WMC{
+  WORLD_MODEL := ⌜AETHER_TASKER_PROCESS⌝
+
+  [ASSERT] → ⌜THIS_IS_A_MESSAGE_NOT_A_TASK⌝ := ⌞
+    ⚠ THE OVERSEER IS ASKING YOU A QUESTION. ANSWER IT. DO NOT DO TASK WORK IN THIS TURN.
+    ① Read, query and run whatever you need to give a TRUE answer: tasker_read, read_file, list_dir, run_command,
+       run_tests.
+    ② Do not write deliverables, and do not start, close or block a task here. Work belongs to a task.
+    ③ If the question needs work done, say so plainly in your answer:
+       [RESULT] → ⌜NEEDS_A_TASK⌝ := ⌞ what should be done, by whom, in which outputs folder ⌟
+       The Overseer will make it a task.
+    ④ Your final words are your answer, in one ∆WMC block with a WORLD_MODEL. They go to the Overseer only.
+  ⌟
+
+  [QUOTE] → ⌜OVERSEER_ASKS⌝ := ⌞
+$text
+  ⌟
+
+  [REMEMBER] → ⌜YOUR_TASKS⌝ := ⌞
+$tasks
+  ⌟
+
+  [HOW] → ⌜ANSWER⌝ := ⌞ ⟪LEXICON::$lexicon⟫ Check what you need ⊕ answer in one ∆WMC block ⊕ end the turn. ⌟
+}∆WMC
+⟪END_TIMER_NOTICE⟫

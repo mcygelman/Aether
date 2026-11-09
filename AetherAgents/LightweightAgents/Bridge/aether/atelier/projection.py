@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 from . import facts as facts_module
-from .atelier import Atelier
+from .atelier import Atelier, setup_failure
 
 COMMISSION_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$')
 PAGE = '/projects/atelier'
@@ -40,13 +40,33 @@ def commissions(root) -> list:
             continue
         state = _rebuild(root, path.parent.name)
         out.append(dict(id=path.parent.name, letter=rows[0]['text'][:240], opened_at=rows[0]['at'], last_at=rows[-1]['at'],
-                        notes=len(rows), accepted=bool(state['acceptance'])))
+                        notes=len(rows), accepted=bool(state['acceptance']),
+                        kind=state['campaign'].get('request_kind') or 'project', chat_with=state['campaign'].get('chat_with')))
     return sorted(out, key=lambda c: (c['last_at'], c['id']), reverse=True)
 
 
 def latest(root) -> str | None:
     found = commissions(root)
     return found[0]['id'] if found else None
+
+
+def plain_failure(note: dict, commission) -> dict | None:
+    """A turn that never reached its model, in words, with the page that fixes it. Display only: the daybook keeps
+    its own text, which is also the participant's mail."""
+    kind = setup_failure(note)
+    if not kind:
+        return None
+    who = (note.get('facts') or {}).get('participant') or {}
+    name = who.get('name') or who.get('id') or 'This agent'
+    roster = dict(label='Open the project team', href='/projects/roster' + ('?' + urlencode(dict(commission=commission)) if commission else ''))
+    if kind == 'credentials':
+        return dict(text=f'{name} could not start: the API keys are locked or missing. Unlock them on the API keys page, '
+                         f'then wake {name} again.', fix=dict(label='Open API keys', href='/settings/api-keys/'))
+    if kind == 'placeholder':
+        return dict(text=f'{name} has no model yet: its driving model is the setup placeholder "unconfigured". '
+                         f'Choose a saved model for {name} in this project\'s team.', fix=roster)
+    return dict(text=f'{name} could not reach its model server. Check that the server is running and that its address '
+                     f'in Models is right, or choose another model in this project\'s team.', fix=roster)
 
 
 def people(rows, state) -> list:
@@ -65,8 +85,8 @@ def people(rows, state) -> list:
         seen.pop('lead', None)
         if any(p['kind'] == 'librarian' and p['id'] != 'librarian' for p in seen.values()):
             seen.pop('librarian', None)
-    elif not any(p['kind'] == 'lead' for p in seen.values()):
-        seen['lead'] = dict(id='lead', kind='lead', name='The master')
+    elif state['campaign'].get('request_kind') != 'chat' and not any(p['kind'] == 'lead' for p in seen.values()):
+        seen['lead'] = dict(id='lead', kind='lead', name='Lead')
     return list(seen.values())
 
 
@@ -80,6 +100,7 @@ def thread(root, commission, since=None, working=()) -> dict:
         notes, since_known = (rows[index + 1:], True) if index is not None else (rows, False)
     state = facts_module.rebuild(atelier.daybook)
     status = conversation_status(state, rows, working)
+    notes = [dict(row, plain=plain) if (plain := plain_failure(row, commission)) else row for row in notes]
     return dict(commission_id=commission, notes=notes, since_known=since_known,
                 last_id=rows[-1]['id'] if rows else None, facts=state, budget=atelier.budget_left(state),
                 numbers=atelier.numbers(), chain=atelier.daybook.verify(), people=people(rows, state),
@@ -89,17 +110,19 @@ def thread(root, commission, since=None, working=()) -> dict:
 def hint(state) -> str:
     """What the operator's next note could be, in words. A suggestion, never a requirement."""
     if not state['campaign']['opened_by']:
-        return 'Write the commission letter: what to deliver, why, what helps, and the budget (for example "Budget: 20 model calls").'
+        return 'Write the project brief: what to deliver, why, what helps, and the budget (for example "Budget: 20 model calls").'
     if state['acceptance']:
         return _stage(state)[2]
     if state['campaign'].get('request_kind') == 'library':
         return _stage(state)[2]
     n = state['plan']['awaiting_approval']
     if state['plan']['sprints'] and n is not None:
-        return f'Sprint {n} is planned. Reply "go" to approve it, or say what to change.'
+        waiting = state['plan'].get('awaiting_sprints') or [n]
+        return (f'{facts_module._span(waiting)} {"is" if len(waiting) == 1 else "are"} planned. Approve '
+                f'{"it" if len(waiting) == 1 else "the plan"} (or reply "go"), or say what to change.')
     if state['plan']['sprints']:
-        return 'Every sprint is approved. Reply "accepted" when the deliverable is what you asked for, or say what to change.'
-    return 'The master has been asked for a plan. Write to anyone in the atelier at any time.'
+        return 'Every sprint is approved. Accept the result (or reply "accepted") when it is what you asked for, or say what to change.'
+    return 'The lead has been asked for a roadmap. Write to the team at any time.'
 
 
 def _rebuild(root, commission) -> dict:
@@ -113,16 +136,19 @@ def _stage(state) -> tuple:
         open_closures = [q for q in _open_questions(state) if q['about'] == 'closure']
         return ('Closed', 'DONE', 'Accepted; every closing note is filed.') if filed and not open_closures else \
                ('Close', 'WAITING', 'Accepted; closing notes are being written and filed.')
+    if state['campaign'].get('request_kind') == 'chat':
+        return 'Chat', 'WAITING', 'A direct chat. Write at any time.'
     if state['campaign'].get('request_kind') == 'library':
         return ('Review', 'NEEDS_YOU', 'The librarian replied. Review the reply and any files, then accept or ask for a change.') if state.get('library_reply') else \
                ('Plan', 'WAITING', 'Waiting for the librarian to reply. You can add a note at any time.')
     if not plan['sprints']:
-        return 'Plan', 'WAITING', 'Waiting for the master to reply with a plan.'
+        return 'Plan', 'WAITING', 'Waiting for the lead to reply with a roadmap.'
     if plan['awaiting_approval'] is not None:
-        return 'Sprint', 'NEEDS_YOU', f'Sprint {plan["awaiting_approval"]} is planned and waits for your "go".'
+        waiting = plan.get('awaiting_sprints') or [plan['awaiting_approval']]
+        return 'Sprint', 'NEEDS_YOU', f'{facts_module._span(waiting)} {"is" if len(waiting) == 1 else "are"} planned and wait{"s" if len(waiting) == 1 else ""} for your approval.'
     if state['verdicts']:
-        return 'Review', 'RUNNING', 'Every sprint is approved; the critic has written. Reply "accepted" when it is right.'
-    return 'Sprint', 'RUNNING', 'Every sprint is approved; the assistants are working.'
+        return 'Review', 'RUNNING', 'Every sprint is approved; the reviewer has written. Accept the result when it is right.'
+    return 'Sprint', 'RUNNING', 'Every sprint is approved; the team is working.'
 
 
 def _sha(path: Path):
@@ -134,7 +160,8 @@ def conversation_status(state, rows, working=()) -> dict:
     stage, condition, detail = _stage(state)
     label = ('Finished' if stage == 'Closed' else 'Closing' if stage == 'Close' else
              'Waiting for you' if condition == 'NEEDS_YOU' else 'Waiting for reply')
-    reason = None
+    reason = fix = None
+    signposted = False
     for row in reversed(rows):
         if row['sender']['kind'] == 'operator':
             break
@@ -142,18 +169,24 @@ def conversation_status(state, rows, working=()) -> dict:
             reason = row['facts']['stop']
             label, condition, detail = 'Waiting for you', 'NEEDS_YOU', row['text']
             break
-    if not reason:
+        if row['kind'] == 'host' and (row.get('facts') or {}).get('signpost') and not working:
+            signposted = True           # the room may be circling; nothing is held, approving and accepting stay open
+            label, condition, detail = 'Waiting for you', 'NEEDS_YOU', row['text']
+            break
+    if not reason and not signposted:
         if working:
             label, condition, detail = 'Working', 'RUNNING', 'Taking a turn: ' + ', '.join(sorted(working)) + '.'
         elif rows and rows[-1]['kind'] == 'turn_failed':
-            label, detail = 'Turn failed', rows[-1]['text']
+            plain = plain_failure(rows[-1], state['campaign'].get('id'))
+            label, detail = 'Turn failed', plain['text'] if plain else rows[-1]['text']
+            fix = plain and plain['fix']
         elif rows and (rows[-1].get('facts') or {}).get('filing_failed'):
             label, detail = 'Filing failed', rows[-1]['text']
         elif not state['acceptance']:
             detail = hint(state)
-    return dict(label=label, stage=stage, condition=condition, detail=detail,
+    return dict(label=label, stage=stage, condition=condition, detail=detail, fix=fix,
                 can_approve=not reason and not state['acceptance'] and state['plan']['awaiting_approval'] is not None,
-                can_accept=not reason and not state['acceptance'] and
+                can_accept=not reason and not state['acceptance'] and state['campaign'].get('request_kind') != 'chat' and
                     (state['campaign'].get('request_kind') != 'library' or bool(state.get('library_reply'))))
 
 
@@ -184,7 +217,33 @@ def campaign_state(root, commission) -> dict:
                 actions=[dict(label='Open the atelier', href=link)], obligations=obligations, signals=signals,
                 sources=[dict(path='daybook.jsonl', sha256=_sha(atelier.daybook.path)),
                          dict(path='facts.json', sha256=_sha(root_dir / 'facts.json'))],
-                facts=state, budget=atelier.budget_left(state), numbers=atelier.numbers(), chain=atelier.daybook.verify())
+                facts=state, budget=atelier.budget_left(state), numbers=atelier.numbers(), chain=atelier.daybook.verify(),
+                label=status['label'], fix=status['fix'], waiting=waiting_in_words(state))
+
+
+STAGE_WORDS = {'Plan': 'The lead is writing the roadmap.', 'Sprint': 'The team is working through the approved sprints.',
+               'Review': 'The reviewer has written; accept the result or ask for changes.',
+               'Close': 'Accepted. The agents are writing their closing words.', 'Closed': 'Finished.'}
+
+
+def waiting_in_words(state) -> list:
+    """The atelier's open questions as sentences: who owes what (GUI review S8). Read-only, from the same facts."""
+    names = {'operator': 'You', 'lead': 'The lead', 'librarian': 'The librarian', 'reviewer': 'The reviewer', 'member': 'A developer'}
+    out = []
+    for q in _open_questions(state):
+        who, about = names.get(q['to'], q['to']), q['about']
+        if about == 'plan':
+            what = 'to write the roadmap: one line per sprint, one per task'
+        elif about == 'shelf':
+            what = 'to say what is on the shelf for this campaign'
+        elif about.startswith('approve sprint'):
+            what = 'to say “go” for sprint ' + about.rsplit(' ', 1)[-1]
+        elif about == 'closure':
+            what = 'to write their closing words'
+        else:
+            what = 'to answer: ' + q['text']
+        out.append(dict(who=who, what=what, to=q['to'], about=about, you=q['to'] == 'operator'))
+    return out
 
 
 def _open_questions(state) -> list:

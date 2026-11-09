@@ -1,4 +1,4 @@
-"""Deterministic fault injection for recovery tests (Fable, 2026-10-22, v0.1 lane).
+"""Deterministic fault injection for recovery tests (v0.1).
 
 A recovery test needs the process to die at an exact point, the way a power cut or a killed task dies: no `finally`,
 no flush, no cleanup. `point(name)` does that when the environment names that point, and does nothing otherwise.

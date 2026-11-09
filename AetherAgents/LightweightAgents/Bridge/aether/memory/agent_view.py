@@ -151,6 +151,10 @@ class AgentDirectory:
             return dict(base, status='unavailable', reason=str(exc), name=home.home.name,
                         title=None, rank=_rank([]), avatar_uri=None)
         with engine:
+            from aether.atelier.specialist_learning import active, browse
+            if active(home.home):
+                data=browse(home.home)
+                return dict(base,status='ok',agent_id=engine.agent_id,name=engine.card()['name'] or engine.agent_id,technical=True,lessons=len(data['lessons']),paths=len(data['paths']))
             card = engine.card()
             conn = engine.cart.conn
             report = engine.open_report
@@ -197,10 +201,10 @@ class AgentDirectory:
                 chosen = session
             result = engine.dashboard(session_id=chosen)
             result['viewing'] = {'agent': home.key, 'session_id': chosen,
-                                 'basis': ('Current dashboard using the latest session context.'
+                                 'basis': ('Live view of its notes, using the latest session context.'
                                            if session == LATEST and chosen else
-                                           'Current dashboard without session context: continuity cards cannot name a predecessor.'
-                                           if chosen is None else 'Current dashboard using the selected session context.')}
+                                           'Live view of its notes without session context: continuity cards cannot name a predecessor.'
+                                           if chosen is None else 'Live view of its notes, using the selected session context.')}
             return result
 
     def history(self, key: str, before: Optional[int] = None) -> dict:

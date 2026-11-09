@@ -1,0 +1,43 @@
+⟪NOTICES_DIRECTIVE⟫ ⟪VERSION::1.0⟫ ⟪PROCESS::AETHER_TASKER_PROCESS⟫
+// The Aether Timer's notices: their exact glyphs. The Overseer Directive and the staff README quote this file.
+// The Timer builds every notice from the Tasker's fields; it quotes what minds wrote only as data and never judges.
+
+∆WMC{
+  WORLD_MODEL := ⌜AETHER_TIMER_NOTICES⌝
+
+  [DEF] → ⌜FRAME⌝ := ⌞
+    ⟪TIMER_NOTICE⟫ ⟪SPRINT::<sprint id>⟫ ⟪AT::<UTC time>⟫ ⟪KIND::<kind>⟫ ⟪TO::<agent id | overseer:<id>>⟫ [⟪TASK::<n>⟫]
+    <blocks>
+    ⟪END_TIMER_NOTICE⟫
+    One notice per wake. A task is written {TASK, TITLE, STATUS, ASSIGNED_TO, DEPENDS_ON, NOTE}.
+  ⌟
+
+  [DEF] → ⌜OVERSEER_KINDS⌝ := ⌞
+    HIRED        → you are the Overseer of this sprint; [QUOTE] ⌜SPRINT_GOALS⌝ follows.
+    CHANGES      → [CHANGES] := [ {TASK, FIELD, FROM, TO, BY, NOTE?} , … ] and [TASKER] := {New, Active, Blocked, Closed}.
+                   Every change since your last notice by staff or the operator, oldest first. A status change carries
+                   the task's note as it is now. Your own changes are not sent back to you.
+    QUIET        → nothing is Active and nothing can be dispatched: [BLOCKED] and [WAITING] (with why) follow.
+                   One per quiet spell. Clear the blocks, add or edit tasks, or close the sprint (closure_send).
+    STALE        → a task stayed Active after its turn and one re-prompt. The Timer changed nothing.
+    TURN_FAILED  → a staff turn failed three times (two retries); [ERROR] := "<Type>: <message>". The task is not
+                   dispatched again until you (or the operator) change it.
+    REPLY        → the answer to your message_agent: [QUOTE] ⌜YOU_ASKED::<agent>⌝ and [QUOTE] ⌜REPLY::<agent>⌝.
+    CLOSURE_DONE → every hired agent had its closure turn and the write-back ran: [CLOSURE] lines say what went home.
+    A cap or an operator line rides on your next notice as [ASSERT] → ⌜CAP_REACHED::<cap>⌝ or ⌜OPERATOR⌝.
+  ⌟
+
+  [DEF] → ⌜STAFF_KINDS⌝ := ⌞
+    TASK     → [CURRENT_TASK] ⌜T<n>⌝ and [HOW] ⌜NEXT⌝: tasker_read() first; the prompt lives in the Tasker.
+               A re-prompt adds [ASSERT] ⌜STILL_ACTIVE⌝.
+    Any kind, after a stop → [REMEMBER] ⌜RESUMED⌝ at its top: the same notice again; continue from where it stands.
+    MESSAGE  → [QUOTE] ⌜OVERSEER_ASKS⌝ and [REMEMBER] ⌜YOUR_TASKS⌝; your final words go to the Overseer only.
+    CLOSURE  → [HOW] ⌜IDENTITY_CLOSE⌝: write System 1 and one reflection; call identity_close once.
+  ⌟
+
+  [ASSERT] → ⌜THE_TIMER_NEVER⌝ := ⌞
+    reads what a mind wrote to decide anything · changes a task · skips or reorders the dependency rule ·
+    wakes a mind that has no reason in the table, the message queue or the closure list
+  ⌟
+}∆WMC
+⟪END_NOTICES_DIRECTIVE⟫

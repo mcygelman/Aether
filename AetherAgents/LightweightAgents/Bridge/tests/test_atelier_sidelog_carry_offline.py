@@ -1,5 +1,5 @@
-"""A mind whose cartridge the schema-2 engine wrote is carried forward the first time the atelier opens it (Opus,
-2026-10-19): the engine's migration with a full backup, the log the atelier kept in it comes along, and the log says
+"""A mind whose cartridge the schema-2 engine wrote is carried forward the first time the atelier opens it:
+the engine's migration with a full backup, the log the atelier kept in it comes along, and the log says
 so. A seal that did not match is reported in that row, not held against the mind. No model, no network."""
 from __future__ import annotations
 

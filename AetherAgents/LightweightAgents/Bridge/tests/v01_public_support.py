@@ -126,10 +126,13 @@ SCENARIO = textwrap.dedent('''
     port = httpd.server_port
     origin = f"http://127.0.0.1:{port}"
     results = {}
+    session = {}
 
     def call(method, path, body=None, host=None, headers=None):
         conn = HTTPConnection("127.0.0.1", port, timeout=60)
         h = {"Host": host or f"127.0.0.1:{port}"}
+        if session.get("cookie"):
+            h["Cookie"] = session["cookie"]
         data = None
         if body is not None:
             data = json.dumps(body).encode("utf-8")
@@ -140,12 +143,25 @@ SCENARIO = textwrap.dedent('''
         results[f"{method} {path}" + (f" host={host}" if host else "") + (" xsite" if headers else "")] = response.status
         return response.status, raw
 
+    assert call("GET", "/")[0] == 302                       # signed out: to the sign-in page
+    conn = HTTPConnection("127.0.0.1", port, timeout=60)      # the first account becomes the Admin
+    conn.request("POST", "/api/access/register", body=json.dumps(dict(username="scenario-admin", name="Scenario Admin",
+                 password="scenario-pass-1", confirmation="scenario-pass-1")).encode("utf-8"),
+                 headers={"Content-Type": "application/json", "Origin": origin})
+    signed = conn.getresponse(); signed.read(); conn.close()
+    assert signed.status == 200
+    session["cookie"] = signed.getheader("Set-Cookie").split(";", 1)[0]
     status, raw = call("GET", "/")
-    assert status == 200 and b'href="/agents"' in raw and b"Atelier" in raw
+    assert status == 200 and b'<title>Chat' in raw and b'atelier-nav.js' in raw
+    assert b'/agents' in call("GET", "/settings/models-context/atelier-nav.js")[1]
+    assert call("GET", "/projects/places")[0] == 302
     assert json.loads(call("GET", "/api/health")[1])["edition"] == "atelier"
-    for page in ("/projects/atelier", "/projects/places", "/agents", "/projects/campaign", "/projects/campaign-receipts",
-                 "/projects", "/projects/tools", "/settings/models-context/", "/agent-editor/", "/projects/new"):
+    for page in ("/projects/atelier", "/network", "/chat", "/agents", "/projects/campaign", "/projects/campaign-receipts",
+                 "/projects/roster", "/settings/models-context/", "/settings/api-keys/",
+                 "/agent-editor/"):                       # the public Agent Editor joined this edition on 10-26
         assert call("GET", page)[0] == 200, page
+    for page in ("/projects", "/projects/tools", "/projects/new"):   # full edition only
+        assert call("GET", page)[0] == 404, page
     opened = json.loads(call("POST", "/api/atelier/open", {"text": "Write a one-line readme. Budget: 4 model calls.",
                                                            "request_kind": "project"})[1])
     cid = opened["commission_id"]
@@ -158,9 +174,10 @@ SCENARIO = textwrap.dedent('''
     assert call("GET", "/api/agents/dashboard?agent=Wren")[0] == 200
     assert call("GET", "/api/agents/memory?agent=Wren")[0] == 200
     assert call("GET", "/api/agents/dashboard?agent=Nobody")[0] == 404
-    assert call("GET", "/api/tool-registry")[0] == 200
-    assert call("GET", "/api/project-folders")[0] == 200
-    assert call("POST", "/api/agent-editor/validate", {"not": "a draft"})[0] in (400, 422)
+    status, raw = call("GET", "/api/tool-registry")
+    assert status == 404 and b"full edition" in raw
+    assert call("GET", "/api/project-folders")[0] == 200   # Michel, 2026-11-02: the Roadmap Tracker ships
+    assert call("POST", "/api/agent-editor/validate", {"not": "a draft"})[0] != 404   # public and stateless here
     for private in ("/projects/overseer", "/api/missions", "/projects/closure-dialogue", "/projects/campaign-journey",
                     "/api/campaign-candidate", "/projects/minder", "/projects/staffing", "/chartered-project",
                     "/api/agent-editor/consent-policy", "/api/heavyweight-runs", "/projects/plan-ruling"):

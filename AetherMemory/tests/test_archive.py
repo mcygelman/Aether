@@ -7,7 +7,7 @@ import pytest
 
 from memory_fabric import MemoryEngine, viewer
 from memory_fabric.__main__ import main
-from memory_fabric.archive import create_archive, humanize, own_labels, plan_archive
+from memory_fabric.archive import create_archive, create_archive_from_plan, humanize, own_labels, plan_archive
 from memory_fabric.belt import MemoryBelt
 from memory_fabric.cartridge import CartridgeError
 from memory_fabric.importer import ImporterError
@@ -162,3 +162,27 @@ def test_viewer_and_cli_show_an_archive(legacy, tmp_path):
         page = viewer.render_html(snap)
     assert "Archive" in page and json.dumps("not a rehydration")[1:-1] in page
     assert main(["view", out, str(tmp_path / "aion.html")]) == 0
+
+
+def test_reviewed_plan_keeps_duplicate_paths_and_exact_metadata(legacy, tmp_path):
+    from dataclasses import replace
+    before = _tree(legacy)
+    plan = plan_archive(legacy, "aion", "2025-04-27")
+    original = next(r for r in plan.records if r.record_id == "rehydration/AION_BOOT_STREAM_v1_0.txt")
+    duplicate_path = "archives/AION_BOOT_STREAM_v1_0.txt"
+    plan.records.append(replace(original, record_id=duplicate_path, relpath=duplicate_path,
+                                date="2025-04-12T12:34:56Z", written_by="as filed",
+                                links=[(original.record_id, "context")]))
+    plan.skipped = [(p, reason) for p, reason in plan.skipped if p != duplicate_path]
+    out = str(tmp_path / "reviewed.sqlite")
+    create_archive_from_plan(plan, out, "aion", "2025-04-27", note="Retired; never rehydrate.")
+    with MemoryEngine.open(out, read_only=True) as engine:
+        row = engine.cart.conn.execute("SELECT * FROM notes WHERE note_id=?", (duplicate_path,)).fetchone()
+        assert row["body"] == original.body
+        assert row["created_at"] == "2025-04-12T12:34:56Z"
+        assert row["written_by"] == "as filed"
+        assert row["source_ref"] == "import:" + duplicate_path
+        assert len(viewer.snapshot(engine)["notes"]) == len(plan.records)
+    assert _tree(legacy) == before
+    with pytest.raises(ImporterError):
+        create_archive_from_plan(plan, os.path.join(legacy, "bad.sqlite"), "aion", "2025-04-27")

@@ -1,7 +1,10 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<!-- Owner: project Records presentation and legacy full-edition receipt viewer.
+     Must never: change records, infer acceptance, or expose full-edition sections in the public shell. -->
 <title>Campaign receipt</title>
-<style>body{font:16px system-ui;background:#101820;color:#eef5f5;max-width:1100px;margin:2rem auto;padding:1rem}a{color:#79d5cd}code,p{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer}section{border:1px solid #567;padding:1rem;margin:1rem 0}li{margin:.5rem 0}button{padding:.6rem}</style>
-<nav><a id="campaign" href="/projects/campaign">Campaign</a> · <a href="/">Mission Control</a></nav>
+<style>body{font:16px system-ui;background:#101820;color:#eef5f5;max-width:1100px;margin:2rem auto;padding:1rem}a{color:#79d5cd}code,p{overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer}section{background:#172630;border:1px solid #39505e;border-radius:10px;padding:1rem;margin:1rem 0}a:focus-visible,button:focus-visible{outline:2px solid #79d5cd;outline-offset:2px}li{margin:.5rem 0}button{padding:.6rem}</style>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<nav data-local-nav><a id="campaign" href="/projects/campaign">Campaign</a> · <a href="/">Mission Control</a></nav>
 <h1>Campaign receipt</h1>
 <p>Exact record digests and the references they capture: framing, plan, staff, run, review, acceptance, closure and memory. This view reads existing records and grants no authority.</p>
 <p id="status" role="status"></p><p id="error" role="alert"></p><button id="refresh">Refresh</button>
@@ -18,6 +21,13 @@
 const id=new URLSearchParams(location.search).get('id');
 const suffix=id?'?id='+encodeURIComponent(id):'';
 document.getElementById('campaign').href='/projects/campaign'+suffix;
+function projectPresentation(){
+ const h=document.querySelector('h1');if(h&&h.firstChild&&h.firstChild.nodeType===3)h.firstChild.nodeValue='Records';document.title='Records · Aether';
+ const intro=h&&h.nextElementSibling;if(intro&&intro.tagName==='P')intro.textContent='Every message and file of this project, each with its fingerprint (SHA-256), so anyone can check that nothing changed.';
+ for(const id of ['planning-memory','artifact-candidates']){let e=document.getElementById(id);e.hidden=true;e=e.previousElementSibling;while(e&&e.tagName!=='H2'){e.hidden=true;e=e.previousElementSibling;}if(e)e.hidden=true;}
+}
+// The public shell is known before loading records, including when that read fails.
+if(globalThis.aetherNav)projectPresentation();
 function text(parent,tag,value){const e=document.createElement(tag);e.textContent=value;parent.append(e);return e;}
 function planningMemory(rows){const root=document.getElementById('planning-memory');root.replaceChildren();
  for(const row of rows){const section=text(root,'section','');text(section,'h3','Proposal '+(row.version??'unknown')+' — '+row.status);
@@ -36,8 +46,11 @@ function planningMemory(rows){const root=document.getElementById('planning-memor
 async function load(){try{
  const response=await fetch('/api/campaign-receipts'+suffix,{cache:'no-store',credentials:'same-origin'});
  const value=await response.json();if(!response.ok)throw Error(value.error||response.status);
- document.getElementById('status').textContent=value.campaign_id+' — '+value.stage+' / '+value.condition+'. '+value.reason;
+ const stages={Plan:'Planning',Sprint:'In progress',Review:'In review',Close:'Closing',Closed:'Done'};
+ document.getElementById('status').textContent=value.source==='atelier'?'Project '+value.campaign_id+' · '+(stages[value.stage]||value.stage)+(value.reason?' · '+value.reason:''):value.campaign_id+' — '+value.stage+' / '+value.condition+'. '+value.reason;
  document.getElementById('error').textContent=(value.problems||[]).map(p=>p.source+': '+p.error).join('\n');
+ // An Atelier campaign has no planning-memory or task-publication records: their full-edition sections stay hidden.
+ if(value.source==='atelier')projectPresentation();
  planningMemory(value.planning_memory||[]);
  const candidates=document.getElementById('artifact-candidates');candidates.replaceChildren();
  for(const row of value.artifact_candidates||[]){const section=text(candidates,'section','');

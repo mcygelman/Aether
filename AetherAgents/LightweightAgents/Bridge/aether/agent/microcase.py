@@ -1,7 +1,7 @@
 """MICROCASE-1 — the Ultralight tier's identity format.
 
-S00073.7 C-5 / Roadmap_Ultralight.md U-01. Lives BESIDE the parity-locked modules
-(canon/briefcase/ack/budget) per `Ultralight_Charter.md` R7 -- never inside them. Everything
+S00073.7 C-5 / Ultralight roadmap item U-01. Lives BESIDE the parity-locked modules
+(canon/briefcase/ack/budget) per the Ultralight charter's rule R7 -- never inside them. Everything
 here composes from their existing parse output (`canon.canon_sha`, `ack.parse_ack`,
 `budget.est_tokens`, `assembler.section_body`) rather than reimplementing canonicalization,
 seal-gate diffing, or token estimation.
@@ -54,7 +54,7 @@ DYNAMIC_FLOOR_MICRO = 3072
 MAX_RESULT_CHARS_MICRO = 8000
 TOOL_CALL_CAP_MICRO = 6
 
-# AETHER-µ v1.0 card, VERBATIM from AETHER_MICRO_Lexicon.md ("this exact text rides in every
+# AETHER-µ v1.0 card, VERBATIM from the AETHER-µ lexicon ("this exact text rides in every
 # MICROCASE `--- TAGS ---` section"). Sealed inside every microcase; a changed card is a reseal
 # wave + changelog line in the lexicon doc, never a silent edit here.
 AETHER_MICRO_TAGS_CARD = (
@@ -76,8 +76,8 @@ AETHER_MICRO_TAGS_CARD = (
 # floor + one-line route discipline + one-line packet scope.
 # Drafted by Sagan (Roadmap U-01: "Sagan researches + summarizes the S00073.x lessons into the
 # draft LAW section text"), genuine LW mission `025c937107e7` P1, dispatched through Mission
-# Control with real tool calls against Fable_Ruling_S00073.6_Integrity_and_Ceiling.md and
-# Ultralight_Charter.md. Reviewed by Linus (same mission, P3): READY, ~95 tokens (well under the
+# Control with real tool calls against the integrity-and-ceiling design decision and the
+# Ultralight charter. Reviewed by Linus (same mission, P3): READY, ~95 tokens (well under the
 # ~140 target), all five R3 sub-requirements confirmed present verbatim. A prior LW dispatch
 # attempt for this same draft (mission `bacf1038eb87`) failed honestly -- BLOCKED, wrong root
 # granted -- and is preserved as a record, not deleted; this is the corrected, genuine rerun.
@@ -280,7 +280,7 @@ def micro_gate(mc: Microcase, reply_text: str) -> MicroGateResult:
     return MicroGateResult(True, "micro-gate PASS")
 
 
-# --- Tag-lint (Charter R6 / AETHER_MICRO_Lexicon.md "Machine-checkability") --------------------
+# --- Tag-lint (Charter R6 / AETHER-µ lexicon "Machine-checkability") --------------------
 
 @dataclass
 class LintFinding:

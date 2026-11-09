@@ -1,6 +1,6 @@
 """tests/test_toolbelt.py -- ToolBelt.dispatch() argument-validation regression.
 
-2026-07-20, live bug found in a real DeepSeek chat session (Michel's Aether Studio persona
+2026-07-20, live bug found in a real DeepSeek chat session (an Aether Studio persona
 chat): the model called `search` without the required `root` argument. `dispatch()`'s main
 table[name](**args) path had no guard against a malformed call -- unlike the run_command branch,
 which already wrapped its call in try/except and converted any exception to ToolError. The bad

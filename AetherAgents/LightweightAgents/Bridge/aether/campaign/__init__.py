@@ -14,7 +14,7 @@ attempts included; links never followed); handle_campaign_state, the
 GET /api/campaign-state handler Mission Control dispatches to (this module never imports
 Mission Control).
 Depends on: roadmaps, integrity, runtime. Pure record projection lives in roadmaps.campaign_projection; runtime never imports this higher-level campaign package.
-Owner: Claude (Opus 5.5).
+Owner: Campaign maintainers.
 
 The public interface is __all__: the submodules and names listed there. Everything
 else in this package is internal. Submodules load on first use (PEP 562), so
@@ -28,6 +28,12 @@ _NAMES = {'campaign_state': 'state', 'execution_status': 'state', 'load_campaign
           'CampaignNotFound': 'records', 'CampaignRegistryUnavailable': 'records', 'handle_campaign_state': 'campaign_http',
           'VOCABULARY': 'vocabulary', 'CONDITIONS': 'vocabulary', 'PRECEDENCE': 'vocabulary',
           'STAGES': 'vocabulary', 'UNRECOGNIZED': 'vocabulary', 'classify': 'vocabulary'}
+
+# An export that leaves some submodules out (the public repository) lists only those it contains.
+_HERE = __import__("pathlib").Path(__file__).parent
+_PRESENT = lambda m: (_HERE / (m.replace(".", "/") + ".py")).is_file() or (_HERE / m.replace(".", "/") / "__init__.py").is_file()
+_SUBMODULES = tuple(m for m in _SUBMODULES if _PRESENT(m))
+_NAMES = {name: module for name, module in _NAMES.items() if _PRESENT(module)}
 
 __all__ = sorted(set(_SUBMODULES) | set(_NAMES))
 

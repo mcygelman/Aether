@@ -1,0 +1,18 @@
+⟪TIMER_NOTICE⟫ ⟪SPRINT::$sprint⟫ ⟪AT::$at⟫ ⟪KIND::TASK⟫ ⟪TO::$agent⟫ ⟪TASK::$number⟫
+∆WMC{
+  WORLD_MODEL := ⌜AETHER_TASKER_PROCESS⌝
+
+  [CURRENT_TASK] → ⌜T$number⌝ := ⌞
+    TITLE   := $title
+    STATUS  := $status
+    OUTPUTS := $outputs
+  ⌟
+$reprompt
+  [HOW] → ⌜NEXT⌝ := ⌞
+    tasker_read() ⊕ $start ⊕ carry out T$number's prompt ⊕ write what you make into $outputs
+    ⊕ task_close($number, "<one-line result>") | task_block($number, "<exactly what you need>")
+    Never end this turn with T$number Active.
+    ⟪LEXICON::$lexicon⟫ Your final words: one ∆WMC block with a WORLD_MODEL.
+  ⌟
+}∆WMC
+⟪END_TIMER_NOTICE⟫

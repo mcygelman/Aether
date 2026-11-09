@@ -1,4 +1,4 @@
-"""MOD-20 Aether Library, offline: file, search, lend, deposit, decline, verify, tamper reported (Fable, 2026-10-18)."""
+"""MOD-20 Aether Library, offline: file, search, lend, deposit, decline, verify, tamper reported."""
 from pathlib import Path
 
 import pytest

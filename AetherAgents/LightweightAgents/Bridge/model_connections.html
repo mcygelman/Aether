@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aether · Model connections</title>
+<!-- One page, one job. A connection is a saved, reusable way to reach a model; which agent
+     uses it in which campaign is chosen in Campaign roster. Saves go through the same validated settings file, revision
+     check and audit as the advanced editor; fields this page does not show are kept as they are. -->
+<style>
+:root{color-scheme:dark;--bg:#10171b;--panel:#192329;--line:#34454d;--muted:#bac9ce;--ink:#edf5f4;--accent:#97dbbd;--warn:#ffd28a;--bad:#ffb4a8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:960px;margin:auto;padding:28px 20px 80px}nav{font-size:14px;margin-bottom:18px}nav a,a{color:var(--accent)}
+header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:18px}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:2px;font-weight:700}
+h1{font-size:30px;margin:6px 0}h2{font-size:20px;margin:0 0 14px}h3{font-size:18px;margin:0 0 6px}.muted,small{color:var(--muted)}p{margin:6px 0 12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--panel);margin-bottom:14px}
+.card .facts{margin:4px 0 10px;color:var(--muted);font-size:15px}.card .facts div{overflow-wrap:anywhere}
+.check{font-size:14px;margin:6px 0 10px}.check.ok{color:var(--accent)}.check.warn{color:var(--warn)}
+label{display:block;font-size:14px;color:var(--muted);margin-top:14px}
+input,select{display:block;width:100%;padding:10px 12px;margin-top:6px;border:1px solid #597079;border-radius:7px;background:#101b20;color:var(--ink);font:inherit}
+input[readonly]{opacity:.75}input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--bad)}.error{color:var(--bad);font-size:14px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.row{display:flex;gap:10px;align-items:end}.row input{flex:1}
+button{border:1px solid #6e8b87;border-radius:8px;padding:9px 14px;background:transparent;color:var(--ink);font:600 14px system-ui;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#102b23}button.danger{color:var(--bad);border-color:#a7685f}button:disabled{opacity:.45;cursor:default}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.chips button{font-weight:500;padding:6px 10px}
+.setup-panel{border:1px solid var(--line);border-radius:8px;padding:14px;margin:16px 0}.discovery-result{border-top:1px solid var(--line);padding:12px 0;overflow-wrap:anywhere}.setup-panel ol{padding-left:22px}.setup-panel li{margin:8px 0}.setup-panel code{overflow-wrap:anywhere}
+#status{min-height:1.5em;margin:0 0 14px;padding:10px 14px;border-radius:8px;background:#1f2d33}#status:empty{display:none}#status.bad{background:#3a2522;color:#ffd7cf}
+#errors:empty{display:none}#errors{border:1px solid #a7685f;border-radius:8px;padding:10px 14px;margin-top:14px;color:#ffd7cf}#errors ul{margin:4px 0 0 18px;padding:0}
+details{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}summary{cursor:pointer;color:var(--muted)}
+.confirm{border:1px solid #a7685f;border-radius:8px;padding:12px 14px;margin-top:10px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.row{flex-direction:column;align-items:stretch}}
+</style>
+<body><script src="atelier-nav.js"></script><main>
+<nav data-local-nav aria-label="Aether"><a href="/">Aether</a> · <a href="/projects/roster">Project team</a> · <a href="/agents">Agents</a> · <a href="KEY_PAGE_URL">API keys</a></nav>
+<header><div class="eyebrow">AETHER / SETTINGS</div><h1>Model connections</h1>
+<p class="muted">Saved ways to reach a model. Each project chooses which connection drives each agent in its <a href="/projects/roster">Project team</a>.</p></header>
+<div id="status" role="status" aria-live="polite">Loading connections…</div>
+<div id="operatorBox" class="muted"></div>
+<div id="connectionCounts" class="connection-counts" aria-label="Connection overview"></div>
+<div class="connection-tools"><label for="connectionSearch">Find a connection<input type="search" id="connectionSearch" placeholder="Search names, models or servers" autocomplete="off"></label><label for="connectionProvider">Provider<select id="connectionProvider"><option value="all">All providers</option><option value="deepseek">DeepSeek</option><option value="claude">Claude (Anthropic)</option><option value="openai">OpenAI</option><option value="lmstudio">LM Studio</option><option value="llamacpp">llama.cpp</option><option value="openai-compatible">Other OpenAI-compatible</option></select></label></div>
+<p id="connectionResults" class="muted" role="status" aria-live="polite"></p>
+<section id="list" aria-label="Saved connections"></section>
+<p id="placeholder" class="muted" hidden></p>
+<div class="actions"><button id="add" class="primary" type="button">Add connection</button></div>
+
+<section id="formCard" class="card" hidden aria-labelledby="formTitle" style="margin-top:18px">
+<h2 id="formTitle">Add connection</h2>
+<form id="form" novalidate>
+<div id="setupChoice"><label for="computeLocation">Where will the model run?</label>
+<select id="computeLocation"><option value="local">This computer</option><option value="network">Another computer on my network</option><option value="hosted">Hosted provider</option></select>
+<p id="locationHelp" class="muted"></p></div>
+<section id="localDiscovery" class="setup-panel" aria-labelledby="localTitle" hidden>
+<h3 id="localTitle">Find a local model server</h3>
+<p>Start your inference server, then check the common local addresses below. Aether connects to your server; install and manage the engine and models in the application you choose.</p>
+<button id="discoverLocal" type="button">Check for local servers</button>
+<p class="muted">Checks <code>127.0.0.1:1234</code> and <code>127.0.0.1:8080</code> for model lists without sending credentials. For a different port, enter its full address below.</p>
+<p id="discoveryStatus" role="status" aria-live="polite"></p><div id="discoveryResults"></div>
+<details id="localGuide"><summary>Set up LM Studio — recommended for getting started</summary>
+<ol><li>Install LM Studio and choose a model suitable for your computer.</li><li>In LM Studio’s Developer tab, turn on <strong>Start server</strong>. Keep LM Studio running.</li><li>Return here and choose <strong>Check for local servers</strong>. Use the server, then choose one of its listed models below.</li><li>Name and save the connection. Select it in Chat or assign it to an agent in a project.</li></ol>
+<p>If the server requires authentication, select its saved API key below and use <strong>Load models from server</strong>. An empty list may mean no model is available yet; review the model in your inference application.</p>
+<a href="https://lmstudio.ai/docs/developer/core/server" target="_blank" rel="noopener">LM Studio server guide</a>
+</details></section>
+<label for="provider">Provider</label>
+<select id="provider" aria-describedby="providerError"></select><div id="providerError" class="error"></div>
+<label for="address">Server address</label>
+<input id="address" autocomplete="off" spellcheck="false" aria-describedby="addressHelp addressError"><small id="addressHelp"></small><div id="addressError" class="error"></div>
+<label for="key">API key</label>
+<select id="key" aria-describedby="keyNote keyError"></select><small id="keyNote"></small><div id="keyError" class="error"></div>
+<label for="model">Model</label>
+<div class="row"><input id="model" autocomplete="off" spellcheck="false" aria-describedby="modelError modelListNote"><button id="loadModels" type="button">Load models from server</button></div>
+<div id="modelError" class="error"></div><small id="modelListNote"></small><div id="modelList" class="chips"></div>
+<label for="name">Connection name</label>
+<input id="name" autocomplete="off" spellcheck="false" aria-describedby="nameHelp nameError"><small id="nameHelp">How projects refer to this connection. Letters, digits, dots, dashes or underscores.</small><div id="nameError" class="error"></div>
+<details id="advanced"><summary>Advanced: limits and budgets</summary>
+<p class="muted" id="advancedNote">Starter values for this provider, not verified provider limits. A model listing does not verify capacity.</p>
+<div class="grid">
+<div><label for="window">Model window (tokens)</label><input id="window" inputmode="numeric" aria-describedby="windowError"><div id="windowError" class="error"></div></div>
+<div><label for="output">Maximum output (tokens)</label><input id="output" inputmode="numeric" aria-describedby="outputError"><div id="outputError" class="error"></div></div>
+<div><label for="timeout">Request timeout (seconds)</label><input id="timeout" inputmode="numeric" aria-describedby="timeoutError"><div id="timeoutError" class="error"></div></div>
+<div><label for="tools">Tool-call limit (calls)</label><input id="tools" inputmode="numeric" aria-describedby="toolsError"><div id="toolsError" class="error"></div></div>
+<div><label for="pool">Resource pool</label><input id="pool" aria-describedby="poolError"><div id="poolError" class="error"></div></div>
+<div><label for="dialect">Response format</label><select id="dialect"></select></div>
+<div style="grid-column:1/-1"><label for="description">Description</label><input id="description" aria-describedby="descriptionError"><div id="descriptionError" class="error"></div></div>
+</div>
+<p class="muted">Every other setting (context reserves, token-count tolerance, capability note) is kept as it is. <a href="advanced">Open the advanced editor</a> to change them.</p>
+</details>
+<div id="errors" role="alert"></div>
+<div class="actions"><button id="save" class="primary" type="submit">Save connection</button><button id="cancel" type="button">Cancel</button></div>
+<p class="muted">Saving also checks the connection: Aether asks the server for its model list. No model is loaded or run.</p>
+</form>
+</section>
+<p class="muted" style="margin-top:28px"><a href="advanced">Advanced editor</a> — every field of the settings file, presets and budget preview.</p>
+</main>
+<script>
+const settingsHost = {embedded:false}; // SETTINGS_HOST
+const $=id=>document.getElementById(id);
+const PROVIDERS={
+ deepseek:{label:'DeepSeek',adapter:'deepseek',address:'https://api.deepseek.com',model:'deepseek-flash',dialect:'deepseek',pool:'deepseek_cloud',keyProvider:'deepseek',keyRequired:true,window:65536,output:8192,timeout:120,tools:16,extra:{reasoningMode:'off',thinking:'disabled',reasoningTelemetry:'not-reported'},help:'DeepSeek’s API address.'},
+ lmstudio:{label:'LM Studio',adapter:'lmstudio',address:'http://127.0.0.1:1234/v1',model:'',dialect:'openai',pool:'local_lmstudio',keyProvider:'openai-compatible',keyRequired:false,window:32768,output:4096,timeout:300,tools:16,extra:{},help:'LM Studio’s API address; check the port in its Developer tab.'},
+ llamacpp:{label:'llama.cpp server',adapter:'llamacpp',address:'http://127.0.0.1:8080/v1',model:'',dialect:'openai',pool:'local_llamacpp',keyProvider:'openai-compatible',keyRequired:false,window:32768,output:4096,timeout:300,tools:16,extra:{},help:'llama-server’s API address; use its configured port.'},
+ // Michel, 2026-11-07: users attach DeepSeek, OpenAI, Claude or a local model; all speak the OpenAI chat format here.
+ openai:{label:'OpenAI',adapter:'openai-compatible',address:'https://api.openai.com/v1',model:'gpt-5.5',dialect:'openai',pool:'openai_cloud',keyProvider:'openai',keyRequired:true,window:131072,output:16000,timeout:180,tools:16,extra:{},help:'OpenAI’s API address. OpenAI’s newest models take tool calls only through its newer Responses API, which Aether does not use yet; GPT-5.5 lists tool calls on this route.'},
+ claude:{label:'Claude (Anthropic)',adapter:'openai-compatible',address:'https://api.anthropic.com/v1',model:'claude-opus-5-5',dialect:'openai',pool:'anthropic_cloud',keyProvider:'anthropic',keyRequired:true,window:200000,output:16000,timeout:300,tools:16,extra:{},help:'Claude through Anthropic’s OpenAI-compatible address. Aether sends no temperature here, because Claude refuses it.'},
+ 'openai-compatible':{label:'Other OpenAI-compatible server',adapter:'openai-compatible',address:'',model:'',dialect:'openai',pool:'openai_compatible',keyProvider:'openai-compatible',keyRequired:false,window:32768,output:4096,timeout:120,tools:16,extra:{},help:'The server’s API base address, usually ending in /v1.'}};
+const DIALECTS={deepseek:['deepseek','auto'],openai:['openai','auto'],claude:['openai','auto'],lmstudio:['openai','auto'],llamacpp:['openai','auto'],'openai-compatible':['openai','deepseek','auto']};
+const LOCAL_SERVERS=['http://127.0.0.1:1234/v1','http://127.0.0.1:8080/v1'];
+let discoveryRun=0,modelListRun=0;
+function setupLocation(){return editing?null:$('computeLocation').value;}
+const STARTER_NOTE='Starter values chosen in Model connections; not verified provider limits. A model listing does not verify capacity.';
+const PLACEHOLDER_MODEL='not-configured';   // installed_app.unconfigured_profiles: keeps the file valid, reaches no model
+let saved=null,keys=null,usage={known:false,usage:{}},operators=[],operatorId=null,editing=null,nameTouched=false,busy=false,confirming=null;
+const checks=new Map();
+
+function el(tag,text,cls){const e=document.createElement(tag);if(text!=null)e.textContent=String(text);if(cls)e.className=cls;return e;}
+function status(text,bad){$('status').textContent=text||'';$('status').className=bad?'bad':'';}
+async function api(path,body){const r=await fetch(path,body===undefined?{cache:'no-store'}:{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ let v={};try{v=await r.json();}catch(e){v={error:'Unexpected response ('+r.status+')'};}if(!r.ok)throw new Error(v.error||('Request failed ('+r.status+')'));return v;}
+const profiles=()=>(saved&&saved.document&&saved.document.profiles)||{};
+const isPlaceholder=p=>p&&p.requestedApiIdentifier===PLACEHOLDER_MODEL;
+const providerOf=p=>{try{const host=new URL(p.endpoint).hostname;if(host==='api.anthropic.com')return 'claude';if(host==='api.openai.com')return 'openai';}catch(_){}
+ return PROVIDERS[p.adapter_type]?p.adapter_type:'openai-compatible';};
+const HOSTED=['deepseek','openai','claude'];
+function keyText(ref){if(!ref)return 'No key';
+ if(ref.kind==='vault'){const k=(keys&&keys.keys||[]).find(k=>k.id===ref.name);return k?'API key: '+k.label:keys&&keys.unlocked?'API key: missing — choose another':'API key: saved (unlock API keys to see its label)';}
+ return ref.kind==='env'?'API key: environment variable '+ref.name+' (advanced)':'API key: sealed entry '+ref.name+' (advanced)';}
+function usageText(id){if(!usage.known)return '';const list=usage.usage[id]||[];
+ return list.length?'Used in '+list.length+' project'+(list.length>1?'s':'')+': '+list.map(c=>c.title).join(' · '):'Not used in any project yet.';}
+function checkLine(id){const c=checks.get(id);if(!c)return null;const when=c.at.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+ return el('div','Last check, '+when+': '+plainCheck(c,profiles()[id]),'check '+(c.healthy?'ok':'warn'));}
+function plainCheck(c,p){const model=(p&&p.requestedApiIdentifier)||c.requested_model||'this model';
+ switch(c.code){case 'ready':return 'the server answered and lists '+model+'.';
+  case 'unknown_model':return 'the server answered but does not list '+model+'. It lists: '+(c.model_ids||[]).join(', ')+'.';
+  case 'unreachable':return 'the server did not answer at '+(p&&p.endpoint||'its address')+'. Check that it is running.';
+  case 'bad_credential':return 'the server refused the API key. Replace it on the API keys page.';
+  case 'rate_limited':return 'the provider’s rate limit was reached. Try again later.';
+  case 'invalid_model_listing':return 'the server answered but listed no models. Check the address; it usually ends in /v1.';
+  default:return 'the check could not run: '+(c.message||'unknown error');}}
+
+function render(){const list=$('list');list.replaceChildren();const all=profiles();
+ const v3=saved&&saved.document&&saved.document.schemaVersion===3;$('add').disabled=busy||!v3;
+ if(saved&&!v3){list.append(el('p','This settings file uses an older format. Open the advanced editor to convert it; connections appear here afterwards.','muted'));}
+ const real=Object.keys(all).filter(id=>!isPlaceholder(all[id])).sort((a,b)=>a.localeCompare(b));
+ if(v3&&!real.length)list.append(el('p','No connections yet. Add one to reach DeepSeek, LM Studio, llama.cpp or another OpenAI-compatible server.','muted'));
+ const q=$('connectionSearch').value.trim().toLocaleLowerCase(),provider=$('connectionProvider').value;
+ const shown=real.filter(id=>(provider==='all'||providerOf(all[id])===provider)&&(!q||(id+' '+all[id].requestedApiIdentifier+' '+all[id].endpoint+' '+(all[id].description||'')).toLocaleLowerCase().includes(q)));
+ $('connectionCounts').replaceChildren(el('span',real.length+' saved connections'),el('span',usage.known?real.filter(id=>(usage.usage[id]||[]).length).length+' used in projects':'Project usage unavailable'));
+ $('connectionResults').textContent=shown.length+' of '+real.length+' connections';
+ if(!saved){$('connectionCounts').replaceChildren(el('span','Connections unavailable'));$('connectionResults').textContent='Load the saved settings to browse connections.';}
+ if(real.length&&!shown.length)list.append(el('p','No connections match these filters. Change the provider or search text.','muted'));
+ for(const id of shown){const p=all[id],card=el('article',null,'card');card.setAttribute('aria-label',id);
+  card.append(el('h3',id));const facts=el('div',null,'facts');
+  facts.append(el('div',(PROVIDERS[providerOf(p)].label)+' · '+p.requestedApiIdentifier),el('div','Server: '+p.endpoint),el('div',keyText(p.credential_ref)));
+  const u=usageText(id);if(u)facts.append(el('div',u));card.append(facts);const c=checkLine(id);if(c)card.append(c);
+  const actions=el('div',null,'actions');const edit=el('button','Edit');edit.type='button';edit.onclick=()=>openForm(id);
+  const check=el('button','Check again');check.type='button';check.onclick=()=>checkAgain(id);
+  const del=el('button','Delete','danger');del.type='button';del.onclick=()=>{confirming=id;render();};
+  for(const b of [edit,check,del])b.disabled=busy;actions.append(edit,check,del);card.append(actions);
+  if(confirming===id){const box=el('div',null,'confirm');const used=(usage.usage[id]||[]).length;
+   box.append(el('p','Delete “'+id+'”? '+(used?'It is used in '+used+' project'+(used>1?'s':'')+'. Those assignments stay and will show this connection as missing until you choose another one in Project team.':'No project uses it.')+' Your API key is not deleted.'));
+   const yes=el('button','Delete connection','danger'),no=el('button','Keep it');yes.type=no.type='button';yes.onclick=()=>remove(id);no.onclick=()=>{confirming=null;render();};
+   const row=el('div',null,'actions');row.append(yes,no);box.append(row);card.append(box);}
+  list.append(card);}
+ const held=Object.keys(all).filter(id=>isPlaceholder(all[id]));
+ $('placeholder').hidden=!held.length;$('placeholder').textContent=held.length?held.join(', ')+' is the setup placeholder that keeps the settings file valid. It reaches no model and cannot be chosen in a project.':'';}
+
+function renderOperator(){const box=$('operatorBox');box.replaceChildren();
+ if(!operators.length){box.textContent='No registered operator was found, so changes cannot be saved yet. Open Aether once to create the local operator, then reload this page.';return;}
+ if(operators.length===1)return;const label=el('label','Saving as');const select=document.createElement('select');select.id='operatorSelect';
+ select.add(new Option('Choose who is making changes',''));for(const o of operators)select.add(new Option(o.display_name,o.id));select.value=operatorId||'';
+ select.onchange=()=>{operatorId=select.value||null;};label.htmlFor='operatorSelect';box.append(label,select);}
+
+async function load(){busy=true;render();
+ try{const [s,k,u,o]=await Promise.all([api('api/settings'),api('api/credentials').catch(()=>null),api('api/usage').catch(()=>({known:false,usage:{}})),api('api/operators').catch(()=>({operators:[]}))]);
+  saved=s;keys=k;usage=u;operators=o.operators||[];if(!operators.some(x=>x.id===operatorId))operatorId=operators.length===1?operators[0].id:null;
+  status('');}catch(e){status(e.message.includes('cannot be read')||e.message.includes('Unreadable')?'The settings file cannot be read. Open the advanced editor to repair it.':e.message,true);}
+ finally{busy=false;renderOperator();render();}}
+
+// -- the form ---------------------------------------------------------------------------------------------------
+function fillProviders(){const s=$('provider');s.replaceChildren();for(const [id,p] of Object.entries(PROVIDERS)){if(!editing&&setupLocation()!=='hosted'&&HOSTED.includes(id))continue;s.add(new Option(p.label,id));}}
+function fillDialects(provider,value){const s=$('dialect');s.replaceChildren();const names={openai:'OpenAI chat format',deepseek:'DeepSeek chat format',auto:'Detect automatically'};
+ for(const d of DIALECTS[provider])s.add(new Option(names[d],d));s.value=DIALECTS[provider].includes(value)?value:DIALECTS[provider][0];}
+function currentRef(){const v=$('key').value;if(!v)return null;if(v.startsWith('ref:')){const [,kind,name]=v.split(':');return {kind,name};}return {kind:'vault',name:v};}
+function fillKeys(selectedRef){const preset=PROVIDERS[$('provider').value],s=$('key'),note=$('keyNote');s.replaceChildren();note.replaceChildren();
+ const all=(keys&&keys.keys)||[],matching=all.filter(k=>k.provider===preset.keyProvider),others=all.filter(k=>k.provider!==preset.keyProvider);
+ if(!preset.keyRequired)s.add(new Option('No key — server permits unauthenticated access',''));else s.add(new Option(matching.length?'Choose a saved key':'No saved '+preset.label+' key yet',''));
+ for(const k of matching)s.add(new Option(k.label,k.id));for(const k of others)s.add(new Option(k.label+' (saved for another provider)',k.id));
+ if(selectedRef&&selectedRef.kind!=='vault')s.add(new Option('Current: '+(selectedRef.kind==='env'?'environment variable ':'sealed entry ')+selectedRef.name+' (advanced)','ref:'+selectedRef.kind+':'+selectedRef.name));
+ if(selectedRef&&selectedRef.kind==='vault'&&!all.some(k=>k.id===selectedRef.name))s.add(new Option(keys&&keys.unlocked?'Previously selected key is missing — choose another':'Saved key (locked)',selectedRef.name));
+ s.value=selectedRef?(selectedRef.kind==='vault'?selectedRef.name:'ref:'+selectedRef.kind+':'+selectedRef.name):(preset.keyRequired&&matching.length===1?matching[0].id:'');
+ const link=a=>{const l=el('a',a);l.href='KEY_PAGE_URL';l.target='_blank';l.rel='noopener';return l;};
+ if(keys&&keys.configured&&!keys.unlocked&&(preset.keyRequired||selectedRef)){note.append('Your API keys are locked. ',link('Unlock them on the API keys page'),' (opens in a new tab); this form keeps what you typed and refreshes the list when you come back.');}
+ else if(preset.keyRequired&&!matching.length){note.append(link('Add a '+preset.label+' key on the API keys page'),' (opens in a new tab), then come back; the list refreshes.');}
+ else if(!preset.keyRequired){note.textContent='Choose a key only if this server requires one. Saved keys sent to another computer require HTTPS.';}}
+function slug(text){return (text||'').toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);}
+function suggestName(){if(editing||nameTouched)return;const base=slug($('model').value)||slug($('provider').value)||'connection';let name=base,i=2;
+ while(Object.hasOwn(profiles(),name))name=base+'-'+i++;$('name').value=name;}
+function applyProvider(reset){const id=$('provider').value,p=PROVIDERS[id],defaults=Object.values(PROVIDERS).map(x=>x.address),models=Object.values(PROVIDERS).map(x=>x.model);
+ ++modelListRun;
+ if(reset||!$('address').value||defaults.includes($('address').value))$('address').value=setupLocation()==='network'?'':p.address;
+ if(!editing&&(reset||!$('model').value||models.includes($('model').value)))$('model').value=p.model;
+ $('addressHelp').textContent=p.help;fillDialects(id,editing?$('dialect').value:p.dialect);
+ if(!editing){$('window').value=p.window;$('output').value=p.output;$('timeout').value=p.timeout;$('tools').value=p.tools;$('pool').value=p.pool;$('description').value=p.label+' connection';}
+ fillKeys(editing?currentRef():null);$('modelList').replaceChildren();$('modelListNote').textContent='';suggestName();}
+function chooseLocation(){
+ ++discoveryRun;++modelListRun;$('discoverLocal').disabled=false;$('discoveryResults').replaceChildren();$('discoveryStatus').textContent='';$('localGuide').open=false;
+ fillProviders();const mode=setupLocation();$('provider').value=mode==='hosted'?'deepseek':mode==='local'?'lmstudio':'openai-compatible';
+ $('localDiscovery').hidden=mode!=='local';$('locationHelp').textContent=mode==='local'?'Use LM Studio, llama.cpp or another compatible server running alongside Aether.':mode==='network'?'Enter the other computer’s full API address, for example http://192.168.1.42:1234/v1. Enable network serving there and allow the port through its firewall. Each machine/model can have its own named connection.':'Choose your provider and its saved API key, or enter another OpenAI-compatible provider’s API address.';
+ $('address').placeholder=mode==='network'?'http://192.168.1.42:1234/v1':'';
+ clearErrors();applyProvider(true);
+}
+async function discoverLocal(){
+ const run=++discoveryRun;$('discoverLocal').disabled=true;$('discoveryResults').replaceChildren();$('discoveryStatus').textContent='Checking two local addresses…';
+ const results=await Promise.allSettled(LOCAL_SERVERS.map(endpoint=>api('api/list-models',{adapter_type:'openai-compatible',endpoint,credential_ref:null,timeout_seconds:2})));
+ if(run!==discoveryRun||$('formCard').hidden||setupLocation()!=='local')return;
+ let found=0;results.forEach((result,i)=>{const endpoint=LOCAL_SERVERS[i],v=result.status==='fulfilled'?result.value:null,listed=v?.code==='listed';if(listed)found++;
+  const row=el('div',null,'discovery-result');row.append(el('strong',endpoint),el('p',listed?v.model_ids.length+' model'+(v.model_ids.length===1?'':'s')+' listed.':v?.code==='bad_credential'?'Server requires authentication. Enter its address and select a key below.':v?.code==='invalid_model_listing'?'Server answered but listed no models. Review its loaded/available models.':result.status==='rejected'?'Check could not complete. Try again or enter the address below.':'No model server answered at this address.'));
+  if(listed){const use=el('button','Use this server');use.type='button';use.onclick=()=>{++modelListRun;$('provider').value='openai-compatible';applyProvider(true);$('address').value=endpoint;$('key').value='';$('pool').value='local-'+new URL(endpoint).port;$('model').value='';$('modelListNote').textContent='Choose a model the server lists:';showModels(v.model_ids);$('model').focus();};row.append(use);}
+  $('discoveryResults').append(row);
+ });$('discoveryStatus').textContent=found?found+' server'+(found===1?'':'s')+' listed models. Choose one to prepare a connection.':'No models found at these addresses. Follow the guide below, or enter a different server address.';$('localGuide').open=!found;$('discoverLocal').disabled=false;
+}
+function clearErrors(){for(const e of document.querySelectorAll('.error'))e.textContent='';for(const e of document.querySelectorAll('[aria-invalid]'))e.removeAttribute('aria-invalid');$('errors').replaceChildren();}
+function openForm(id){editing=id;nameTouched=false;confirming=null;clearErrors();fillProviders();const p=id&&profiles()[id];
+ ++discoveryRun;++modelListRun;$('setupChoice').hidden=!!id;$('localDiscovery').hidden=!!id;
+ $('formTitle').textContent=id?'Edit '+id:'Add connection';$('name').readOnly=!!id;
+ $('nameHelp').textContent=id?'Projects refer to this connection by its name, so it is kept. Add a new connection to use another name.':'How projects refer to this connection. Letters, digits, dots, dashes or underscores.';
+ if(p){$('provider').value=providerOf(p);$('address').value=p.endpoint;$('model').value=p.requestedApiIdentifier;$('name').value=id;$('window').value=p.contextWindow??'';$('output').value=p.maxOutputTokens??'';
+  $('timeout').value=p.timeoutSecs??'';$('tools').value=p.maxToolCalls??'';$('pool').value=p.resource_pool||'';$('description').value=p.description||'';fillDialects(providerOf(p),p.dialect);
+  $('addressHelp').textContent=PROVIDERS[providerOf(p)].help;fillKeys(p.credential_ref);$('advancedNote').textContent='The values saved with this connection.';}
+ else{$('computeLocation').value='local';$('model').value='';$('address').value='';$('advancedNote').textContent='Starter values for this provider, not verified provider limits. A model listing does not verify capacity.';chooseLocation();}
+ $('modelList').replaceChildren();$('modelListNote').textContent='';$('advanced').open=false;$('formCard').hidden=false;$('add').hidden=true;render();$(id?'provider':'computeLocation').focus();}
+function closeForm(){++discoveryRun;++modelListRun;editing=null;$('formCard').hidden=true;$('add').hidden=false;clearErrors();}
+function showModels(ids){const box=$('modelList');box.replaceChildren();
+ for(const id of ids){const b=el('button',id);b.type='button';b.onclick=()=>{$('model').value=id;suggestName();$('model').focus();};box.append(b);}}
+async function loadModels(){const run=++modelListRun;$('modelError').textContent='';$('modelListNote').textContent='Asking the server for its model list…';$('loadModels').disabled=true;
+ try{const r=await api('api/list-models',{adapter_type:PROVIDERS[$('provider').value].adapter,endpoint:$('address').value.trim(),credential_ref:currentRef(),timeout_seconds:10});
+  if(run!==modelListRun)return;$('modelListNote').textContent=r.code==='listed'?'Choose a model the server lists:':r.message;showModels(r.model_ids||[]);}
+ catch(e){if(run===modelListRun){$('modelListNote').textContent='';$('modelError').textContent=e.message;}}finally{$('loadModels').disabled=false;}}
+const LOOPBACK=h=>['127.0.0.1','localhost','[::1]'].includes(h);
+function validate(){const errors=[],add=(field,text)=>errors.push([field,text]);const preset=PROVIDERS[$('provider').value];
+ const name=$('name').value.trim(),address=$('address').value.trim(),ref=currentRef();
+ if(!editing){if(!name)add('name','Enter a connection name.');else if(!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(name))add('name','Use letters, digits, dots, dashes or underscores, starting with a letter or digit.');else if(Object.hasOwn(profiles(),name))add('name','Another connection already has this name.');}
+ let url=null;try{url=new URL(address);}catch(e){}
+ if(!address)add('address','Enter the server address.');else if(!url||!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash)add('address','Enter an http:// or https:// address with no user name, query or #.');
+ else if(ref&&ref.kind==='vault'&&url.protocol!=='https:'&&!LOOPBACK(url.hostname))add('address','A saved API key is only sent over https://, or to this computer (127.0.0.1).');
+ if(!$('model').value.trim())add('model','Enter the model, or load the list from the server and choose one.');
+ if(preset.keyRequired&&!ref)add('key','Choose a saved '+preset.label+' API key.');
+ const ints={window:'Model window',output:'Maximum output',timeout:'Request timeout',tools:'Tool-call limit'};
+ for(const [id,label] of Object.entries(ints)){const v=$(id).value.trim();if(!/^[1-9][0-9]*$/.test(v))add(id,label+' must be a whole number above zero.');}
+ if(/^[0-9]+$/.test($('window').value)&&/^[0-9]+$/.test($('output').value)&&Number($('output').value)>=Number($('window').value))add('output','Maximum output must be smaller than the model window.');
+ if(!$('pool').value.trim())add('pool','Enter a resource pool (any short name).');
+ if(!$('description').value.trim())add('description','Enter a short description.');
+ return errors;}
+function showErrors(errors){clearErrors();if(!errors.length)return;const list=el('ul');
+ for(const [field,text] of errors){const target=$(field);if(target)target.setAttribute('aria-invalid','true');const slot=$(field+'Error');if(slot)slot.textContent=text;list.append(el('li',text));}
+ if(errors.some(([f])=>['window','output','timeout','tools','pool','description'].includes(f)))$('advanced').open=true;
+ $('errors').append(el('strong',errors.length===1?'One thing to fix:':errors.length+' things to fix:'),list);const first=$(errors[0][0]);if(first)first.focus();}
+const SERVER_WORDS=[['duplicate logical API identifier within deployment endpoint','Another connection already uses this model at this server address.'],['contextWindow','Model window'],['maxOutputTokens','Maximum output'],['timeoutSecs','Request timeout'],['maxToolCalls','Tool-call limit'],['endpoint','Server address'],['resource_pool','Resource pool'],['requestedApiIdentifier','Model'],['credential_ref','API key'],['workingContextTokens','Working context (advanced editor)']];
+function plainServer(message){let text=message;for(const [from,to] of SERVER_WORDS)text=text.split(from).join(to);return text;}
+function buildProfile(){const id=$('provider').value,preset=PROVIDERS[id],old=editing?profiles()[editing]:null,p=old?structuredClone(old):{};
+ const window_=Number($('window').value),oldWindow=old&&old.contextWindow;
+ Object.assign(p,{description:$('description').value.trim(),adapter_type:preset.adapter,endpoint:$('address').value.trim(),resource_pool:$('pool').value.trim(),credential_ref:currentRef(),
+  requestedApiIdentifier:$('model').value.trim(),dialect:$('dialect').value,contextWindow:window_,maxOutputTokens:Number($('output').value),timeoutSecs:Number($('timeout').value),maxToolCalls:Number($('tools').value)});
+ if(!old){Object.assign(p,{identifierKind:'logical-alias',capabilitySource:STARTER_NOTE,contextBudget:{workingContextTokens:window_,toolResultReserveTokens:4096,safetyMarginTokens:2048,minimumInputTokens:1024,maxToolResultChars:12000}},structuredClone(preset.extra));}
+ else{if(preset.adapter!=='deepseek'){delete p.thinking;}else for(const [k,v] of Object.entries(preset.extra))if(!(k in p))p[k]=v;
+  // The working context followed the window before; keep it following, and never above it.
+  if(p.contextBudget&&(p.contextBudget.workingContextTokens===oldWindow||p.contextBudget.workingContextTokens>window_))p.contextBudget.workingContextTokens=window_;}
+ return p;}
+async function probe(id,revision){try{return Object.assign(await api('api/probe',{profile_id:id,revision,timeout_seconds:10}),{at:new Date()});}
+ catch(e){return {healthy:false,code:'error',message:plainServer(e.message),at:new Date()};}}
+async function save(event){event.preventDefault();if(busy)return;const errors=validate();if(errors.length){showErrors(errors);return;}
+ if(!operatorId){showErrors([]);status(operators.length?'Choose who is making changes (Saving as), then save again.':'No registered operator was found, so the connection cannot be saved yet.',true);return;}
+ const name=editing||$('name').value.trim();busy=true;$('save').disabled=true;clearErrors();status('Saving “'+name+'”…');
+ try{const fresh=await api('api/settings');if(fresh.document.schemaVersion!==3)throw new Error('This settings file uses an older format. Open the advanced editor to convert it.');
+  if(!editing&&Object.hasOwn(fresh.document.profiles,name))throw new Error('Another connection already has this name.');
+  const doc=structuredClone(fresh.document);doc.profiles[name]=buildProfile();
+  saved=await api('api/save',{document:doc,revision:fresh.revision,operator_id:operatorId});
+  status('Saved “'+name+'”. Checking the connection…');const c=await probe(name,saved.revision);checks.set(name,c);
+  const p=profiles()[name];status('Saved “'+name+'”. '+plainCheck(c,p).replace(/^./,ch=>ch.toUpperCase()),!c.healthy&&c.code!=='ready');
+  if(c.code==='unknown_model'){editing=name;openForm(name);$('modelListNote').textContent='Choose a model the server lists, then save again:';showModels(c.model_ids||[]);status('Saved “'+name+'”, but the server does not list '+p.requestedApiIdentifier+'. Choose one it lists and save again.',true);}
+  else closeForm();
+  usage=await api('api/usage').catch(()=>usage);}
+ catch(e){status('Not saved: '+plainServer(e.message),true);}
+ finally{busy=false;$('save').disabled=false;render();}}
+async function checkAgain(id){if(busy)return;busy=true;render();status('Checking “'+id+'”…');
+ try{const fresh=await api('api/settings');saved=fresh;const c=await probe(id,fresh.revision);checks.set(id,c);status('“'+id+'”: '+plainCheck(c,profiles()[id]),!c.healthy);}
+ catch(e){status(plainServer(e.message),true);}finally{busy=false;render();}}
+async function remove(id){if(busy)return;if(!operatorId){status('Choose who is making changes (Saving as), then delete again.',true);return;}busy=true;render();
+ try{const fresh=await api('api/settings');const doc=structuredClone(fresh.document);if(!Object.hasOwn(doc.profiles,id)){status('“'+id+'” was already removed.');saved=fresh;return;}
+  if(Object.keys(doc.profiles).length<2)throw new Error('The settings file needs at least one entry, so the last one cannot be deleted.');
+  delete doc.profiles[id];if(doc.default_profile_id===id)doc.default_profile_id=null;
+  saved=await api('api/save',{document:doc,revision:fresh.revision,operator_id:operatorId});checks.delete(id);confirming=null;status('Deleted “'+id+'”. Your API key was not deleted.');
+  usage=await api('api/usage').catch(()=>usage);}
+ catch(e){status('Not deleted: '+plainServer(e.message),true);}finally{busy=false;render();}}
+async function refreshKeys(){if($('formCard').hidden)return;try{keys=await api('api/credentials');fillKeys(currentRef());}catch(e){}}
+
+$('connectionSearch').oninput=render;$('connectionProvider').onchange=render;
+$('add').onclick=()=>openForm(null);$('cancel').onclick=()=>{closeForm();status('');render();};$('form').onsubmit=save;
+$('provider').onchange=()=>applyProvider(!editing);$('model').oninput=()=>suggestName();$('name').oninput=()=>{nameTouched=true;};
+$('computeLocation').onchange=chooseLocation;$('discoverLocal').onclick=discoverLocal;$('address').oninput=()=>{++modelListRun;$('modelList').replaceChildren();$('modelListNote').textContent='';if(!editing){try{const u=new URL($('address').value);$('pool').value=slug(u.hostname+'-'+(u.port||u.protocol.replace(':','')));}catch(_){}}};
+$('loadModels').onclick=loadModels;
+window.addEventListener('focus',refreshKeys);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshKeys();});
+fillProviders();load();
+</script>
+</body></html>

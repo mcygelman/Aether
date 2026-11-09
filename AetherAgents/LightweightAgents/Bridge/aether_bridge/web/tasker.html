@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sprint · Aether</title>
+<link rel="stylesheet" href="/workspace-assets/tasker-project.css">
+</head><body>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<a class="skip" href="#project-main">Skip to project</a>
+<main id="project-main" tabindex="-1">
+<header><a href="/roadmaps">← Roadmaps</a> · <a href="/workspace?view=sprints">Active Sprints</a><h1 id="title">New sprint</h1><p id="subtitle" class="muted">Say what you want back, set a budget, and prepare. Preparing makes no model calls; the work starts only when you press Start.</p></header>
+<p id="notice" role="status" aria-live="polite"></p>
+<form id="prepare" class="panel">
+<label for="roadmap">Roadmap</label><select id="roadmap" required></select>
+<label for="step">Sprint in this roadmap</label><select id="step"></select>
+<p class="muted">Choose one of the roadmap's planned sprints to do it now, or a new sprint. The lead records this sprint's outcome in the roadmap when it closes.</p>
+<label for="name">Sprint name</label><input id="name" required maxlength="120">
+<label for="goals">What should the lead deliver?</label><textarea id="goals" rows="5" required placeholder="Describe the result, the inputs to use, and what makes it useful."></textarea>
+<div class="choices"><div><label for="lead">Lead</label><select id="lead" required></select><button id="lead-add" class="link" type="button">Add a lead</button></div><div><label for="deployment">Model connection</label><select id="deployment" required></select></div></div>
+<div id="lead-form" class="inline" hidden><label for="lead-name">New lead's name</label><div class="row"><input id="lead-name" maxlength="60" placeholder="For example: Iris"><button id="lead-create" type="button">Create lead</button></div><p class="muted">A fresh lead from the product template. Existing leads and their memories are never changed.</p></div>
+<p id="setup" class="muted"></p>
+<div class="choices"><div><label for="budget">Estimated cost limit (USD)</label><input id="budget" type="number" min="0.01" step="0.01" required></div><div><label for="turns">Maximum turns</label><input id="turns" type="number" min="1" step="1" required></div></div>
+<label for="filename">File you want back</label><input id="filename" placeholder="answer.txt" maxlength="120">
+<p id="file-note" class="muted">The lead writes this file. When the sprint ends, open it and mark it Pass or Fail.</p>
+<div id="staff-new" class="attention" hidden><p id="staff-new-text"></p><button id="staff-add" type="button">Add them to my staff</button></div>
+<details><summary>Advanced output checks</summary><p>For several files, exact values or a team, supply a contract. Use <code>solo</code> for the lead alone. For a team, write a numbered plan in the brief and key the checks by the same task numbers: for example, "Add T1 to write RESEARCH.txt, then T2 to write SUMMARY.txt using T1", with checks <code>1</code> and <code>2</code>. The lead numbers its tasks from 1 in the order it adds them, so the plan and the checks must agree. The server validates the checks; with a contract here, your brief goes to the lead unchanged.</p>
+<div id="staff-line" class="muted"></div>
+<label for="contracts">Checks (JSON, optional)</label><textarea id="contracts" rows="7" spellcheck="false" placeholder="Leave blank to use the file above."></textarea></details>
+<div class="composer"><button class="primary" type="submit">Prepare sprint</button><span class="muted">Preparation makes no model calls.</span></div>
+</form>
+<section id="work" hidden>
+<section class="panel"><h2>Progress</h2><p id="headline" class="headline"></p><dl id="progress"></dl><p id="detail"></p>
+<div id="lines"></div>
+<div id="paused" class="attention" hidden><p id="paused-text"></p><button id="resume" class="primary" type="button">Continue</button></div>
+<div id="override" class="attention" hidden><p>The work did not pass its checks. If the outputs are what you need anyway, say why and accept them. It is recorded as accepted by you over the failed check, never as passed.</p><label for="anyway-reason">Why you accept it anyway</label><textarea id="anyway-reason" rows="2" maxlength="2000"></textarea><button id="anyway" class="primary" type="button">Accept anyway</button></div>
+<div id="capped" class="attention" hidden><p id="capped-text"></p><div class="choices"><div><label for="raise-budget">New cost limit (USD)</label><input id="raise-budget" type="number" min="0.01" step="0.01"></div><div><label for="raise-turns">New turn limit</label><input id="raise-turns" type="number" min="1" step="1"></div></div><button id="raise" class="primary" type="button">Raise budget</button></div>
+<div class="composer"><button id="start" class="primary" type="button">Start work</button><button id="continue" class="primary" type="button" hidden>Continue</button><button id="stop" type="button">Stop work</button><button id="again" type="button" hidden>Prepare it again</button><button id="refresh" type="button">Refresh</button></div><p id="freshness" class="muted"></p></section>
+<section class="panel"><h2>Tasks</h2><div id="tasks"></div></section>
+<section class="panel"><h2>Outputs</h2><div id="outputs"></div></section>
+<section id="review" class="panel"><h2>Your review</h2><p id="acceptance" role="status"></p><div id="decisions"></div><button id="accept" class="primary" type="button">Record my review</button><p id="review-help" class="muted">Read each output above before deciding. Recording rechecks the files, so a changed file needs a new review.</p></section>
+<details class="panel"><summary>Brief and output checks</summary><p id="brief-goals" class="prewrap"></p><p id="brief-model" class="muted"></p><ul id="brief-checks"></ul><details><summary>Checks as JSON</summary><pre id="brief-record"></pre></details></details>
+<details class="panel"><summary>Technical record</summary><pre id="log"></pre><details><summary>Full record as JSON</summary><pre id="record"></pre></details></details>
+</section>
+</main><script type="module" src="/workspace-assets/tasker-project.js"></script></body></html>

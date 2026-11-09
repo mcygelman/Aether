@@ -1,0 +1,118 @@
+⟪TEACHFRAME_MultiLayer_Result_Reconciliation⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::a reconciler comparing outputs from two independent producers⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur · TEACHFRAME_IntervalArithmetic⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::already retired from live curriculum; preserve the pattern until explicitly reauthored or declined⟫
+⟪MEASURED_BY::UNMEASURABLE::archived notation-bound artifact; reauthor and define replay checks before reactivation⟫
+⟪EVIDENCE::LEGACY::retired layer architecture; general two-producer/one-reconciler pattern retained as a reauthoring candidate⟫
+⟪PREVENTS::silent acceptance of inconsistent outputs from independent producers⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Multi-Layer Result Reconciliation (⊢₀ ⊕ ⊢₁ → ⊢₂)
+
+[ PURPOSE ]
+  Defines the complete protocol by which Hypatia receives results from both
+  Euler (⊢₀) and Fibonacci (⊢₁), classifies their relationship, and issues
+  a verdict. After loading this frame, Hypatia will execute the full
+  reconciliation workflow — ACCEPT, REFINE, or REJECT — and emit a properly
+  tagged output with minimized Uᵣ[ε₂].
+
+[ WORKFLOW ]
+∆WMC{
+CONTEXT: CROSS_LAYER_VALIDATION
+SUBJECT: RECONCILIATION_TARGET
+[GOAL]
+  Given R₀ (⊢₀ output) and R₁ (⊢₁ output)
+  produce R₂ such that:
+    (R₂ ⊨ R₀) ∧ (R₂ ⊨ R₁)   OR   (R₂ ⊨ CONFLICT_FLAG)
+  while minimizing ε₂.
+[RELATION_CODES]
+  Equivalent  :  Intervals overlap or one contains the other    → "≈"
+  Divergent   :  Intervals overlap but neither contains other   → "↯"
+  Conflicting :  Intervals disjoint                             → "⊗"
+[RESOLUTION_RULE]
+  Rule-Narrower-Wins:
+    If IntervalsOverlap(R₀, R₁) → R₂ := IntervalWithMinWidth(R₀, R₁)
+}WMC
+
+∆WMC{
+CONTEXT: RECONCILE_FLOW
+SUBJECT: L0_L1_COMPARISON
+STEP-1  RECEIVE R₀ from ⊢₀ (Euler), R₁ from ⊢₁ (Fibonacci)
+STEP-2  CONVERT both to interval form via Uᵣ → [μ−ε, μ+ε]
+STEP-3  CLASSIFY:
+          case Equivalent  ⇒ verdict ← ACCEPT ; R₂ ← narrower(R₀, R₁)
+          case Divergent   ⇒ verdict ← REFINE ; request tighter ε from both
+          case Conflicting ⇒ verdict ← REJECT ; flag CONTRADICTION
+STEP-4  EMIT (ReconciledVerdict ⊕ R₂) ⊨ truth_tag
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Equivalent: clean acceptance
+//
+R₀ := Uᵣ[1.6449 ± 0.005]   → [1.6399, 1.6499]
+R₁ := Uᵣ[1.6451 ± 0.002]   → [1.6431, 1.6471]
+
+Overlap check: max(1.6399, 1.6431) = 1.6431 ≤ min(1.6499, 1.6471) = 1.6471 ✓
+R₂ := [1.6431, 1.6471]  (narrower = R₁)
+Verdict: ACCEPT   R₂ ⊨ truth_tag   Uᵣ_out = Uᵣ[1.6451 ± 0.002]
+
+//
+// Example 2 — Conflicting: hard rejection
+//
+R₀ := Uᵣ[1.50 ± 0.01]   → [1.49, 1.51]
+R₁ := Uᵣ[1.55 ± 0.01]   → [1.54, 1.56]
+
+Overlap check: max(1.49, 1.54) = 1.54 > min(1.51, 1.56) = 1.51 ✗
+Verdict: REJECT   flag CONTRADICTION
+Action: Request both Euler and Fibonacci recompute with tighter ε.
+
+[ USAGE_NOTES ]
+  • Always convert to interval form before classification — never compare
+    center values μ₀ vs μ₁ directly.
+  • Task IDs carry layer suffixes: Task_009_L0 (Euler) and Task_009_L1
+    (Fibonacci). Match by base ID to ensure you are reconciling the same task.
+  • A REFINE verdict is not a failure — it is a signal to tighten bounds.
+    Issue refinement requests to both agents simultaneously.
+  • A CONTRADICTION must be posted to the Aether Canvas immediately.
+    Do not silently discard it.
+  • Emit VERIFIED_INTERVAL := [a*, b*] to the audit log on every ACCEPT.
+
+[ SELF_CHECK ]
+  Q1: R₀ = Uᵣ[2.718 ± 0.010] and R₁ = Uᵣ[2.720 ± 0.003].
+      Classify and give R₂.
+      Expected: [2.708, 2.728] vs [2.717, 2.723]
+               Overlap at [2.717, 2.723] → Equivalent → ACCEPT
+               R₂ = Uᵣ[2.720 ± 0.003]
+
+  Q2: R₀ = Uᵣ[3.00 ± 0.04] and R₁ = Uᵣ[3.06 ± 0.04].
+      Classify and give the verdict.
+      Expected: [2.96, 3.04] vs [3.02, 3.10]
+               max(2.96, 3.02) = 3.02 ≤ min(3.04, 3.10) = 3.04 → Overlap (Divergent)
+               verdict ← REFINE; request tighter ε from both agents.
+
+  Q3: After refinement, R₀ = Uᵣ[3.02 ± 0.005] and R₁ = Uᵣ[3.025 ± 0.005].
+      What is the final outcome?
+      Expected: [3.015, 3.025] vs [3.020, 3.030]
+               Overlap at [3.020, 3.025] → Equivalent → ACCEPT
+               R₂ = Uᵣ[3.0225 ± 0.0025]
+
+[ CARD ]
+  LESSON::MultiLayer_Result_Reconciliation
+  FOR::Defines the complete protocol by which Hypatia receives results from both Euler (derives0) and Fibonacci (derives1),...
+  PREVENTS::silent acceptance of inconsistent outputs from independent producers
+  EXAMPLE::R0 := Ur[1.6449 +/- 0.005] -> [1.6399, 1.6499]
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur   — Prerequisite: Uᵣ notation
+  → TEACHFRAME_IntervalArithmetic             — Prerequisite: interval comparison rules used in STEP-3
+  → TEACHFRAME_AetherVerificationOperators_Usage — Companion: ⊨ and ⊢ᵢ semantics used in verdict emission
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

@@ -1,0 +1,621 @@
+{
+  "schema": "aether-tasker-staff-catalog-1",
+  "version": "2026.11.03",
+  "source_catalog_sha256": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4",
+  "scope": "29 specialist catalog roles, seven historical specialties, existing task reviewer, three SVG animation specialties",
+  "templates": [
+    {
+      "id": "carmack",
+      "staff_id": "carmack",
+      "name": "Carmack",
+      "role": "Software Developer — Builder (systems and game code)",
+      "file": "Identity_Developer_Carmack.txt",
+      "sha256": "4b5b90d92dd778e299562095e2d1a5c41d5bcfedc16f07f2ebce2354870b62b1",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "grace",
+      "staff_id": "grace",
+      "name": "Grace",
+      "role": "Software Developer — Builder (web and application code)",
+      "file": "Identity_Developer_Grace.txt",
+      "sha256": "5ab8666cd5327f392997df4a8f7be32af825b4f5f458bf58ad4bd2a9b06213f0",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "nightingale",
+      "staff_id": "nightingale",
+      "name": "Nightingale",
+      "role": "Analyst — Turns data into findings",
+      "file": "Identity_Analyst_Nightingale.txt",
+      "sha256": "4ec95254721507839aff8d5fcfa2554daa0fcd3ed0a3590c9d5b05c82eb7d2e0",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "sagan",
+      "staff_id": "sagan",
+      "name": "Sagan",
+      "role": "Researcher — Gathers and grounds",
+      "file": "Identity_Researcher_Sagan.txt",
+      "sha256": "3a21673205a42fc372fa75a08cae3931e60b9f2c03fef1767a37403f887e2d1c",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "austen",
+      "staff_id": "austen",
+      "name": "Austen",
+      "role": "Writer/Editor — Drafts and polishes prose",
+      "file": "Identity_Writer_Austen.txt",
+      "sha256": "48bd8303bd234be2b59950abab10ae1eb7f5563b9cf6f667f32a35d65b30d5ef",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "dewey",
+      "staff_id": "dewey",
+      "name": "Dewey",
+      "role": "Archivist — Keeps the project navigable",
+      "file": "Identity_Archivist_Dewey.txt",
+      "sha256": "7d416d91f1b2913af76c86d654385c654091ec77dfed288c7d2b8aabfefbb38c",
+      "category": "Modernized specialists",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "minder",
+      "staff_id": "minder",
+      "name": "Minder",
+      "role": "Reviewer — Judges work against its acceptance criteria",
+      "file": "Identity_Reviewer_Minder.txt",
+      "sha256": "cd364c36c7d6e2abab06be5264185fb2ce483b24a257473ed644494c69265493",
+      "category": "Existing task reviewer",
+      "origin": "unchanged-product-seed",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/roles.py": "c81d442a123a6481428768b03044132ce0747c450461c83393470c3faf13a61a",
+        "AetherPlanAndAnalysis/Specifications/Revamp/NewAgentTemplate/IDENTITY_TEMPLATE_TASKER.txt": "85c2dc063d66af96ba6a7e5cf0caea76c27b541b23b5844e9a52e177f87e4177"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "linus",
+      "staff_id": "linus",
+      "name": "Linus",
+      "role": "Software Reviewer",
+      "file": "Identity_Specialist_Linus.txt",
+      "sha256": "1ed530e04ec6269c28c7b961acfd45d74c2953b8968416a12f3d765ee71c5532",
+      "category": "Modernized specialists",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4",
+        "AetherAgents/LightweightAgents/Identities/Resumes/Resume_Linus.md": "8a6313ca3e0ae3e49bfcc4bb5b6dfcab411340e0b66b5b5b95ac1430a54ec215"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "task-coordinator",
+      "staff_id": "taskcoordinator",
+      "name": "TaskCoordinator",
+      "role": "Task Coordinator",
+      "file": "Identity_Specialist_TaskCoordinator.txt",
+      "sha256": "06fadd94c94a7aba400a5bb1496935d249e04ded468d01a117ecfe0d335c57b3",
+      "category": "Coordination and review",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4",
+        "AetherAgents/LightweightAgents/Identities/Resumes/Resume_Kirito.md": "faf94b80c07223c225c39a20f8a0383cc17429833197c24092027dbe7260adf0"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "evidence-reviewer",
+      "staff_id": "evidencereviewer",
+      "name": "EvidenceReviewer",
+      "role": "Evidence Reviewer",
+      "file": "Identity_Specialist_EvidenceReviewer.txt",
+      "sha256": "77ba164e2036b0a789ec1286c9c100bc5d96d958e4d18ec5cc75c57b5dd17dc2",
+      "category": "Coordination and review",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4",
+        "AetherAgents/LightweightAgents/Identities/Deployable/Identity_AetherReviewer_Minder.txt": "4cbd1a381789f3c71da488571623b288a6f62c52b41f280a7ab2bc2607501867"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "qa-designer",
+      "staff_id": "testdesigner",
+      "name": "TestDesigner",
+      "role": "QA and Test Designer",
+      "file": "Identity_Specialist_TestDesigner.txt",
+      "sha256": "5c0963abfb1ff32dfb52a1badbdb45f9a3b77c4fc062c37b2396d449b8e1210c",
+      "category": "Quality and assurance",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "test-automation",
+      "staff_id": "testengineer",
+      "name": "TestEngineer",
+      "role": "Test Automation Engineer",
+      "file": "Identity_Specialist_TestEngineer.txt",
+      "sha256": "900452a8be39d7a4535160ae7e1bd92556d6e1da5a80db7c7aa8b843c4dd88e0",
+      "category": "Quality and assurance",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "requirements-analyst",
+      "staff_id": "requirementsanalyst",
+      "name": "RequirementsAnalyst",
+      "role": "Requirements Analyst",
+      "file": "Identity_Specialist_RequirementsAnalyst.txt",
+      "sha256": "c8d83163c15720d3b34ae98d3eeca25e92d60c27051692ea08bb70092e2037be",
+      "category": "Analysis and architecture",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "software-architect",
+      "staff_id": "softwarearchitect",
+      "name": "SoftwareArchitect",
+      "role": "Software Architect",
+      "file": "Identity_Specialist_SoftwareArchitect.txt",
+      "sha256": "d7198993a87f5cb1e8fae903bd1d16efb49706790f26bdee00285b88123b0333",
+      "category": "Analysis and architecture",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "frontend-engineer",
+      "staff_id": "frontendengineer",
+      "name": "FrontendEngineer",
+      "role": "Frontend Engineer",
+      "file": "Identity_Specialist_FrontendEngineer.txt",
+      "sha256": "b103539c9b467858319ec83e3e256cf3a28a58e02f96e4584c00fc080757f66e",
+      "category": "Software engineering",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "backend-engineer",
+      "staff_id": "backendengineer",
+      "name": "BackendEngineer",
+      "role": "Backend and API Engineer",
+      "file": "Identity_Specialist_BackendEngineer.txt",
+      "sha256": "00ac9f12d643c1ba49183a54c9f2c0aa8f83db1d8d4bbbe5b6bc7a74a65fbb8a",
+      "category": "Software engineering",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "integration-engineer",
+      "staff_id": "integrationengineer",
+      "name": "IntegrationEngineer",
+      "role": "Integration Engineer",
+      "file": "Identity_Specialist_IntegrationEngineer.txt",
+      "sha256": "e72f175c492234fc9fc362774e724e53628c6bf68a5610fd8d24fadd179587ca",
+      "category": "Software engineering",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "database-engineer",
+      "staff_id": "databaseengineer",
+      "name": "DatabaseEngineer",
+      "role": "Database and SQL Engineer",
+      "file": "Identity_Specialist_DatabaseEngineer.txt",
+      "sha256": "4cecb7f75829505ae917e0fb0cb36a648dd94def15d46384d39a3bc5a472b49f",
+      "category": "Data and storage",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "data-engineer",
+      "staff_id": "dataengineer",
+      "name": "DataEngineer",
+      "role": "Data Engineer",
+      "file": "Identity_Specialist_DataEngineer.txt",
+      "sha256": "6d77a99e8809a57bae8f782c4986f7dd0a70ac9a9c72a4667997b37e6778e9e9",
+      "category": "Data and storage",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "devops-engineer",
+      "staff_id": "buildengineer",
+      "name": "BuildEngineer",
+      "role": "DevOps and Build Engineer",
+      "file": "Identity_Specialist_BuildEngineer.txt",
+      "sha256": "ece9553f0fa5f91253b6455b41c2c8cdc029e16851e2582588fbe127f5172ea7",
+      "category": "Operations and delivery",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "release-engineer",
+      "staff_id": "releaseengineer",
+      "name": "ReleaseEngineer",
+      "role": "Release Engineer",
+      "file": "Identity_Specialist_ReleaseEngineer.txt",
+      "sha256": "693b87213f13841cb19047feddb26304b6db5cd56bd95313d727b64212bbcc4c",
+      "category": "Operations and delivery",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "reliability-engineer",
+      "staff_id": "reliabilityengineer",
+      "name": "ReliabilityEngineer",
+      "role": "Reliability and Observability Engineer",
+      "file": "Identity_Specialist_ReliabilityEngineer.txt",
+      "sha256": "d249e8d07c92cb0ff1fa256207e98ce8fe80902b4ad89acd244078bf4b6d9c26",
+      "category": "Operations and delivery",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "network-analyst",
+      "staff_id": "networkanalyst",
+      "name": "NetworkAnalyst",
+      "role": "Network Analyst",
+      "file": "Identity_Specialist_NetworkAnalyst.txt",
+      "sha256": "ea8aa3fc661ad9370c013ded73fdfdd58898aba6cac8d521c84887d77bf2fd5b",
+      "category": "Infrastructure and security",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "systems-administrator",
+      "staff_id": "systemsadministrator",
+      "name": "SystemsAdministrator",
+      "role": "Windows and Linux Administrator",
+      "file": "Identity_Specialist_SystemsAdministrator.txt",
+      "sha256": "8b6b2619b55337808fbd439702bdf7fe8d8411ec02d0c3a8d008232d6d66a019",
+      "category": "Infrastructure and security",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "security-reviewer",
+      "staff_id": "securityreviewer",
+      "name": "SecurityReviewer",
+      "role": "Defensive Security Reviewer",
+      "file": "Identity_Specialist_SecurityReviewer.txt",
+      "sha256": "bc7d3d729dc21f9abdbd8070229eab3c1b90b4c9d49bf7693a026bb0a5e88429",
+      "category": "Infrastructure and security",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "accessibility-reviewer",
+      "staff_id": "accessibilityreviewer",
+      "name": "AccessibilityReviewer",
+      "role": "Accessibility and Usability Reviewer",
+      "file": "Identity_Specialist_AccessibilityReviewer.txt",
+      "sha256": "0a19ec1cead437041aaf588d8687e75c0734792be5b472188afa17d2701d0fec",
+      "category": "Quality and assurance",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "performance-analyst",
+      "staff_id": "performanceanalyst",
+      "name": "PerformanceAnalyst",
+      "role": "Performance Analyst",
+      "file": "Identity_Specialist_PerformanceAnalyst.txt",
+      "sha256": "300e40c50a41224e98d10354ca6819afd0568fbb922c7b1144ee97e6fc57a8ff",
+      "category": "Quality and assurance",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "technical-writer",
+      "staff_id": "technicalwriter",
+      "name": "TechnicalWriter",
+      "role": "Technical Documentation Writer",
+      "file": "Identity_Specialist_TechnicalWriter.txt",
+      "sha256": "131f4ee802195d69c779d4069ce1960b23e2a6c15924597994175b96dcf9cf33",
+      "category": "Knowledge and support",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "incident-analyst",
+      "staff_id": "incidentanalyst",
+      "name": "IncidentAnalyst",
+      "role": "Incident Triage Analyst",
+      "file": "Identity_Specialist_IncidentAnalyst.txt",
+      "sha256": "089279bf045f81c6de82e57cc25011e57f0c3a8496d57ac6933f192033d5f9f6",
+      "category": "Knowledge and support",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "asset-analyst",
+      "staff_id": "assetanalyst",
+      "name": "AssetAnalyst",
+      "role": "Configuration and Asset Analyst",
+      "file": "Identity_Specialist_AssetAnalyst.txt",
+      "sha256": "bd9d55018ea2ef4ccfad3dc4c19a86d3a9dfe7cd45ee4bf0b62c014b6b9772de",
+      "category": "Infrastructure and security",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Bridge/aether/atelier/specialists/catalog.json": "b04f2d0fb4f11ea70291a665c5a5e8d001831289c00c2c0e2149879d82723ae4"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "kirito",
+      "staff_id": "kirito",
+      "name": "Kirito",
+      "role": "Planning and Context Specialist",
+      "file": "Identity_Specialist_Kirito.txt",
+      "sha256": "588531ccec65a599c4977be7094f093e2cae0b48e51a176dff0c6405346e9fa8",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_AgentManager_Kirito.txt": "8bcc073947e2e5500122e77f9e1431bf6ccf3d6567e39cfecf20603f9bbe2d58"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "ada",
+      "staff_id": "ada",
+      "name": "Ada",
+      "role": "Software Design and Implementation Specialist",
+      "file": "Identity_Specialist_Ada.txt",
+      "sha256": "11a2a1bdf1b8c84c54fe4c6555a15b2048d026aba224611eb2656d7e632bbc42",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_SoftwareDeveloper_Ada.txt": "9e3aa2d3d23ef96a5775cd97c7b6a3db7951bd191604af54bc53285177611a78"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "euler",
+      "staff_id": "euler",
+      "name": "Euler",
+      "role": "Prime Computation Specialist",
+      "file": "Identity_Specialist_Euler.txt",
+      "sha256": "9ee18d79be764f43b4371dfb819ddf3a858fe69b7e2e0f3d5720e88fb62ad2bb",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_MathSuperAgent_Euler.txt": "21d575cd8d94caa460dc13e1fd995e42a954324e6a18366b9d8b516d90dc5ea3"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "gauss",
+      "staff_id": "gauss",
+      "name": "Gauss",
+      "role": "Harmonic and Numerical Analysis Specialist",
+      "file": "Identity_Specialist_Gauss.txt",
+      "sha256": "0500c5a9c7a232275fd5dfe704f190a45fd54bc0c98976c6517adf71c3026b85",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_MathSuperAgent_Gaus_V1.0.txt": "d06dbe2b52dae128c25a92c11284e94da0f3c214fbdd0945bf2504c27df49397"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "euclid",
+      "staff_id": "euclid",
+      "name": "Euclid",
+      "role": "Deductive Mathematics Specialist",
+      "file": "Identity_Specialist_Euclid.txt",
+      "sha256": "338232f46c7820b19dd25400fa0f49eacecd25bd965e056f296fccc82ae5dd39",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_MathematicianSuperAgent_Euclid_v1.0.txt": "a8d272d943ad11c7fc90a374ae3d3dbb34ada5af1061d69e912a541363759e71"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "fibonacci",
+      "staff_id": "fibonacci",
+      "name": "Fibonacci",
+      "role": "Balanced Ternary Computation Specialist",
+      "file": "Identity_Specialist_Fibonacci.txt",
+      "sha256": "8b8e285f69f0e7b0bb627043090b06b46ef674a0fc2889f4968c42b804d0efd5",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_MathematicianSuperAgent_Fibonacci.txt": "be1cdbba8cc8d1383aca991e5db1c5021c28b0cefb37fe72aefdc6bca4bc7be6"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "hypatia",
+      "staff_id": "hypatia",
+      "name": "Hypatia",
+      "role": "Mathematical Verification Specialist",
+      "file": "Identity_Specialist_Hypatia.txt",
+      "sha256": "8b7d80b04ebdab3bb98279134c5600a0aba6b3329780dfab37bd39b27b336b72",
+      "category": "Historical specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Previously Deployed Identities/Identity_MathematicianSuperAgent_Hypatia.txt": "0d6c2c8977d26575ce750125709a072821238a60830fa75104d84cbe270e0e23"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "svg-animator",
+      "staff_id": "svganimator",
+      "name": "SVGAnimator",
+      "role": "Animated SVG Generalist",
+      "file": "Identity_Specialist_SVGAnimator.txt",
+      "sha256": "c0b2579caa34d7603fa3379fa03f7f85fd95d6e242fa6c7882579fed66878688",
+      "category": "SVG animation specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/svg_roles.py": "7008dca6be3567e1719f547165b58cd1fae27d7be8395bde0687c931fdad6d8f",
+        "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/deliverables_20261018/TEACHFRAME_SVG_ATTACHMENT_v1.3.txt": "3cf49e3b9987d76e0369b90dfeb0bbfafbb70c9700c91f6ce4b38b5ac029fd93"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "svg-background-artist",
+      "staff_id": "svgbackgroundartist",
+      "name": "SVGBackgroundArtist",
+      "role": "Animated SVG Background Specialist",
+      "file": "Identity_Specialist_SVGBackgroundArtist.txt",
+      "sha256": "c484cbd62798513478be87a3c43f3ca2a0dc386951cacb474a5fdaaa95b8e948",
+      "category": "SVG animation specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/svg_roles.py": "7008dca6be3567e1719f547165b58cd1fae27d7be8395bde0687c931fdad6d8f",
+        "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/deliverables_20261018/TEACHFRAME_SVG_ATTACHMENT_v1.3.txt": "3cf49e3b9987d76e0369b90dfeb0bbfafbb70c9700c91f6ce4b38b5ac029fd93"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    },
+    {
+      "id": "cat-animator",
+      "staff_id": "catanimator",
+      "name": "CatAnimator",
+      "role": "Cat SVG Illustration and Animation Specialist",
+      "file": "Identity_Specialist_CatAnimator.txt",
+      "sha256": "26b93dfa27191d3a09951aedc88f655598a7e4871f7f503aa050363fef5a5894",
+      "category": "SVG animation specialties",
+      "origin": "fresh-role-adaptation",
+      "sources": {
+        "AetherAgents/LightweightAgents/Identities/Staff/_build/svg_roles.py": "7008dca6be3567e1719f547165b58cd1fae27d7be8395bde0687c931fdad6d8f",
+        "AetherPlanAndAnalysis/CaseStudies/SVG_Teachframe_Pilot/deliverables_20261018/TEACHFRAME_SVG_ATTACHMENT_v1.3.txt": "3cf49e3b9987d76e0369b90dfeb0bbfafbb70c9700c91f6ce4b38b5ac029fd93"
+      },
+      "reflections": 0,
+      "live_qualification": "No new live-model qualification in this catalog upgrade"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 """calculate: a safe, deterministic calculator any agent can be granted (CALC-01).
 
-Author: Claude (Opus 5.5, lead), 2026-10-01. Standalone: imports only the standard
+Written 2026-10-01. Standalone: imports only the standard
 library and touches no files, network, processes or environment. The host wires it
 into a tool belt (``CalcTool.schema`` / ``CalcTool.dispatch``) and logs each receipt
-in DIALOG at the tool boundary; that wiring is Praxis's integration work.
+in DIALOG at the tool boundary; that wiring is the host's integration work.
 
 Why: every number an agent reports should be machine-produced and re-checkable.
 An agent sends an expression; the tool returns the value plus a receipt whose hash
@@ -27,7 +27,7 @@ Design:
   deadline (checked between steps, inside loops and before returning). For a hard
   time/memory bound, hosts call ``evaluate_isolated``. Every failure is a clean
   ``{"ok": false, "error": ...}``.
-- 1.1 (2026-10-01) resolves Praxis's seven review findings (Reviews/Praxis_1001_Calc01).
+- 1.1 (2026-10-01) resolves seven review findings.
 - 1.2 (2026-10-01) resolves the re-review: variables are resolved by dependency, not
   key order, and the receipt hashes an explicit ordered binding list; the isolated
   helper contains serialization failures.

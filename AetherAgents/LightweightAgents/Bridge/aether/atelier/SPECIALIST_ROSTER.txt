@@ -1,0 +1,70 @@
+Public lightweight specialists — catalog 2026.10.26
+
+Staff -> AI -> Browse specialist catalog presents 29 shipped role templates:
+seven modernized specialists, two fresh coordinator/reviewer derivatives, and
+twenty coding/IT specialists. All are lightweight. No heavyweight is selected,
+created, merged or distributed by this catalog.
+
+Browse/search/filter roles, inspect the contract and qualification scenario,
+export a template, then select one or more roles and choose Add selected
+specialists. Manage Agents permission is required to create homes. Other signed
+in users can view/export. Choose a saved parent model or Configure later; the
+reserved ultralight connection is not offered as the default parent connection.
+
+Creation writes a new home beneath the configured agents folder's specialists
+directory. Every instance has a unique id, fresh cartridge, authored role text,
+tool/folder policy and template.json provenance. No old briefcase, resident
+identity or cartridge is rewritten. Modernized names retain the specialty, not
+the earlier agent's personal history or claims of live qualification. Kirito and
+Minder inform new Task Coordinator and Evidence Reviewer roles with separate
+identities. The three original public starter agents remain available.
+
+Adding a specialist makes it available locally but does not assign a campaign,
+make a model request or start work. Add it to a project's team, choose its role
+and model, and set the project budget before use. Existing project permission
+and operator approval flows continue to apply. A model's size/provider does not
+change the agent's class or authority.
+
+The host filters tool schemas and rejects calls outside allowed_tools. Each
+role reads the commission root and writes only its declared deliverable folders.
+Path containment uses directory boundaries, including resolved symlink targets.
+Existing participants with allowed_tools=null retain their previous tools; an
+empty list means no tools. Roles with run_tests can run approved project pytest
+checks. That process is not an OS security sandbox; use trusted task inputs and
+an appropriately restricted host account. Infrastructure roles produce plans,
+runbooks and scripts; this roster does not grant remote administration, network
+scanning, general shell access, browser control or production deployment tools.
+
+Suggested context/output/turn budgets are visible template guidance, not hidden
+overrides of saved model connections or commission budgets. Every role can use
+bounded dynamic ultralight help when configured; the existing parent-budget
+accounting and helper limits apply. Current tools and honest evidence govern
+what an agent can actually verify.
+
+One form submission carries a stable request UUID. Retrying it after a lost
+response returns the same result without duplicating homes. If registration
+failed after authoring completed, the same request can retry registration after
+checking the authored files. If authoring itself was interrupted, the incomplete
+home is retained for inspection and never overwritten. A new submission after
+closing/reloading the form is a new creation request and may create another
+instance. Inspect AI Staff and the reported path before doing that.
+Installation receipts live beside the local agent registry in specialist-installs.
+No bulk rollback deletes partially created identities or memory.
+
+Custom editor exports and heavyweight creation/merge remain Future Feature;
+this installer accepts only exact ids from the shipped catalog revision. It does
+not execute imported templates or caller-supplied prompts/paths. Arbitrary custom
+template installation remains a separate capability.
+
+Validation distinguishes infrastructure from model quality: synthetic checks
+cover creation, unique sealed memories, preservation, retries, tool/folder
+enforcement, authorization and UI flow. Each role also includes a distinct
+qualification scenario and acceptance criteria. Live-model qualification of the
+29 specialties remains pending; no output-quality or production-readiness claim
+is implied by successful installation.
+
+Ownership: specialists/catalog.json contains role data; specialist_catalog.py
+validates/assembles it; specialist_install.py owns fresh creation/retry receipts;
+specialist_http.py owns the API; participant_policy.py owns host access checks;
+specialist-catalog.js owns the lazy catalog view. No Memory Fabric implementation
+change is required.

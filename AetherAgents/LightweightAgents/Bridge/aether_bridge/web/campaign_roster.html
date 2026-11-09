@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project team · Aether</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10181c;color:#e7f0f3}body{margin:0}main{max-width:950px;margin:2rem auto;padding:0 1.2rem}a{color:#a3e0d3}h1{margin-bottom:.3rem}h2{font-size:1.15rem}p{line-height:1.5}.muted,small{color:#b9cbd0}section{background:#19252b;border:1px solid #344a54;border-radius:10px;padding:1.2rem;margin:1.4rem 0}label{display:block;margin:.7rem 0 .3rem}select,button{font:inherit;border:1px solid #63808b;border-radius:5px;padding:.65rem;background:#101e24;color:inherit}select{width:100%}button{cursor:pointer}button.primary{background:#9ddbc7;color:#10221c;border-color:#9ddbc7}button:disabled{opacity:.5;cursor:default}.fields{display:grid;grid-template-columns:1.2fr 1fr 1.4fr;gap:1rem}.actions{display:flex;gap:.7rem;margin-top:1.2rem;align-items:center}.member{border-top:1px solid #344a54;padding:1rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:center}.member:first-of-type{border-top:0}.member p{margin:.4rem 0}.member .ready{font-size:.9rem;color:#ffd28a}.member .ready.ok{color:#a3e0d3}.member .ready a{color:#ffd28a}.member .buttons{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}.message{padding:.8rem;border-left:3px solid #9ddbc7;background:#203b33}.error{border-color:#e3a0a0;background:#41272b}#status:empty{display:none}[hidden]{display:none!important}button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #b6efdf;outline-offset:3px}@media(max-width:650px){.fields{grid-template-columns:1fr}.member{align-items:start}}
+</style></head><body><script src="/settings/models-context/atelier-nav.js"></script><main>
+<a id="back" data-local-nav href="/">← Back to project</a>
+<h1>Project team</h1><p class="muted">Choose who works on this project, their role, and the model that drives them.</p>
+<label for="campaign">Project</label><select id="campaign"><option value="">Choose a project</option></select>
+<p id="empty" hidden>No projects yet. <a href="/missions">Start a project from Missions</a> first.</p>
+<p id="status" class="message" role="status" aria-live="polite"></p>
+<div id="content" hidden>
+<section><h2>Assigned agents</h2><p class="muted">Changes here apply only to the selected project.</p><div id="members"></div><div id="history"></div></section>
+<section><h2 id="form-title">Add an agent</h2>
+<form id="assignment"><div class="fields">
+<div><label for="agent">Agent</label><select id="agent" required></select><small id="agent-hint"></small></div>
+<div><label for="role">Role in the project</label><select id="role" required><option value="">Choose a role</option><option value="lead">Lead</option><option value="member">Team member</option><option value="reviewer">Reviewer</option><option value="librarian">Librarian</option></select></div>
+<div><label for="model">Driving model</label><select id="model" required></select></div></div>
+<p class="muted">Missing an agent? <a href="/agents">Add it on the Agents page.</a> Missing a model? <a href="/settings/models-context/">Add a model connection.</a></p>
+<div class="actions"><button class="primary" id="save" type="submit">Add to project</button><button id="cancel" type="button" hidden>Cancel edit</button></div>
+<p><small>Saving does not start a run. A running agent finishes its current turn with its original role and model; changes apply on its next turn. Identity, memory, and other projects stay unchanged.</small></p>
+</form></section></div></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), roleNames={lead:'Lead',member:'Team member',reviewer:'Reviewer',librarian:'Librarian'};
+let state=null, editing=null, generation=0, autoRole=true, undo=null;
+function message(text,error=false,action){const s=$('status');s.replaceChildren(text);s.classList.toggle('error',error);
+ if(action){const b=document.createElement('button');b.type='button';b.textContent=action.label;b.style.marginLeft='.7rem';b.addEventListener('click',action.run);s.append(b);}}
+async function api(query='',body){const response=await fetch('/api/campaign-roster'+query,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});const value=await response.json();if(!response.ok)throw new Error(value.error||'Unable to load the roster.');return value;}
+function option(select,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);return o;}
+const usable=()=>state.models.filter(m=>m.usable!==false);
+function resetForm(){editing=null;autoRole=true;$('assignment').reset();$('agent').disabled=false;$('form-title').textContent='Add an agent';$('save').textContent='Add to project';$('cancel').hidden=true;choices();}
+function hint(){const a=state.agents.find(x=>x.id===$('agent').value);$('agent-hint').textContent=a&&a.role?'Authored as '+roleNames[a.role]+'; offered as its role in the project, change it if you like.':'';}
+function choices(){const aid=$('agent').value;$('agent').replaceChildren();option($('agent'),'','Choose an available agent');
+ for(const a of state.agents.filter(a=>a.status==='available'&&(a.id===editing||!state.members.some(m=>m.agent_id===a.id))))option($('agent'),a.id,a.name+(a.role?' ('+roleNames[a.role]+')':''));
+ $('agent').value=aid;$('model').replaceChildren();option($('model'),'','Choose a saved model');
+ for(const m of state.models){const o=option($('model'),m.id,m.usable===false?m.id+' · setup placeholder, not usable':m.id+' · '+m.model);o.disabled=m.usable===false;}
+ if(!editing&&usable().length===1)$('model').value=usable()[0].id;   // the only usable connection is the obvious choice
+ hint();$('save').disabled=!usable().length||$('agent').options.length===1;}
+function edit(member){editing=member.agent_id;autoRole=false;choices();$('agent').value=editing;$('agent').disabled=true;$('role').value=member.role;$('model').value=member.model_profile;$('form-title').textContent='Edit '+member.name;$('save').textContent='Save assignment';$('cancel').hidden=false;hint();$('role').focus();}
+function readiness(m){const model=state.models.find(x=>x.id===m.model_profile),k=state.keys||{},problems=[];
+ if(!m.available)problems.push(['Agent unavailable here','/agents']);
+ if(!model)problems.push(['Model connection not listed in Models','/settings/models-context/']);
+ else if(model.usable===false)problems.push(['Setup placeholder: choose a saved model',null]);
+ else if(model.key==='vault'&&k.supported&&!k.unlocked)problems.push(['API keys locked',k.configured?'/settings/api-keys/':'/settings/api-keys/']);
+ return problems;}
+function titles(campaigns){const seen={};for(const c of campaigns){const t=c.letter.slice(0,90);seen[t]=(seen[t]||0)+1;}
+ return c=>{const t=c.letter.slice(0,90);return seen[t]>1?t+' · '+c.id:t;};}
+function row(m){const row=document.createElement('div');row.className='member';const details=document.createElement('div'),title=document.createElement('strong'),line=document.createElement('p'),source=document.createElement('small');
+ title.textContent=m.name;line.textContent=(roleNames[m.role]||m.role)+' · '+m.model_profile;source.textContent=m.source;
+ const ready=document.createElement('p');ready.className='ready';const problems=readiness(m);
+ if(!problems.length){ready.textContent='Ready to work';ready.classList.add('ok');}
+ else for(const [text,href] of problems){const part=document.createElement(href?'a':'span');part.textContent=text;if(href)part.href=href;ready.append(part,' ');}
+ details.append(title,line,source,ready);row.append(details);
+ const buttons=document.createElement('div');buttons.className='buttons';
+ const editButton=document.createElement('button');editButton.type='button';editButton.textContent='Edit assignment';editButton.disabled=!m.available;editButton.addEventListener('click',()=>edit(m));
+ const removeButton=document.createElement('button');removeButton.type='button';removeButton.textContent='Remove from project';removeButton.addEventListener('click',()=>remove(m));
+ buttons.append(editButton,removeButton);row.append(buttons);return row;}
+function render(value){state=value;const cid=value.commission||'',label=titles(value.campaigns);$('campaign').replaceChildren();option($('campaign'),'','Choose a project');for(const c of value.campaigns)option($('campaign'),c.id,label(c));$('campaign').value=cid;if(globalThis.aetherNav)globalThis.aetherNav.campaigns().then(k=>{const names={};for(const g of k.campaigns||[])for(const p of g.projects||[])names[p.id]=g.name+' › '+p.name;for(const p of k.unfiled||[])names[p.id]=p.name;for(const o of $('campaign').options)if(names[o.value])o.textContent=names[o.value];});$('empty').hidden=!!value.campaigns.length;$('content').hidden=!cid;$('back').href=cid?'/projects/atelier?commission='+encodeURIComponent(cid):'/';if(globalThis.aetherNav)globalThis.aetherNav.campaign(cid);
+ $('members').replaceChildren();for(const m of value.members)$('members').append(row(m));if(!value.members.length)$('members').textContent='No local agents assigned yet.';
+ $('history').textContent=value.history.length?'Also recorded in the project history: '+value.history.map(p=>p.name||p.id).join(', ')+'. Those records are preserved.':'';resetForm();if(value.model_error)message('Saved models could not be loaded. Open Models to check the connections.',true);
+ if(globalThis.aetherNav&&globalThis.aetherNav.refresh)globalThis.aetherNav.refresh();}
+async function load(cid){const turn=++generation;$('content').hidden=true;message('');try{const value=await api(cid?'?commission='+encodeURIComponent(cid):'');if(turn!==generation)return;render(value);history.replaceState({},'',location.pathname+(cid?'?commission='+encodeURIComponent(cid):''));}catch(error){if(turn===generation)message(error.message,true);}}
+async function post(body,done){const turn=++generation;$('save').disabled=true;$('campaign').disabled=true;
+ try{const value=await api('',body);if(turn===generation){render(value);done(value);}}catch(error){message(error.message+' Reload the page to refresh the roster.',true);}finally{$('campaign').disabled=false;$('save').disabled=false;}}
+function remove(m){if(!state?.commission)return;const cid=state.commission;
+ post({commission:cid,revision:state.revision,agent_id:m.agent_id,action:'remove'},value=>{const r=value.removed||m;
+  const back=state.agents.some(a=>a.id===r.agent_id&&a.status==='available')&&r.model_profile;
+  message('Removed '+m.name+' from this project. Their identity, memory and other projects are unchanged.',false,back?{label:'Undo',run:()=>post({commission:cid,revision:state.revision,agent_id:r.agent_id,role:r.role,model_profile:r.model_profile},()=>message('Assignment saved for this project.'))}:null);});}
+$('campaign').addEventListener('change',()=>load($('campaign').value));$('cancel').addEventListener('click',resetForm);
+$('agent').addEventListener('change',()=>{const a=state.agents.find(x=>x.id===$('agent').value);if(!editing&&autoRole&&a&&a.role)$('role').value=a.role;hint();});
+$('role').addEventListener('change',()=>{autoRole=false;});
+$('assignment').addEventListener('submit',event=>{event.preventDefault();if(!state?.commission)return;
+ post({commission:state.commission,revision:state.revision,agent_id:$('agent').value,role:$('role').value,model_profile:$('model').value},()=>message('Assignment saved for this project.'));});
+load(new URLSearchParams(location.search).get('commission')||'');
+</script></body></html>

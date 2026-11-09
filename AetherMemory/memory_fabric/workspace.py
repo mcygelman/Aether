@@ -130,7 +130,7 @@ def _seed_was_adapted(cart, table, note_id):
 def seed(cart):
     """Add missing supplied resources; never overwrite or resurrect owner edits.
 
-    A seed is Aether's note, not the mind's (Fable, 2026-10-22): the near-duplicate rule and every memory
+    A seed is Aether's note, not the mind's: the near-duplicate rule and every memory
     score count a mind's lessons by author. A seed the first schema-4 engine filed under the mind's name is
     given back to Aether here, on a writable open, only while its words are still Aether's; an edited copy is
     the mind's adaptation and keeps its author."""

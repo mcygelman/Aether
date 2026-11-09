@@ -165,10 +165,10 @@ def test_old_session_is_explicitly_current_projection(demo):
             'body': 'Created after the selected session.', 'operation_id': 'later-project'})['id']
         engine.workspace('project_work', {'project_id': project, 'operation_id': 'later-focus'})
     after = directory.dashboard('Wren', sid)
-    assert 'Current dashboard' in after['viewing']['basis']
+    assert 'Live view of its notes' in after['viewing']['basis']
     assert after['viewing']['session_id'] == sid
     assert {e['name']: e for e in after['elements']}['last_project']['value']['title'] == 'Later project'
-    assert 'Current dashboard' in directory.dashboard('Wren')['viewing']['basis']
+    assert 'Live view of its notes' in directory.dashboard('Wren')['viewing']['basis']
     assert 'without session context' in directory.dashboard('Wren', 'none')['viewing']['basis']
 
 

@@ -1,6 +1,6 @@
 {
   "name": "01_upstairs_door",
-  "origin": "Michel's example (2026-10-06): a one-week assignment upstairs; the alarm warning must outlive the project",
+  "origin": "The owner's example (2026-10-06): a one-week assignment upstairs; the alarm warning must outlive the project",
   "start": "2026-10-06T09:00:00Z",
   "agent": "test-agent",
   "memories": [

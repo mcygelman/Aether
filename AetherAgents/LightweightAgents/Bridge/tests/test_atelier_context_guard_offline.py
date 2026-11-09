@@ -1,4 +1,4 @@
-"""P1: the context guard inside one Atelier turn (Fable, 2026-10-22), offline with a scripted client.
+"""P1: the context guard inside one Atelier turn, offline with a scripted client.
 
 Between turns the context is rebuilt from the daybook; inside one turn up to 40 rounds of 24,000-character results
 were unmanaged. The guard counts the request before each call against the deployment's window less the output
@@ -65,7 +65,8 @@ def test_no_window_means_the_guard_counts_and_does_nothing(tmp_path):
     client = Scripted([read_call(['big.txt']), read_call(['big.txt'], 'c2'), dict(role='assistant', content='Report: read it twice.')])
     text, cost = think(client, _messages(), Tools(p, root))
     assert text == 'Report: read it twice.' and cost['model_calls'] == 3
-    assert cost['context'] == dict(window=None, room=None, peak_estimate=cost['context']['peak_estimate'], guard_fired=False, made_room=[])
+    assert cost['context'] == dict(window=None, room=None, peak_estimate=cost['context']['peak_estimate'], guard_fired=False, made_room=[],
+                                   reread_after_set_aside=0)
     assert cost['context']['peak_estimate'] > 6000                            # it counted, and both reads stayed whole
     assert all(len(m['content']) >= 12_000 for m in _tool_messages(client.requests[-1]))   # whole, plus the tool's own header
 
@@ -97,7 +98,9 @@ def test_the_newest_result_is_cut_to_fit_and_set_aside_once_read(tmp_path):
     # Round 3: the mind has read it; it is a stub now, and small.txt stays whole.
     third = client.requests[2]
     stub, small = _tool_messages(third)
-    assert stub['content'].startswith(f"[{made[0]['characters']} characters set aside to make room in your context") and 'xxxx' in stub['content']
+    # The stub says how long, which call it came from (rehearsal 4, O8) and how it began.
+    assert stub['content'].startswith(f"[{made[0]['characters']} characters from read_files(") and 'big.txt' in stub['content'].split(']')[0]
+    assert 'set aside to make room in your context' in stub['content'] and 'xxxx' in stub['content']
     assert made[1]['characters'] == made[0]['characters'] >= 12_000 and len(small['content']) >= 400
     assert request_estimate(third['messages'], third['tools']) <= cost['context']['room']
 

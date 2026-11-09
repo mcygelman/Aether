@@ -34,7 +34,7 @@ def test_parity_sealed_briefcases():
         assert bc.header.est_tokens > 0
         # Post-S00073.7 C-2 PROTOCOL_DIGEST reseal: sections 02 CRIB_SHEET + 03 WORKFLOW_INSTRUCTIONS
         # + 04-07 PROTOCOL (Task/Result/Scaffold/Canvas) collapsed into a single PROTOCOL_DIGEST
-        # section by design (Fable_Ruling_S00073.6 Q3) — the old ">= 8" floor assumed the
+        # section by design (design decision Q3) — the old ">= 8" floor assumed the
         # pre-digest section layout. New floor: IDENTITY + PROTOCOL_DIGEST + at least one
         # TeachFrame + TASK_PACKAGE.
         assert len(bc.sections) >= 4

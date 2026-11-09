@@ -35,7 +35,7 @@ def test_join_persists_and_read_does_not_create_a_place(tmp_path):
             w.save(dict(share=str(tmp_path / 'share'), name=name))
 
 
-def test_http_origin_and_machine_local_connection(tmp_path):
+def test_http_origin_and_machine_local_connection(tmp_path, monkeypatch):
     w = make(tmp_path)
     state = {'workplace': w}
     handler = Handler('POST', '/api/places/start', {}, origin='http://elsewhere')
@@ -48,7 +48,15 @@ def test_http_origin_and_machine_local_connection(tmp_path):
     assert code == 200
     cid = opened['commission_id']
     assert (tmp_path / 'share' / 'daybooks' / cid / 'daybook.jsonl').exists()
-    code, value, _ = call(state, 'POST', '/api/atelier/wake', {'commission': cid, 'participant': {'id': 'librarian', 'kind': 'librarian'}})
+    state['atelier_turn'] = lambda *args: None
+    body = {'commission': cid, 'participant': {'id': 'librarian', 'kind': 'librarian'}}
+    try:
+        code, value, _ = call(state, 'POST', '/api/atelier/wake', body)
+        assert code == 202 and value['started'] and not value.get('managed')
+    finally:
+        atelier_http.settle(10)
+    monkeypatch.setattr(w, 'active', lambda: True)
+    code, value, _ = call(state, 'POST', '/api/atelier/wake', body)
     assert code == 200 and value['managed'] and not value['started']
 
 
@@ -79,7 +87,7 @@ def test_start_duplicate_stop_and_shutdown(tmp_path):
                 break
             time.sleep(.01)
         second = Workplace(w.path)
-        with pytest.raises(ValueError, match='already running'):
+        with pytest.raises(ValueError, match='already working in the network'):
             second.start()
         w.stop()
     finally:
@@ -182,9 +190,16 @@ def test_atelier_server_serves_connection_and_shared_thread(tmp_path):
     thread = threading.Thread(target=server.serve_forever)
     thread.start()
     base = f'http://127.0.0.1:{server.server_port}'
+    # Public Mission Control now requires a local operator session, including redirects.
+    from urllib.request import build_opener
+    _, token = server.state['operator_access'].register(dict(username='scopeadmin', name='Scope Admin',
+        password='Synthetic passphrase 123!', confirmation='Synthetic passphrase 123!'))
+    opener = build_opener()
+    opener.addheaders = [('Cookie', f'aether_operator_{server.server_port}={token}')]
+    urlopen = opener.open
     try:
         with urlopen(base + '/projects/places') as response:
-            assert b'Places &amp; libraries' in response.read()
+            assert response.url.endswith('/network') and b'Aether Networks</h1>' in response.read()
         with urlopen(base + '/api/places') as response:
             assert json.load(response)['config']['share'] == str(tmp_path / 'share')
         request = Request(base + '/api/atelier/open', data=json.dumps({'text': 'Read the guide. Budget: 12 model calls.'}).encode(),
@@ -192,7 +207,7 @@ def test_atelier_server_serves_connection_and_shared_thread(tmp_path):
         with urlopen(request) as response:
             cid = json.load(response)['commission_id']
         with urlopen(base + '/api/atelier/read?commission=' + cid) as response:
-            assert json.load(response)['places_managed'] is True
+            assert json.load(response)['places_managed'] is False
     finally:
         server.shutdown()
         thread.join(5)

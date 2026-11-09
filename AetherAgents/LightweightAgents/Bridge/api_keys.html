@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aether · API keys</title>
+<style>
+:root{color-scheme:dark;--bg:#10171b;--panel:#192329;--line:#34454d;--muted:#bac9ce;--ink:#edf5f4;--accent:#97dbbd}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:40px 28px 80px}header{display:flex;justify-content:space-between;align-items:start;gap:20px;border-bottom:1px solid var(--line);padding-bottom:24px}h1{font-size:32px;letter-spacing:-.8px;margin:6px 0}h2{font-size:20px;margin:0 0 18px}h3{font-size:16px;margin:0 0 10px}.eyebrow{color:var(--accent);font-size:12px;letter-spacing:2px;font-weight:700}.muted,small{color:var(--muted)}p{margin:8px 0 16px}.layout{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;margin-top:24px}.card{border:1px solid var(--line);border-radius:14px;padding:24px;background:var(--panel);margin-bottom:20px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}label{display:block;font-size:14px;color:var(--muted)}input,select,textarea{display:block;width:100%;padding:11px 12px;margin-top:7px;border:1px solid #597079;border-radius:7px;background:#101b20;color:var(--ink);font:inherit}textarea{min-height:94px;resize:vertical}input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}[aria-invalid=true]{border-color:#e3a0a0!important}.vault-confirm{border:1px solid #b47c7c;border-radius:8px;padding:10px 14px;margin-top:12px}.vault-confirm p{margin:0 0 8px}.wide{grid-column:1/-1}button{border:1px solid #6e8b87;border-radius:8px;padding:10px 15px;background:transparent;color:var(--ink);font:600 14px system-ui;cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:#102b23}button:disabled{opacity:.45;cursor:default}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.number{font-size:38px;letter-spacing:-1px;color:var(--accent);line-height:1.3;margin:10px 0}.notice{padding:14px 16px;background:#203831;border-left:3px solid var(--accent);border-radius:4px;margin:18px 0}.error{background:#3c2428;border-color:#ee9c9c;color:#ffe2e2}.route{overflow-wrap:anywhere;font-size:13px;color:var(--muted);margin-top:10px}details{margin-top:18px}summary{cursor:pointer;color:var(--accent)}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#status{min-height:30px;margin-top:20px}#file{overflow-wrap:anywhere;font-size:12px}footer{margin-top:20px;border-top:1px solid var(--line);padding-top:18px}#support{font-weight:600}small{display:block;margin-top:6px}@media(max-width:780px){main{padding:24px 16px}.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}header{flex-direction:column}.number{font-size:32px}}
+</style>
+<style>.vault-keys-section{border-top:1px solid var(--line);padding-top:20px;margin-top:24px}.vault-reset-check{display:flex;gap:10px;align-items:flex-start;margin-top:16px}.vault-reset-check input{width:auto;margin:5px 0 0}.vault-row{border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0;overflow-wrap:anywhere}.vault-row h3{margin-bottom:4px}.vault-row p{margin-bottom:4px}.vault-row .actions{margin-top:12px}.vault-delete{color:#ffb8b8;border-color:#925d65}#vaultEditor{margin-top:20px}[hidden]{display:none!important}#status{position:sticky;top:8px;z-index:3;background:var(--panel);padding:10px 14px;border-radius:6px;box-shadow:0 3px 16px #0005}#status.error{background:#3c2428}</style>
+<style>main{max-width:900px}a{color:var(--accent)}header{margin-bottom:24px}.page-nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}</style>
+<script src="atelier-nav.js"></script>
+<main><nav data-local-nav class="page-nav" aria-label="Aether"><a href="/" id="aetherHome">Aether</a><a href="MODEL_PAGE_URL">Models</a></nav>
+<header><div><div class="eyebrow">AETHER / SETTINGS</div><h1>API keys</h1><p class="muted">Manage the API keys saved in this Aether installation.</p></div></header>
+<section class="card" id="apiVault"><h2>Your API keys</h2>
+<p>One <strong>API management password</strong> protects every API key saved in this Aether installation. Separate installations have separate saved keys.</p>
+<div class="vault-password-section"><h3>API management password</h3>
+<p id="vaultPasswordState" aria-live="polite">Checking password setup…</p>
+<button id="vaultSetup" type="button" class="primary" disabled>Create API Password</button>
+<div id="vaultPasswordForm" hidden><div class="fields">
+<label id="vaultPasswordLabel">API management password<input id="vaultPassword" type="password" autocomplete="new-password" maxlength="1024"><small id="vaultPasswordHelp">Use at least 6 characters. This password protects all saved keys.</small></label>
+<label id="vaultConfirmLabel">Confirm API management password<input id="vaultConfirm" type="password" autocomplete="new-password" maxlength="1024"></label>
+</div></div>
+<div class="actions">
+<button id="vaultCreate" type="button" class="primary" hidden>Create API Password</button>
+<button id="vaultSetupCancel" type="button" hidden>Cancel</button>
+<button id="vaultUnlock" type="button" class="primary" hidden>Unlock management</button>
+<button id="vaultLock" type="button" hidden>Lock management</button>
+<button id="vaultReset" type="button" hidden>Reset API password…</button>
+</div>
+<div id="vaultResetPanel" class="notice error" hidden><h3>Reset API management password</h3>
+<p><strong>All saved API keys will be deleted from Aether on this computer.</strong> You will need to add them again and choose the new entries in any model connections that used them. This does not revoke keys with your providers.</p>
+<p id="vaultResetUsage"></p>
+<p>Your old password is not required. Choose a new password for the empty key collection.</p>
+<div class="fields">
+<label>New API management password<input id="vaultResetPassword" type="password" autocomplete="new-password" maxlength="1024"><small>At least 6 characters.</small></label>
+<label>Confirm new password<input id="vaultResetConfirm" type="password" autocomplete="new-password" maxlength="1024"></label>
+</div>
+<label class="vault-reset-check"><input id="vaultResetConfirmDelete" type="checkbox"> I understand that all saved API keys will be deleted and must be added again.</label>
+<div class="actions"><button id="vaultResetApply" type="button" class="vault-delete" disabled>Reset password and delete all saved keys</button><button id="vaultResetCancel" type="button">Cancel reset</button></div>
+</div>
+</div>
+<div class="vault-keys-section"><h3>Saved API keys</h3>
+<p id="vaultKeysUnavailable" class="muted">Create your API management password first to enable key management.</p>
+<div id="vaultKeys" hidden>
+<div id="vaultList" aria-label="Saved API keys"></div>
+<div id="vaultEditor" hidden><h3 id="vaultEditorTitle">Add API key</h3><div class="fields">
+<label id="vaultNameLabel">Key label<input id="vaultName" maxlength="80" autocomplete="off" placeholder="For example, Personal DeepSeek"></label>
+<label id="vaultProviderLabel">Provider<select id="vaultProvider"><option value="deepseek">DeepSeek</option><option value="anthropic">Claude (Anthropic)</option><option value="openai">OpenAI</option><option value="openai-compatible">Other OpenAI-compatible provider</option></select></label>
+<label id="vaultKeyLabel" class="wide">API key<input id="vaultKey" type="password" autocomplete="off" spellcheck="false" maxlength="4096"></label>
+</div></div><div class="actions">
+<button id="vaultSave" type="button" class="primary" hidden>Save key</button>
+<button id="vaultCancel" type="button" hidden>Cancel</button>
+</div></div><div class="actions"><button id="vaultAdd" type="button" class="primary" hidden>Add API key</button></div></div>
+<p id="vaultStatus" role="status" aria-live="polite">Checking saved API keys…</p>
+<small>Unlock management to change or assign keys. Assigned usage continues after restart and while management is locked. Use Suspend API use to stop new assigned-key requests; a request already in progress may finish. Your Windows account protects runtime credentials. Resetting the management password deletes saved keys and clears assignments.</small></section>
+<section id="key-assignments" class="card" aria-label="API key assignments"></section>
+</main>
+<script type="module" src="/workspace-assets/key-assignments.js"></script><script src="credentials.js"></script></html>

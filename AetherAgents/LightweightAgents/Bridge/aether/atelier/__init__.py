@@ -1,10 +1,9 @@
 """Atelier (MOD-18).
 
-A workshop of minds (Michel, 2026-10-18). A campaign is a commission; the operator opens it with a commission letter;
+A workshop of minds. A campaign is a commission; the operator opens it with a commission letter;
 the master (a heavyweight) runs it by writing notes to assistants and the critic; the daybook is the workshop's
 chronological record; the atelier itself delivers notes, keeps the daybook, meters the budget, and intervenes only
-for money, consent, secrets or harm. Design: AetherPlanAndAnalysis/Specifications/MVP/FABLE_ATELIER_DESIGN_20261018.md
-under the charter FABLE_TEAM_CHARTER_AND_DEMOLITION_20261018.md.
+for money, consent, secrets or harm.
 
 Contract: Daybook(root, commission_id): append-only notes with a hash chain, files stored by content hash,
 read(since_id, limit), verify() that reports and never blocks. rebuild(daybook) -> facts (pure, rebuildable);
@@ -17,7 +16,7 @@ secrets, harm only. Postmaster(atelier, mailboxes_root) delivers daybook notes t
 through post(). No preview, no confirm, no hold, no re-welcome, no template refusal: an atelier that needs one is
 growing fences.
 Depends on: roadmaps (digest, checked_path), integrity (through roadmaps), mailbox. Never imports Mission Control.
-Owner: Fable (claude-fable-5-1).
+Owner: Atelier maintainers.
 
 participants.py and turn.py (the minds and their turns) are the turn-runner lane; atelier_http.py and the page are
 the page lane.

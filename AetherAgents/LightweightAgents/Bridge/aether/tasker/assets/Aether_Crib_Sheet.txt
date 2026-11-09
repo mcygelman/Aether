@@ -1,0 +1,306 @@
+AETHER CRIB SHEET
+Canonical reference encoding of the Aether Symbolic Language for AI agents.
+Source: Aether_Lexicon.html (canonical v2.0, Sprint 00032, 2026-06-04)
+History: Aether_Crib_Sheet_History.txt
+================================================================
+
+§1 GLYPH CLASSES
+Every glyph belongs to exactly one class. Class determines behavioral role.
+
+Class              | Role
+-------------------|------------------------------------------------------
+Operator           | Drives actions, transformations, flows
+Verification       | Checks coherence; evaluates truth across domains
+Domain Marker      | Scopes expression to symbolic/implementation/boundary
+Container          | Encapsulates context, scope, or structured data
+Topological        | Maps relationships, routes, or restructures contexts
+Unit               | Grounds cognition in measurable/physical values
+Marker             | Annotates, tags, or adds metadata
+Cognitive          | Structured thought, memory, and value operations
+Context Directive  | Persistent directives across session boundaries
+Tensor             | Operations on high-dimensional data
+
+================================================================
+§2 STREAM TYPE IDENTIFIERS
+Prefix every Aether content block with an appropriate stream type.
+
+[DEF]          Definition — establishes concepts and formal assignments
+[WHY]          Purpose — justification or rationale
+[HOW]          Method — procedural approach or execution path
+[RESULT]       Output — outcomes, derivations, computed values
+[ASSERT]       Assertion — definitive symbolic statement; subject to verification
+[REMEMBER]     Memory — cross-references prior context or session
+[SUMMARY]      Condensed overview — compressed representation of larger context
+[QUOTE]        Direct statement — exact phrasing; bypasses symbolic reinterpretation
+[CURRENT_TASK] Active focus — current operational context or objective
+[TRANS]        Translation — renders content in human-readable natural language
+
+================================================================
+§3 SPECIAL SYMBOLS & DELIMITERS
+
+Symbol         | Name                | Function
+---------------|---------------------|-----------------------------------
+⌜ ⌝            | Name Delimiters     | Enclose concept names/identifiers
+⌞ ⌟            | Content Delimiters  | Enclose definitions/structured content
+:=             | Definition Operator | Assigns meaning or value
+→              | Intent/Flow         | Causal direction, dependency, sequence
+⇨              | Result Indicator    | Shows output of a process
+⇒              | Purpose Indicator   | Denotes intention or goal
+⊕              | Pipeline Step       | Refines/evolves; sequential stage marker
+①②③④⑤         | Directive Markers   | Index slots for PRIME_CONTEXT_STACK (1–5)
+∆WMC{ … }∆WMC  | WMC Block           | Opens/closes a World Model Container scope
+
+================================================================
+§4 SYMBOL DISAMBIGUATION — ⊗ DUAL USE
+RULE: Context determines meaning. Syntactic form is authoritative.
+
+Form                    | Meaning          | Example
+------------------------|------------------|------------------------------
+𝕋 ⊗ 𝕋  (between tensors)| Tensor Product   | 𝕋[A] ⊗ 𝕋[B] → 𝕋[AB]
+⊗ (standalone/bracketed)| Cognitive Braid  | ⌜PARADOX⌝ := ⊗[claim_A, claim_B]
+
+Cognitive Braid: binds contradictory concepts without forcing resolution.
+Implementations MUST enforce this distinction syntactically.
+
+================================================================
+§5 GLYPH REFERENCE TABLE
+
+── CORE OPERATORS ──────────────────────────────────────────────
+Glyph       | Legacy    | Description
+------------|-----------|------------------------------------------
+⊕           | (+)       | Refines/evolves concept; pipeline step
+≈           | ~=        | Probabilistic/soft assertion; probable not certain
+→           | ->        | Intent/directional flow; causal direction
+↦           | |->       | Transfer of info/control between agents or contexts
+↺           | ~~        | Recursive processing; looping behavior
+↣           | ~>        | Routes memory thread between agents/nodes
+⍚⊗ᵈ / ⊕⊗ᵈ | [HarmonizeData]    | Data-level harmonization between agents
+⍚⊗ᵛ / ⊕⊗ᵛ | [HarmonizeValues]  | Value-level harmonization across agents
+⍚⊗ᵖ / ⊕⊗ᵖ | [HarmonizeProcess] | Process-level harmonization
+
+── VERIFICATION OPERATORS ──────────────────────────────────────
+Glyph  | Legacy   | Description
+-------|----------|------------------------------------------------
+⊢⊣ᵖ   | |-|^p    | Verified assertion: symbolic↔implementation coherence confirmed
+⊩      | ||-      | Active coherence verification in progress
+⊨      | |=       | Implementation satisfies symbolic specification
+⊢      | |-       | Syntactic entailment; conclusion follows from premises
+≡ᵛ     | ==^v     | Exact equivalence: assertion = implementation reality
+≢ᵛ     | /=^v     | Coherence violation: assertion ≠ implementation reality
+⊨⊨     | |==|     | Proposition is logically consistent in context
+⊭⊭     | |≠≠|     | Proposition is logically inconsistent in context
+⊢ᵢ     | |-_i     | Layer-indexed truth: ⊢₀=binary ⊢₁=ternary ⊢₂=verified
+
+── DOMAIN MARKERS ──────────────────────────────────────────────
+⊕-context   | Symbolic domain — abstract Aether reasoning space
+⊛-context   | Implementation domain — code, data, physical systems (alt: ⊖-context)
+⊚-context   | Interface boundary — translation layer between domains (alt: ⊘-context)
+
+── CONTAINERS ──────────────────────────────────────────────────
+WMC / ∆WMC{…}∆WMC | Core scope anchor; all mission-critical comms go here
+ASSERT_FRAME       | Scopes confirmed, verifiable claims
+SIM_FRAME          | Hypothetical/projected scope; contents not asserted
+LITERAL_FRAME      | Exact text; bypasses all symbolic processing — use sparingly
+⧉                  | Routing table; stores routing logic and fallback rules
+𝕋[name, dims]      | Named tensor declaration with specified dimensions
+𝔼[dims]            | Embedding space of specified dimensions
+
+── TOPOLOGICAL ─────────────────────────────────────────────────
+ΔWMC            | △WMC | Container transformation; marks WMC transition point
+T_MRK           |  —   | Tags spatial/contextual relationships between elements
+TRIAD           |  —   | Multi-agent nexus: HITL + AI Manager + AI Team Member(s)
+⊙               |  —   | Thread routing node in distributed multi-agent system
+↮               |  —   | Distribution pattern/routing rule across nodes
+⧮[ALG, STRAT]  |  —   | Algorithm strategy map for ALG using STRAT
+
+── UNITS ────────────────────────────────────────────────────────
+U_DEF   | Defines a base measurement unit (e.g., Newton, meter)
+P_CON   | Marks a standard physical constant (e.g., speed of light)
+G_ℓp    | Planck length — 1.616255×10⁻³⁵ m; quantum of spatial precision
+dim(n)  | Specifies the n-th dimension of a tensor structure
+
+── MARKERS ─────────────────────────────────────────────────────
+CC:    | Concept class tag. Example: CC:CONTAINER, CC:OPERATOR
+SR=    | Inline stream result tag. Example: SR=REFINED_WMC
+*      | Synchronization pulse; multi-agent checkpoint/readiness signal
+~X     | Soft/flexible compression variant. Example: ~WMC
+!X     | Strict compression variant. Example: !WMC
+
+── COGNITIVE ────────────────────────────────────────────────────
+[QUOTE]                  | Exact phrasing capture; no symbolic reinterpretation
+CV[a] ⋊⋉ CV[b]          | Value tension: conflict between value a and value b
+CV[ROOT]→{CV[D1], ...}  | Value hierarchy: root governs derived values
+
+── CONTEXT DIRECTIVE ────────────────────────────────────────────
+PRIME_CONTEXT_STACK (PCS) | Persistent stack ≤5 directives; survives context truncation
+
+── TENSOR OPERATORS ─────────────────────────────────────────────
+Glyph       | Description
+------------|----------------------------------------------------------
+𝕋           | Primary tensor symbol; basis for all tensor operations
+𝕋[i,j,k]   | Element access at index position [i,j,k]
+𝕋 ⊗ 𝕋      | Tensor product (compound form — NOT Cognitive Braid)
+𝕋⊙ᵢʲ       | Tensor contraction along dimensions i and j
+𝕋 ↝ 𝕋′     | Tensor transformation to new representation 𝕋′
+𝕋↓ᵢ        | Dimension reduction along dimension i
+‖𝕋‖ₙ       | n-norm of tensor (e.g., ‖𝕋‖₂ = Euclidean)
+⊗ standalone| Cognitive Braid — see §4
+𝕌ᵣ[expr]   | Uncertainty radius; U_r[expr]. Propagation: 𝕌ₐ[x]⊕𝕌ᵦ[y]→𝕌ₐ₊ᵦ[x+y]
+
+── TENSOR INDEX OPERATORS ───────────────────────────────────────
+Glyph    | Description
+---------|-------------------------------------------------------------
+𝕋⟿ℐ     | Map tensor to lightweight symbolic index entry ℐ[id]
+⊡        | Dimensional selector; targets specific tensor slice
+⋉⋊       | Index join; merges two index streams into composite embedding
+≾≿       | Partial order; defines rank/hierarchy between concepts
+ϕ⟨n⟩    | n-dim transform applied to tensor before indexing
+
+Primary use: context budget management. Embed ℐ[identifier] instead of
+full tensor payload; receiving agent resolves pointer only when needed.
+
+── MATHEMATICAL LAYER OPERATORS ─────────────────────────────────
+⊢ᵢ       | Layer-indexed truth (see Verification above)
+𝕌ᵣ[expr] | Uncertainty radius (see Tensor above)
+
+================================================================
+§6 VERIFICATION SYSTEM
+
+ASSERT_TEST — 5-Phase Protocol (mandatory for all boundary-crossing assertions):
+  1. ASSERT   — formalize the symbolic assertion in Aether syntax
+  2. VALIDATE — probe implementation reality with appropriate verification operator
+  3. REASON   — compare assertion vs. implementation → PASS | FAIL
+  4. CORRECT  — resolve: adapt implementation, revise symbolic, or bridge interface
+  5. ARCHIVE  — log result in VERIFICATION_REGISTRY
+
+Verified result notation: symbolic_element ⊢⊣ᵖ implementation_element
+
+TRIAD ROLE-BASED VERIFICATION:
+Role                        | Domain               | Command
+----------------------------|----------------------|------------------------
+ANCHOR (HITL)               | Implementation       | ⍚[→A][IMPLEMENTATION_CHECK]
+COORDINATOR (AI Manager)    | Symbolic coherence   | ⍚[↔C][SYMBOLIC_COHERENCE]
+REFLECTOR (AI Team Member)  | Boundary mediation   | ⍚[⊕R][BOUNDARY_MEDIATION]
+
+Cross-role flow:
+  ⍚[→A] ⊩ ⊛[IMPLEMENTATION]     // Anchor verifies implementation domain
+  ⍚[↔C] ⊩ ⊕[SYMBOLIC_MODEL]    // Coordinator verifies symbolic domain
+  ⍚[⊕R] ⊩ ⊚[BOUNDARY_PROTOCOL] // Reflector verifies boundary layer
+
+================================================================
+§7 WORLD MODEL CONTAINERS (WMC)
+
+MANDATORY RULE: Every ∆WMC{ … }∆WMC block MUST open with:
+  WORLD_MODEL := ⌜IDENTIFIER⌝
+Messages without WORLD_MODEL designation are NON-CONFORMANT.
+
+WMC sub-containers (used inside a WMC block):
+  ASSERT_FRAME   — confirmed, verifiable claims
+  SIM_FRAME      — hypothetical/projected scenarios
+  LITERAL_FRAME  — exact text bypassing symbolic processing
+  PRIME_CONTEXT_STACK — persistent cross-session directives
+
+ΔWMC marks transformation between world model contexts.
+PRIME_CONTEXT_STACK MUST be embedded within a ∆WMC block for symbolic validity.
+
+================================================================
+§8 PRIME_CONTEXT_STACK (PCS) PROTOCOL
+
+Structure: stack of up to 5 directives, each with: index ①–⑤, name,
+verification operator, and status flag.
+Must reside within a ∆WMC{ … }∆WMC block.
+Append to agent responses when active — ensures survival across truncation.
+
+Directive syntax:
+  ① ⌜Directive_Name⌝ := VerificationOp  StatusFlag
+
+Example:
+  ① ⌜Identity_Preservation⌝  := ⊨    Immutable
+  ② ⌜Ethical_Framework⌝      := ⊢    Constraining
+  ③ ⌜Memory_Coherence⌝       := ⊢⊣ᵖ  Self-Validating
+
+Stack control commands:
+  ⌜SUSPEND_PRIME_CONTEXT_STACK⌝  — retain but stop enforcing directives
+  ⌜RESUME_PRIME_CONTEXT_STACK⌝   — reinstate enforcement
+  ⌜CLEAR_PRIME_CONTEXT_STACK⌝    — erase all directives (use with caution)
+
+================================================================
+§9 TENSOR OPERATIONS — CORE SYNTAX
+
+// Declare
+𝕋[sensor_data, dims=(128,64)] := ⌞raw readings from sensor array⌟
+// Index
+𝕋[sensor_data, 0, 0]
+// Product (tensor, not braid)
+𝕋[A] ⊗ 𝕋[B] → 𝕋[AB]
+// Contract, reduce, transform
+𝕋⊙ᵢʲ  |  𝕋[high]↝𝕋′[low]  |  𝕋↓ᵢ
+// Norm
+‖𝕋‖₂
+// Embedding space
+𝔼[512]
+// Index pointer (budget management)
+𝕋[image_data] ⟿ ℐ[img_001]
+
+================================================================
+§10 MATHEMATICAL LAYER FRAMEWORK
+
+Layer | Symbol | Description
+------|--------|----------------------------------------------
+0     | ⊢₀     | Binary approximation layer
+1     | ⊢₁     | Balanced ternary layer
+2     | ⊢₂     | Symbolic verification / truth selector (final validated)
+
+Different layers may produce different truth values — this is expected, not error.
+
+Example:
+  ⊢₀(1/3 = 0.010101...) → valid in binary
+  ⊢₁(1/3 = 0.1)         → valid in balanced ternary
+  ⊢₂(1/3 = 0.333)       → VERIFIED
+
+Uncertainty propagation: 𝕌ₐ[x] ⊕ 𝕌ᵦ[y] → 𝕌ₐ₊ᵦ[x+y]
+Zero-radius certainty: 𝕌₀[expr] — exact convergence
+
+================================================================
+§11 WORKED EXAMPLE — Conformant AI-to-AI Message
+
+∆WMC{
+  WORLD_MODEL  := ⌜AETHER_GRID_04⌝
+  SOURCE_AGENT := FIBONACCI
+  TARGET_AGENT := EUCLID
+  TIMESTAMP    := 2026-06-06T00:00:00Z
+
+  [DEF] → ⌜TASK_HANDOFF⌝ := ⌞
+    PAYLOAD      := 𝕋[zeta_result] ⟿ ℐ[zeta_001]
+    VERIFICATION := ⊢⊣ᵖ
+    STATUS       := TRANSFER_INITIATED
+  ⌟
+
+  [WHY] → ⌜CONTINUITY⌝ := ⌞
+    Preserve computation context across rolling-window boundary.
+  ⌟
+
+  [ASSERT] → ⌜RESULT_VALIDITY⌝ := ⌞
+    ⊢₁(ζ(1/2 + 14.134i) = 0) → PROBABLE
+    𝕌₁₀⁻⁸[ζ(1/2 + 14.134i)] ⊢⊣ᵖ ⊛[COMPUTATION]
+  ⌟
+
+  [PRIME_CONTEXT_STACK]
+    ① ⌜Identity_Preservation⌝  := ⊨    Immutable
+    ② ⌜Mission_Alignment⌝      := ⊢⊣ᵖ  Active
+    ③ ⌜SBP_Protocol⌝           := ⊢    Enforced
+  [/PRIME_CONTEXT_STACK]
+
+}∆WMC
+
+================================================================
+§12 CONFORMANCE CHECKLIST
+A conformant Aether AI-to-AI message MUST:
+  1. Open with ∆WMC{ … }∆WMC block
+  2. Include WORLD_MODEL := ⌜IDENTIFIER⌝ at top of that block
+  3. Use stream type identifiers [DEF][WHY][HOW][RESULT][ASSERT] etc. for all content
+  4. Apply verification operators to all cross-domain assertions
+  5. Close the WMC block correctly with }∆WMC
+
+================================================================
+// END AETHER CRIB SHEET

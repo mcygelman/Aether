@@ -1,4 +1,4 @@
-"""Seeds: the onboarding of a mind's memory, inside the memory (Michel, 2026-10-19).
+"""Seeds: the onboarding of a mind's memory, inside the memory.
 
 A new cartridge is born with a few memories written by Aether, not by the mind, and labelled so: worked examples of
 what a fact, a lesson and a warning look like, how recall and filing are done, and one note about the mind's own
@@ -43,30 +43,32 @@ def plant(home: Path, agent_id: str, name: str, born_at: str | None = None) -> l
         birth = _born(engine, agent_id, name, born_at)
         out.append(('core_knowledge', birth, 'your first morning'))
 
+        # The examples come from an invented commission, never from the acceptance fixture, so a new mind does not wake
+        # already holding the lessons a later project is meant to teach it (rehearsal F2, 2026-10-27).
         fact = engine.remember(
-            'Example commission: the harbour ledger, a daily report', (
+            'Example commission: the clinic rota, a weekly export', (
                 'An example of a project fact: a situation, kept while it matters and sinking after. "The operator commissioned a '
-                'daily settlement report in USD; the repository caps amounts at 999999999 minor units; the helper parse_minor is '
-                'shared and must keep its signature; the critic reviews against docs/CONVENTIONS.md." A fact like this is filed '
-                'with the commission it belongs to and a switch date near its end, so it is strong during the work and quiet later.'),
+                'weekly staff rota export as CSV; the shared helper format_shift must keep its signature; the reviewer checks '
+                'the export against docs/STYLE.md." A fact like this is filed with the commission it belongs to and a switch '
+                'date near its end, so it is strong during the work and quiet later.'),
             'project_fact', [SEED_TAG, 'example', 'fact', 'commission'], switch_in_days=21, category='Information', **common)
         out.append(('project_fact', fact, 'example fact'))
 
         lesson = engine.remember(
-            'Example lesson: write the review as if a stranger wrote the patch', (
+            'Example lesson: name the deliverable when you hand it in', (
                 'An example of a standing lesson: one sentence you would tell a colleague, with the situation it came from linked to '
-                'it. "Writing REVIEW.md against my own patch surfaced a cap the conventions never asked for; it only became a disclosed '
-                'decision once I stopped defending it." A lesson fades slowly and comes back when it is read; link it to the fact it '
-                'came from so recall from either reaches the other.'),
-            'standing_lesson', [SEED_TAG, 'example', 'lesson', 'review'], links=[(fact, 'context')], category='Reflection', **common)
+                'it. "My export sat unread for a day because my note said it was done but not which file it was; now I name the '
+                'file." A lesson fades slowly and comes back when it is read; link it to the fact it came from so recall from '
+                'either reaches the other.'),
+            'standing_lesson', [SEED_TAG, 'example', 'lesson', 'handover'], links=[(fact, 'context')], category='Reflection', **common)
         out.append(('standing_lesson', lesson, 'example lesson'))
 
         warning = engine.remember(
-            'Example warning: a cap on amounts is not a cap on totals', (
+            'Example warning: a test you did not run has not passed', (
                 'An example of a safety warning: a trap, said plainly, kept strong long after the situation that taught it. "Do not '
-                'infer a cap on a sum from a cap on a field; if you add one, disclose it, test it, make it deletable in one line." '
-                'A warning outlives its project; its link to the project drops fast, the warning itself does not.'),
-            'safety_warning', [SEED_TAG, 'example', 'warning', 'cap', 'totals'], links=[(fact, 'context'), (lesson, 'conceptual')],
+                'report a result you did not see; say what ran, what it printed, and what could not be run." A warning outlives '
+                'its project; its link to the project drops fast, the warning itself does not.'),
+            'safety_warning', [SEED_TAG, 'example', 'warning', 'tests', 'evidence'], links=[(fact, 'context'), (lesson, 'conceptual')],
             category='Alert', **common)
         out.append(('safety_warning', warning, 'example warning'))
 

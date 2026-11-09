@@ -1,0 +1,16 @@
+{
+ "roots": [
+  "build/mr60",
+  "build/mr60bk",
+  "AetherSprints/Sprint_Active/MVP_REHEARSAL_5_20261028"
+ ],
+ "files": 1252,
+ "bytes": 34191180,
+ "unreadable": 0,
+ "hits": {
+  "whole": [],
+  "whole_utf16": [],
+  "tail12": []
+ },
+ "clean": true
+}

@@ -1,0 +1,293 @@
+/* Owner: shared Mission Control shell and theme presentation.
+ * Must never: hide permission failures or carry application behavior.
+ */
+[data-local-nav]{display:none!important}
+html{overflow-y:scroll}
+body{margin-top:0!important;padding-top:0!important}
+#aether-nav,#aether-tabs{box-sizing:border-box;position:relative;font-family:system-ui,sans-serif;display:block;max-width:none;padding:0;gap:0}
+#aether-nav{font-size:15px;line-height:1.4;background:#0b1218;border-bottom:1px solid #34454d}
+#aether-nav .ae-row,#aether-tabs .ae-row{max-width:1160px;width:100%;margin:0 auto;padding:.55rem 1rem;display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;align-items:center;box-sizing:border-box}
+#aether-nav .ae-brand{font-size:19px;font-weight:800;letter-spacing:.02em;color:#edf5f4;cursor:default;user-select:none;padding:.1rem 1rem .1rem 0;margin-right:.2rem;border-right:1px solid #34454d;display:flex;align-items:center;gap:.45rem}
+#aether-nav .ae-brand i{display:inline-block;width:.6rem;height:.6rem;background:#97dbbd;transform:rotate(45deg);border-radius:2px}
+#aether-nav a{color:#a9ddd4;text-decoration:none;padding:.15rem 0;border-bottom:2px solid transparent}
+#aether-nav a:hover{color:#edf5f4;border-bottom-color:#4d646d}
+#aether-nav a[aria-current]{color:#edf5f4;border-bottom-color:#97dbbd;font-weight:600}
+#aether-nav .ae-spacer{flex:1 1 auto}
+#aether-nav .ae-settings{display:flex;gap:1rem;font-size:14px}
+#aether-tabs{font-size:14px;line-height:1.4;background:#111b21;border-bottom:1px solid #2b3a41;color:#bac9ce;margin-bottom:1.2rem}
+#aether-tabs[hidden]{display:none!important}
+#aether-tabs a{color:#a9ddd4;text-decoration:none;border-bottom:2px solid transparent}
+#aether-tabs a[aria-current]{color:#edf5f4;border-bottom-color:#97dbbd;font-weight:600}
+#aether-tabs .ae-crumbs{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;min-width:0;max-width:100%}
+#aether-tabs .ae-crumbs .ae-sep{color:#6e8c9a}
+#aether-tabs .ae-title{color:#edf5f4;font-weight:600;max-width:min(48ch,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#aether-tabs .ae-tablist{display:flex;flex-wrap:wrap;gap:.2rem 1rem;margin-left:auto}
+#aether-nav a:focus-visible,#aether-tabs a:focus-visible,.aether-help:focus-visible{outline:2px solid #97dbbd;outline-offset:3px}
+#aether-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+#aether-chips a{border:1px solid #4d646d;border-radius:999px;padding:.1rem .65rem;font-size:13px;color:#d9e6e3}
+#aether-chips a.attention{border-color:#d9b46a;color:#ffd28a}
+#aether-chips a.good{border-color:#4f8f7a;color:#a9ddd4}
+#aether-note{flex-basis:100%;color:#ffd28a;font-size:14px}
+#aether-note:empty{display:none}
+#aether-note a{color:#a9ddd4;margin-left:.4rem}
+.aether-help{font:700 13px/1 system-ui,sans-serif;width:1.45rem;height:1.45rem;border-radius:50%;border:1px solid #6e8c9a;background:#13232c;color:#a9ddd4;cursor:pointer;margin:0 0 0 .5rem;padding:0;vertical-align:middle;display:inline-flex;align-items:center;justify-content:center}
+.aether-help[aria-expanded=true]{background:#a9ddd4;color:#102820;border-color:#a9ddd4}
+.aether-help-text{font:400 15px/1.55 system-ui,sans-serif;color:#dce8e6;background:#13232c;border:1px solid #39505e;border-left:3px solid #97dbbd;border-radius:8px;padding:.7rem .9rem;margin:.4rem 0 .9rem;max-width:72ch}
+.aether-help-text[hidden]{display:none}
+.aether-help-text p{margin:.3rem 0}
+.aether-help-text ul{margin:.3rem 0;padding-left:1.2rem}
+#aether-nav{background:#fff;color:#172b3d;border-bottom:0;margin-bottom:12px;z-index:20}
+#aether-nav .ae-heading{position:relative;max-width:1160px;margin:auto;text-align:center;padding:12px 16px 8px;box-sizing:border-box}
+#aether-nav .ae-brand{display:inline;border:0;color:#172b3d;font-size:14px;font-weight:600;padding:0;margin:0}
+#aether-nav .ae-heading>a{position:absolute;right:16px;font-size:12px}
+#aether-nav .ae-row{gap:0;justify-content:space-between;border:1px solid #8293a2;border-radius:4px;padding:3px 7px;overflow:visible}
+#aether-nav a{color:#253e54;padding:8px;border-radius:3px}
+#aether-nav a:hover{color:#123d6b;background:#edf4fa}
+#aether-nav a[aria-current],#aether-nav .ae-active{color:#164e81;background:#eaf2fb;border-bottom-color:#32699b}
+#aether-nav details{position:relative;margin:0}
+#aether-nav summary{cursor:pointer;padding:8px;list-style:none;white-space:nowrap}
+#aether-nav summary::-webkit-details-marker{display:none}
+#aether-nav summary::after{content:" ▾";font-size:16px;color:#6e8090}
+#aether-nav .ae-menu{position:absolute;top:100%;left:0;min-width:175px;max-height:70vh;overflow:auto;padding:6px;background:white;border:1px solid #b9c6d0;border-radius:5px;box-shadow:0 8px 24px #18354b25;z-index:30}
+#aether-nav details:last-child .ae-menu{left:auto;right:0}
+#aether-nav .ae-menu>a{display:block;font-size:14px}
+#aether-nav a:focus-visible,#aether-nav summary:focus-visible{outline:2px solid #32699b;outline-offset:2px}
+#aether-nav>#aether-chips{max-width:1160px;margin:4px auto;font-size:12px;justify-content:flex-end}
+#aether-nav #aether-chips a{color:#465d70;border-color:#b8c8d4;font-size:12px;padding:2px 6px}
+@media(max-width:800px){#aether-nav .ae-row{justify-content:flex-start;gap:2px}
+#aether-nav .ae-heading>a{position:static;margin-left:20px}
+#aether-nav{font-size:14px}
+#aether-nav a,#aether-nav summary{padding:7px}
+}
+
+/* Michel, 2026-11-03: the Roadmap Tracker's palette (aether/roadmaps/tracker/styles.css): deep teal-black, warm ink,
+ * gold for what you act on, teal for links and states, and a soft glow. Light keeps the same gold and teal, darkened. */
+html[data-aether-theme=light]{color-scheme:light;--ae-bg:#faf8f3;--ae-panel:#fff;--ae-soft:#f3efe6;--ae-text:#1f2a2c;--ae-muted:#5b625c;--ae-line:#d6cfc0;--ae-link:#1d6b63;--ae-selected:#f6ecd6;--ae-accent:#8a6418;--ae-on-accent:#fff;--ae-warn:#7a5512;--ae-bad:#a23a2c;--ae-good:#2f6b3c;
+ --ae-gold:#8a6418;--ae-gold-bright:#a87a1f;--ae-teal:#1d6b63;--ae-panel-grad:linear-gradient(135deg,#fff,#fdfbf6);--ae-shadow:0 10px 30px rgba(90,70,30,.08);--ae-glow:0 0 0 3px rgba(138,100,24,.14),0 0 16px rgba(168,122,31,.22);--ae-wash:radial-gradient(circle at 88% 2%,rgba(29,107,99,.06),transparent 28rem),radial-gradient(circle at 8% 15%,rgba(168,122,31,.07),transparent 30rem)}
+
+html[data-aether-theme=dark]{color-scheme:dark;--ae-bg:#0b1215;--ae-panel:#152227;--ae-soft:#19292e;--ae-text:#f2eee5;--ae-muted:#a9a99f;--ae-line:#2b3a3e;--ae-link:#8ed3cc;--ae-selected:rgba(215,173,92,.13);--ae-accent:#d7ad5c;--ae-on-accent:#15130e;--ae-warn:#f0ca7c;--ae-bad:#e2a299;--ae-good:#a6d6af;
+ --ae-gold:#d7ad5c;--ae-gold-bright:#f0ca7c;--ae-teal:#58b8ae;--ae-panel-grad:linear-gradient(135deg,rgba(21,34,39,.98),rgba(16,26,30,.98));--ae-shadow:0 13px 40px rgba(0,0,0,.18);--ae-glow:0 0 0 3px rgba(215,173,92,.16),0 0 20px rgba(240,202,124,.32);--ae-wash:radial-gradient(circle at 88% 2%,rgba(88,184,174,.09),transparent 28rem),radial-gradient(circle at 8% 15%,rgba(215,173,92,.07),transparent 30rem)}
+
+html[data-aether-theme]{background:var(--ae-bg);color:var(--ae-text);--bg:var(--ae-bg);--panel:var(--ae-panel);--ink:var(--ae-text);--muted:var(--ae-muted);--line:var(--ae-line);--link:var(--ae-link);--accent:var(--ae-accent);--warn:var(--ae-warn);--bad:var(--ae-bad);--good:var(--ae-good)}
+
+html[data-aether-theme] body{background:var(--ae-wash),var(--ae-bg);background-attachment:fixed;color:var(--ae-text)}
+
+html[data-aether-theme] :is(button,input,textarea,select,dialog){color:var(--ae-text);background-color:var(--ae-panel);border-color:var(--ae-line);accent-color:var(--ae-accent)}
+
+html[data-aether-theme] :is(a,.who,.online){color:var(--ae-link)}
+
+html[data-aether-theme] :is(.muted,.pmeta,.badge,.stage,.chip,.role,.when,.cost,.who-task,.desc,.footer,dt,th,label,.empty,.message .who,.menu p,#history-list small,#status){color:var(--ae-muted)}
+
+html[data-aether-theme] :is(.panel,.card,.conversation,.composer,aside,dialog,.menu,.ae-menu,.aether-help-text){background:var(--ae-panel);color:var(--ae-text);border-color:var(--ae-line)}
+
+html[data-aether-theme] :is(.message.user .body,article.operator,pre,code,.confirm){background:var(--ae-soft);color:var(--ae-text)}
+
+html[data-aether-theme] :is(h1,h2,h3,.empty h2,.sprint li,article.host){color:var(--ae-text)}
+
+html[data-aether-theme] :is(.chat-heading,.sprint,.person,article,td,th,ul.projects li){border-color:var(--ae-line)}
+
+html[data-aether-theme] :is(button:hover,.button:hover){background:var(--ae-soft)}
+
+html[data-aether-theme] .toolbar>button{background:transparent;border-color:transparent}
+
+html[data-aether-theme] .toolbar>button:hover{background:var(--ae-soft)}
+
+html[data-aether-theme] :is(button.primary,.button.primary,#send){background:var(--ae-accent);border-color:var(--ae-accent);color:var(--ae-on-accent)}
+
+html[data-aether-theme] :is(.danger,.vault-delete,.error,#notice.error,article.turn_failed){color:var(--ae-bad)}
+
+html[data-aether-theme] :is(#notice,.stage.you,.chip.you,#aether-note){color:var(--ae-warn)}
+
+html[data-aether-theme] :is(.stage.done,.chip.done){color:var(--ae-good)}
+
+html[data-aether-theme] :is(#history-list [aria-current],ol.stages li[aria-current]){background:var(--ae-selected);color:var(--ae-text);border-color:var(--ae-link)}
+
+html[data-aether-theme] :is(button,a,summary,select,input,textarea):focus-visible{outline-color:var(--ae-link)}
+
+html[data-aether-theme] input::placeholder,html[data-aether-theme] textarea::placeholder{color:var(--ae-muted);opacity:1}
+
+html[data-aether-theme] #aether-nav{background:var(--ae-panel);color:var(--ae-text)}
+
+html[data-aether-theme] #aether-nav .ae-brand{color:var(--ae-text)}
+
+html[data-aether-theme] #aether-nav :is(.ae-row,.ae-menu){border-color:var(--ae-line)}
+
+html[data-aether-theme] #aether-nav .ae-menu{background:var(--ae-panel);color:var(--ae-text)}
+
+html[data-aether-theme=light] #aether-nav .ae-menu>a{color:#111111}
+
+html[data-aether-theme=dark] #aether-nav .ae-menu>a{color:#f1f5f9}
+
+html[data-aether-theme] #aether-nav .ae-menu>a:is(:hover,:focus-visible){background:var(--ae-selected);text-decoration:underline;text-underline-offset:3px}
+
+html[data-aether-theme] #aether-nav .ae-menu>a:focus-visible{outline:2px solid var(--ae-link);outline-offset:-2px}
+
+html[data-aether-theme] #aether-nav a{color:var(--ae-text)}
+
+html[data-aether-theme] #aether-nav :is(a:hover,summary:hover){background:var(--ae-soft);color:var(--ae-link)}
+
+html[data-aether-theme] #aether-nav :is(a[aria-current],.ae-active){background:var(--ae-selected);color:var(--ae-link);border-bottom-color:var(--ae-link)}
+
+html[data-aether-theme] #aether-nav summary::after{color:var(--ae-muted)}
+
+html[data-aether-theme] #aether-nav #aether-chips a{color:var(--ae-muted);border-color:var(--ae-line)}
+
+html[data-aether-theme] #aether-tabs{background:var(--ae-soft);color:var(--ae-muted);border-color:var(--ae-line)}
+
+html[data-aether-theme] #aether-tabs :is(a,.ae-title){color:var(--ae-text)}
+
+html[data-aether-theme] #aether-nav .ae-heading{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;min-height:42px}
+
+html[data-aether-theme] #aether-nav .ae-brand{grid-column:1;white-space:nowrap;text-align:left}
+
+html[data-aether-theme] #aether-nav .ae-utilities{grid-column:2;justify-self:end;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px 14px;min-width:0;white-space:normal}
+
+html[data-aether-theme] #aether-nav .ae-utilities>a{font-size:12px;padding:4px}
+
+html[data-aether-theme] #aether-theme-toggle{font:12px/1.4 system-ui,sans-serif;padding:5px 9px;margin:0;border:1px solid var(--ae-line);border-radius:6px;cursor:pointer;width:auto}
+
+@media(max-width:700px){html[data-aether-theme] #aether-nav .ae-heading{grid-template-columns:1fr;gap:6px;padding-top:10px}
+html[data-aether-theme] #aether-nav .ae-brand{grid-column:1}
+html[data-aether-theme] #aether-nav .ae-utilities{grid-column:1;justify-self:center}
+}
+
+
+html[data-aether-surface] main{box-sizing:border-box}
+
+html:is([data-aether-surface=settings],[data-aether-surface=agents],[data-aether-surface=roster],[data-aether-surface=records]) body{margin:0;max-width:none;padding:0}
+
+html:is([data-aether-surface=settings],[data-aether-surface=agents],[data-aether-surface=roster],[data-aether-surface=records]) main{max-width:1160px;margin:0 auto;padding:16px 24px 36px}
+
+html:is([data-aether-surface=project],[data-aether-surface=network]) body{max-width:1160px;padding:0 24px 36px}
+
+html:is([data-aether-surface=project],[data-aether-surface=network]) main{padding-top:16px}
+
+html[data-aether-surface] main h1{font-size:28px;letter-spacing:-.5px;margin:0 0 6px}
+
+html[data-aether-surface] main h2{font-size:19px}
+
+html[data-aether-surface] main h3{font-size:15px}
+
+html[data-aether-surface] main :is(.panel,.card){border-radius:10px;padding:20px 22px}
+
+html[data-aether-surface] main :is(button,input,select,textarea,.button){border-radius:6px;font-size:14px}
+
+html[data-aether-surface] main :is(p,label,li){font-size:14px;line-height:1.6}
+
+html[data-aether-surface=roster] main section{background:var(--ae-panel);border-color:var(--ae-line);border-radius:10px;padding:20px 22px}
+
+html[data-aether-surface=agents] .staff-entry{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--ae-line);text-decoration:none}
+html[data-aether-surface=agents] .staff-entry-actions{gap:10px;max-width:100%}
+html[data-aether-surface=agents] .staff-entry-actions :is(a,button){white-space:normal;text-align:center;max-width:100%}
+html[data-aether-surface=agents] .staff-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px 0}
+
+html[data-aether-surface=agents] .staff-overview>div{display:flex;align-items:center;gap:12px;padding:15px 18px;border:1px solid var(--ae-line);border-radius:8px;background:var(--ae-panel)}
+
+html[data-aether-surface=agents] .staff-overview strong{font-size:27px;font-weight:550}
+
+html[data-aether-surface=agents] .staff-overview span{font-size:13px;color:var(--ae-muted)}
+
+html[data-aether-surface=agents] .staff-filters{align-items:end;gap:12px}
+
+html[data-aether-surface=agents] .staff-search{flex:1;min-width:220px}
+
+html[data-aether-surface=agents] .staff-search input{margin-bottom:0}
+
+html[data-aether-surface=agents] .badge{font-size:12px;padding:2px 8px;border-radius:5px}
+
+html[data-aether-surface=agents] .agent .actions{gap:8px}
+
+html[data-aether-surface=agents] .agent .heading{align-items:flex-start}
+
+html[data-aether-surface] :is(.notice,.message,.status-box){background:var(--ae-soft);color:var(--ae-text);border-color:var(--ae-line)}
+
+@media(max-width:760px){
+ html:is([data-aether-surface=settings],[data-aether-surface=agents],[data-aether-surface=roster],[data-aether-surface=records]) main{padding:16px 12px 26px}
+
+ html:is([data-aether-surface=project],[data-aether-surface=network]) body{padding:0 12px 26px}
+
+ html[data-aether-surface] main :is(.panel,.card){padding:16px}
+
+ html[data-aether-surface] main h1{font-size:25px}
+
+ html[data-aether-surface=agents] .staff-overview{gap:7px}
+
+ html[data-aether-surface=agents] .staff-overview>div{padding:12px;flex-direction:column;align-items:flex-start;gap:6px}
+
+ html[data-aether-surface=agents] .staff-search{flex-basis:100%}
+
+ html[data-aether-surface=agents] .agent .heading{display:block}
+
+}
+
+
+#aether-settings-nav{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 24px;font:14px/1.4 system-ui,sans-serif}
+#aether-settings-nav a{display:inline-flex;padding:9px 13px;border:1px solid var(--ae-line);border-radius:6px;background:var(--ae-panel);color:var(--ae-text);text-decoration:none}
+#aether-settings-nav a[aria-current]{background:var(--ae-selected);color:var(--ae-link);font-weight:600}
+#aether-settings-nav a:hover{background:var(--ae-soft)}
+#aether-settings-nav a:focus-visible{outline:2px solid var(--ae-link);outline-offset:3px}
+html[data-aether-surface=settings] main header{border:0;padding-bottom:4px;margin-bottom:20px}
+html[data-aether-surface=settings] .eyebrow{display:none}
+.connection-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:18px 0}
+.connection-tools label{flex:1;min-width:180px}
+.connection-tools input,.connection-tools select{margin:6px 0 0}
+.connection-counts{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}
+.connection-counts>span{padding:12px 16px;border:1px solid var(--ae-line);border-radius:8px;background:var(--ae-panel);font-size:14px}
+
+
+/* Inert roadmap entries remain readable and keyboard discoverable. */
+.ae-future-feature{display:inline-block;color:var(--ae-muted);cursor:not-allowed;border-bottom:1px dotted var(--ae-muted);padding:.2rem 0}
+.ae-future-feature small{display:inline-block;font-size:.75rem;border:1px solid var(--ae-line);border-radius:4px;padding:.1rem .35rem;margin-left:.35rem}
+.ae-future-feature:focus-visible{outline:2px solid var(--ae-muted);outline-offset:3px}
+/* The retained agent-card prototype used pale text on its former dark panels. */
+html[data-aether-surface=agent-insights] .stats b,
+html[data-aether-surface=agent-insights] [role=tab][aria-selected=true]{color:var(--ae-text)}
+html[data-aether-surface=agent-insights] .card .title,
+html[data-aether-surface=agent-insights] .ranktext{color:var(--ae-muted)}
+/* Its view tabs: the chosen one stays marked after the click, not only while hovered (Michel, 11-05). */
+html[data-aether-surface=agent-insights] [role=tab]{background:transparent;color:var(--ae-muted);border-color:transparent;border-bottom-color:transparent;transform:none}
+html[data-aether-surface=agent-insights] [role=tab][data-tab]:not(:disabled):hover{background:var(--ae-soft);color:var(--ae-text);transform:none}
+html[data-aether-surface=agent-insights] [role=tab][aria-selected=true]{background:var(--ae-selected);color:var(--ae-gold-bright);border-color:var(--ae-line);border-bottom-color:var(--ae-gold)}
+html[data-aether-surface=agent-insights] .hint{color:var(--ae-gold)}
+
+/* Shared account controls stay in the shell's layout, independent of page styles. */
+#aether-nav .ae-utilities button{width:auto;margin:0;font:inherit;font-size:12px;padding:5px 9px;flex:none}
+#aether-nav #installation-label{max-width:240px;overflow-wrap:anywhere}
+[data-access-denied]{display:none!important}
+.operator-access-note{max-width:1112px;margin:12px auto;padding:10px 14px;border:1px solid var(--ae-line);border-radius:6px;color:var(--ae-muted);font:14px system-ui}
+@media(max-width:900px){html[data-aether-theme] #aether-nav .ae-heading{grid-template-columns:1fr;gap:10px}html[data-aether-theme] #aether-nav .ae-brand{grid-column:1;text-align:center}html[data-aether-theme] #aether-nav .ae-utilities{grid-column:1;justify-self:center;justify-content:center}}
+
+.key-assignment-option{display:flex;align-items:center;gap:10px;margin:10px 0}.key-assignment-option input{width:auto;margin:0}
+
+/* The Roadmap Tracker's style (Michel, 2026-11-03): gold buttons that glow, teal secondary actions, gold labels and
+ * numbers, teal status pills, gradient panels. Tokens only, so light mode follows. */
+html[data-aether-theme] :is(.panel,.card,.ui-card,.metric,.empty){background:var(--ae-panel-grad);box-shadow:var(--ae-shadow)}
+html[data-aether-theme] :is(.ui-card,.card):hover{border-color:color-mix(in srgb,var(--ae-line) 60%,var(--ae-teal))}
+html[data-aether-theme] :is(button,.button){transition:background .15s ease,border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+html[data-aether-theme] :is(button,.button):not(:disabled):hover{transform:translateY(-1px)}
+html[data-aether-theme] :is(button.primary,.button.primary,#send){background:var(--ae-gold);border-color:var(--ae-gold);color:var(--ae-on-accent);font-weight:700}
+html[data-aether-theme] :is(button.primary,.button.primary,#send):not(:disabled):is(:hover,:focus-visible){background:var(--ae-gold-bright);border-color:var(--ae-gold-bright);box-shadow:var(--ae-glow)}
+html[data-aether-theme] main :is(button,.button):not(.primary):not(#send):not(.link):not([role=tab]){border-color:color-mix(in srgb,var(--ae-teal) 50%,transparent);background:color-mix(in srgb,var(--ae-teal) 10%,transparent)}
+html[data-aether-theme] main :is(button,.button):not(.primary):not(#send):not(.link):not([role=tab]):not(:disabled):hover{background:color-mix(in srgb,var(--ae-teal) 18%,transparent)}
+html[data-aether-theme] :is(button,a,summary,select,input,textarea):focus-visible{outline-color:var(--ae-gold-bright)}
+html[data-aether-theme] :is(input,select,textarea):focus{border-color:var(--ae-gold)}
+html[data-aether-theme] :is(.eyebrow,.section-kicker){color:var(--ae-gold);font-size:11px;font-weight:760;letter-spacing:.16em;text-transform:uppercase}
+html[data-aether-theme] main h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.02em}
+html[data-aether-theme] .metric strong{font-family:Georgia,serif;font-weight:500;color:var(--ae-gold-bright)}
+html[data-aether-theme] .pill{border:1px solid var(--ae-line);background:transparent;border-radius:999px;font-weight:700}
+html[data-aether-theme] .pill.active{color:var(--ae-link);border-color:color-mix(in srgb,var(--ae-teal) 55%,transparent);background:transparent}
+html[data-aether-theme] .pill.good{border-color:color-mix(in srgb,var(--ae-good) 50%,transparent)}
+html[data-aether-theme] .pill.warning{border-color:color-mix(in srgb,var(--ae-warn) 50%,transparent)}
+html[data-aether-theme] main :is(.tabs button,.toolbar>button):not([aria-pressed=true]){background:transparent;border-color:transparent}
+html[data-aether-theme] main :is(.tabs button,.toolbar>button):not([aria-pressed=true]):hover{background:var(--ae-soft)}
+html[data-aether-theme] .tabs button[aria-pressed=true]{background:var(--ae-selected);color:var(--ae-gold-bright);border-color:color-mix(in srgb,var(--ae-gold) 45%,transparent)}
+html[data-aether-theme] .bar-fill{background:var(--ae-gold)}
+html[data-aether-theme] .banner{border-left-color:var(--ae-gold)}
+html[data-aether-theme] #aether-nav :is(a[aria-current],.ae-active){color:var(--ae-gold-bright);border-bottom-color:var(--ae-gold);background:var(--ae-selected)}
+html[data-aether-theme] #aether-nav .ae-brand i{background:var(--ae-gold);box-shadow:0 0 10px color-mix(in srgb,var(--ae-gold-bright) 60%,transparent)}
+html[data-aether-theme] #aether-chips a.attention{border-color:var(--ae-gold);color:var(--ae-gold-bright)}
+html[data-aether-theme] .aether-help-text{border-left-color:var(--ae-gold)}
+html[data-aether-theme] .aether-help[aria-expanded=true]{background:var(--ae-gold);border-color:var(--ae-gold);color:var(--ae-on-accent)}
+html[data-aether-theme] dialog{box-shadow:0 40px 100px rgba(0,0,0,.5)}
+html[data-aether-theme] :is(.panel .composer,.conversation .empty){background:transparent;box-shadow:none}
+@media(prefers-reduced-motion:reduce){html[data-aether-theme] :is(button,.button){transition:none}html[data-aether-theme] :is(button,.button):not(:disabled):hover{transform:none}}

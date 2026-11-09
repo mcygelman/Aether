@@ -1,0 +1,80 @@
+⟪TEACHFRAME_SVG_FIGURE_CROSSING⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-11-05⟫
+⟪CREATOR::Praxis through Codex, at Michel's request⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::SVGAnimator, CatAnimator; a model moving an SVG figure across a stationary scene⟫
+⟪PREREQUISITES::SVG_ATTACHMENT⟫
+⟪LINEAGE::SVG_ATTACHMENT v1.3; Guide A and cat-on-fence.svg; Michel's crossing/respawn observation⟫
+⟪PREVENTS::visible reset teleports, accidental clipping, unsupported crossing and foot sliding⟫
+⟪EVIDENCE::TeachFrames/School Of Coding/SVG_LESSONS_PROVENANCE.json records original sources and review limits; no generation efficacy trial⟫
+⟪MEASURED_BY::source trajectory and sampled frames around the 12-second repeat; no revised SVG generated⟫
+⟪RETIRES_WHEN::a scene controller enforces travel bounds, support continuity and reset policy⟫
+⟪OBSERVED_BY::Michel and Praxis⟫
+
+[ TITLE ]
+Move a Figure Across the Scene and Repeat Cleanly
+
+[ PURPOSE ]
+Move a walking figure across stationary support with an explicit entry, exit and repeat policy.
+
+STATUS: PILOT MODULE. This module owns outer travel and reset, not the character's drawing or
+background art. It applies to a cat or another figure. Do not inject a fence into another brief.
+
+[ ALGORITHM ]
+1. Declare FIGURE_MOVES: support landmarks remain stationary, figure root moves right or left,
+   and articulation occurs inside that root. Clouds or other independent scenery may still move.
+   Keep travel, bob and limb transforms on separate groups unless composition is explicit.
+
+2. Choose a repeat policy. For an ordinary rightward pass, exit fully at the right, reset fully
+   off-screen at the left, and enter again. A visible jump/cut, a fade, or a turn-and-return is a
+   different valid brief when deliberately chosen. Do not call a visible reset seamless.
+
+3. Compute the full animated silhouette envelope, including tail, ears, whiskers and strokes.
+   For horizontal view bounds [0,W] and local envelope [xmin,xmax], choose startX+xmax<0 and
+   endX+xmin>W to hide a rightward reset; allow a margin. If scale/rotation changes the envelope,
+   use the union across motion extremes. Starting with root x>=0 does not ensure full visibility;
+   starting at a negative root is not itself a defect.
+
+4. Draw the required support continuously under the visible travel route. Include enough support
+   beyond the crop where needed. Declare depth so a cat does not accidentally walk through posts
+   or along the rail's front face. Do not demand a particular number of rails for every fence.
+
+5. For constant-speed travel, speed=(endX-startX)/travelPeriod. Pair it with the stance foot's
+   local backward motion, using v_root+v_foot_local~=0 on static support. The distance advanced
+   per full stride is speed*stridePeriod; check the geometry rather than selecting periods alone.
+   Match gait phase at a visible loop seam, or hide the reset fully. A bob is not displacement.
+
+6. Capture entry, a clear central stride, just before exit/reset, the reset instant and just after
+   reentry. Check that no part teleports while still intended to be visible. Test limb phases
+   separately from the much longer crossing clock. If the brief asks for immediate visibility,
+   choose an initial phase or another presentation policy explicitly.
+
+[ EXAMPLES ]
+[Setup]: The supplied small cat travels from x=-60 to x=780 over 12 seconds on an 800-wide canvas.
+[Process]: Its torso spans local x=-53..7, leaving torso pixels near x=727..787 just before reset.
+[Result]: The cat visibly disappears at the right and later enters from the left. It demonstrates
+crossing/respawn, but not a fully off-screen right exit. Preserve this attractive supplied example;
+use the envelope rule when a hidden reset is required.
+
+[ SELF_CHECK ]
+Q1: Does a negative initial root position automatically fail?
+A1: No. Judge the declared entry policy and the complete silhouette.
+Q2: Must a 12-second travel cycle and a 0.4-second stride have different poses at 3 and 9 seconds?
+A2: No. Those times are 15 strides apart; equal poses are expected.
+
+[ CARD ]
+  LESSON::SVG_FIGURE_CROSSING
+  FOR::Move a walking figure across stationary support with an explicit entry, exit and repeat policy.
+  PREVENTS::visible reset teleports, accidental clipping, unsupported crossing and foot sliding
+  EXAMPLE::The supplied small cat travels from x=-60 to x=780 over 12 seconds on an 800-wide canvas.
+
+[ CROSS_REFS ]
+  SVG_CAT_BODY_CONSTRUCTION for cat geometry/gait; SVG_CAT_FACE_DETAILS for the face; SVG_BACKGROUND_DESIGN for
+  support; SVG_ATTACHMENT for review.
+⟪TEACHFRAME_END⟫
+
+[ CHANGE_LOG ]
+v1.1: 2026-11-05, Michel retired SVG_CAT_RIG; the cat cross-reference now names the construction frames. v1.0 bytes
+kept in SVG_CAT_RIG_RETIREMENT_20261105/before.

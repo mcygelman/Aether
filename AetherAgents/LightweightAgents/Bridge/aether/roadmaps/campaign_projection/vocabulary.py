@@ -47,7 +47,7 @@ VOCABULARY: Dict[str, Tuple[str, Optional[str], str]] = {
     "REJECT": (_X, None, "ruling/decision"),
     "REQUEST_REVISION": (_X, None, "ruling/decision; closure decision"),
     "ACCEPT": (_D, None, "closure operator decision (DONE at Close is Closed)"),
-    # --- Overseer conversation plan changes (overseer_plan_changes.py, sprint_amendments.projection; Fable, 10-12).
+    # --- Overseer conversation plan changes (overseer_plan_changes.py, sprint_amendments.projection).
     # state._amendment_signals derives these from the latest completed Propose candidate and its ruling/rebind records.
     "AMENDMENT_PROPOSED": (_N, None, "a Sprint-boundary amendment awaits your ruling on the conversation page"),
     "AMENDMENT_APPROVED_UNBOUND": (_N, AUTHORIZE, "an approved amendment awaits exact rebind or full staffing, then successor admission"),
@@ -92,7 +92,7 @@ VOCABULARY: Dict[str, Tuple[str, Optional[str], str]] = {
     # --- Closure (closure_packets.py, native_closure_packets.py, native_closure_dialogue.py, native_closure_host.py) ---
     "PREPARED_PENDING_INDEPENDENT_REVIEW": (_N, REVIEW, "closure packet prepared; launch the independent review"),
     "CLOSURE_EVIDENCE_HELD": (_N, CLOSE, "closure dialogue evidence held for the operator decision"),
-    # Closures after the decision (Fable, 10-12; closure-line-range-8): the lead's CLOSE and the reviewer's CLOSE_REVIEW
+    # Closures after the decision (closure-line-range-8): the lead's CLOSE and the reviewer's CLOSE_REVIEW
     # follow the operator's ACCEPT. state._signals derives these from a closure-dialogue row's operation and outcome.
     "CLOSED_AFTER_ACCEPT": (_D, CLOSED, "a lead or reviewer closure applied after the operator's ACCEPT"),
     "CLOSE_INCOMPLETE": (_N, CLOSE, "a closure turn after ACCEPT is held or invalid (reported as the closure_after_decision_incomplete obligation)"),

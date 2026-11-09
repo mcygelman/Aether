@@ -182,7 +182,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.action == "restart":
         stopped = stop(args)
         if stopped != 0:
-            # Praxis's Windows check, 10-07: a failed stop must never be followed by a start.
+            # A failed stop must never be followed by a start.
             print("Restart refused: the running instance was not stopped, so no second one was started.")
             return stopped
     return start(args)

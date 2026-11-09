@@ -1,4 +1,4 @@
-"""Pure ADS draft validation and template synthesis, extracted from Gemini's
+"""Pure ADS draft validation and template synthesis, extracted from the
 September 15 reviewed prototype. No scratch hire, subprocess, key or disk writes.
 Original: AetherProofsExperiments/AgentDesignStudio/backend/ads_validator.py.
 Production wrapper adds exact input receipts and bounded parsing in service.py.

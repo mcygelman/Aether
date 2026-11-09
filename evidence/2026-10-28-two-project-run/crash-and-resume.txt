@@ -1,0 +1,2 @@
+{"window":"during a turn","working":"None","killed_at":"2026-10-28T14:21:22Z","killed_pid":"15628","daybook_lines":20}
+new place pid 24728 heartbeat 2026-10-28T14:21:40+00:00

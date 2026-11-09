@@ -1,7 +1,7 @@
 """S00073.7 C-4 — mechanical fabrication-rule tripwire tests.
 
-Includes the required negative-control replay of Finding A's exact shape (Fable_Ruling_
-S00073.6_Integrity_and_Ceiling.md rule 3): a deliberately-faked mock mission with a zero-tool-call
+Includes the required negative-control replay of Finding A's exact shape (integrity design
+decision, rule 3): a deliberately-faked mock mission with a zero-tool-call
 "complete" research packet plus a deliverable copied verbatim from a pre-existing file. Confirms
 the tripwire catches it mechanically, before any human/model judgment is applied.
 """

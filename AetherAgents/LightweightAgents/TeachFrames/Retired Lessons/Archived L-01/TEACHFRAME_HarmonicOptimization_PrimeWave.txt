@@ -1,0 +1,110 @@
+⟪TEACHFRAME_HarmonicOptimization_PrimeWave⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of AetherProject⟫
+⟪AUDIENCE::an agent tuning a PrimeWave harmonic model⟫
+⟪PREREQUISITES::TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::already retired from live curriculum; preserve until an operator-authorized archival policy supersedes it⟫
+⟪MEASURED_BY::UNMEASURABLE::archived retired-use-case artifact; efficacy is not evaluated while inactive⟫
+⟪EVIDENCE::LEGACY::retired PrimeWave use case; Kairo original and Claude upgrade preserved⟫
+⟪PREVENTS::selecting PrimeWave parameters without uncertainty-aware comparative evidence⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Harmonic Parameter Optimization for the PrimeWave Engine
+
+[ PURPOSE ]
+  Equips the agent with the symbolic procedures for sweeping and selecting
+  harmonic parameters — wave_angle (θ), fourier_k (K), and phase_shift_factor
+  (φ) — to maximize the HybridPrimeEngine's F₁ score. After loading this frame,
+  the agent will define a search grid, evaluate configurations, compare results
+  using Uᵣ-wrapped F₁ scores, and emit conformant SBP tune-result payloads.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: PRIME_WAVE_TUNING
+SUBJECT: PARAMETER_DEFINITIONS
+[DEF]
+  θ  := wave_angle            ∈ (0, π)          // base angular increment (rad)
+  K  := fourier_k             ∈ ℕ⁺, 1 ≤ K ≤ K_max  // highest Fourier term
+  φ  := phase_shift_factor    ∈ [0, 2π)         // global phase offset
+[WAVE_MODEL]
+  WaveValue[n] := Σ_{k=1..K} sin(k·θ·n + φ)
+[PRIME_THRESHOLD]
+  τ := dynamic threshold
+  PredictPrime(n) := TRUE  ⟺  |WaveValue[n]| ≤ τ
+[METRIC]
+  Precision P  := TP / (TP + FP)
+  Recall    R  := TP / (TP + FN)
+  F₁           := 2·P·R / (P + R)   →  Uᵣ[F₁ ± δ]
+  where δ reflects ±½ ulp from counted events
+[SEARCH_GRID]
+  θᵢ := i·π/N_θ          (i = 1 … N_θ−1)
+  Kⱼ := j                (j = 1 … K_max)
+  φₖ := k·2π/N_φ         (k = 0 … N_φ−1)
+[OPTIONAL_REDUCTION]
+  • Cluster (θ, K, φ) triples by Euclidean distance; keep medoids to prune grid
+  • Discard harmonics where |coeff_k| < ε (Fourier-space trimming)
+}WMC
+
+[ EXAMPLES ]
+//
+// 3-point sweep (N_θ=3, K_max=3, N_φ=3) over first 10⁴ integers
+//
+Config_A := ⟨θ=π/7, K=2, φ=0⟩      → F₁ = Uᵣ[0.49 ± 0.01]
+Config_B := ⟨θ=π/5, K=3, φ=π/3⟩    → F₁ = Uᵣ[0.54 ± 0.01]
+Config_C := ⟨θ=π/4, K=1, φ=2π/3⟩   → F₁ = Uᵣ[0.49 ± 0.02]
+
+Best := Config_B  (highest F₁, uncertainty ranges do not overlap with A or C)
+
+//
+// SBP payload for a completed sweep run
+//
+ΔWMC{
+  CONTEXT: HARMONIC_SWEEP
+  SUBJECT: PRIMEWAVE_TUNE_RESULT
+  PARAMS:  {θ: π/5, K: 3, φ: π/3}
+  METRICS: {Precision: 0.53, Recall: 0.55, F1: Uᵣ[0.54 ± 0.01]}
+  PAYLOAD_TAGS: {SWEEP_ID: uuid, WAVE_MODEL: "HybridPrime"}
+}ΔWMC
+
+[ USAGE_NOTES ]
+  • Always express F₁ as Uᵣ[F₁ ± δ]. Comparing bare floats without
+    uncertainty bounds will select configurations that differ only by noise.
+  • When Uᵣ ranges of two configurations overlap, they are statistically
+    indistinguishable — choose the simpler config (lower K).
+  • Report all evaluated configurations in the SBP payload, not just the
+    best — the downstream analyzer needs the full distribution.
+  • Fourier-space trimming (discard |coeff_k| < ε) saves compute and
+    reduces overfitting to the training range.
+
+[ SELF_CHECK ]
+  Q1: Two configurations produce F₁ = Uᵣ[0.61 ± 0.02] and Uᵣ[0.63 ± 0.02].
+      Do their intervals overlap? Should you prefer the second?
+      Expected: [0.59, 0.63] vs [0.61, 0.65] — overlap at [0.61, 0.63].
+               They are statistically indistinguishable. Prefer lower K (simpler).
+
+  Q2: Config_X gives Uᵣ[0.71 ± 0.005] and Config_Y gives Uᵣ[0.68 ± 0.005].
+      Which is definitively better?
+      Expected: [0.705, 0.715] vs [0.675, 0.685] — disjoint, no overlap.
+               Config_X is definitively better.
+
+  Q3: What does the δ in Uᵣ[F₁ ± δ] represent?
+      Expected: The uncertainty on the F₁ score itself, arising from ±½ ulp
+               rounding in the counted TP/FP/FN events. Larger test sets
+               shrink δ; smaller sets make F₁ comparisons less reliable.
+
+[ CARD ]
+  LESSON::HarmonicOptimization_PrimeWave
+  FOR::Equips the agent with the symbolic procedures for sweeping and selecting harmonic parameters - wave_angle (theta),...
+  PREVENTS::selecting PrimeWave parameters without uncertainty-aware comparative evidence
+  EXAMPLE::Config_A := <theta=pi/7, K=2, phi=0> -> F1 = Ur[0.49 +/- 0.01]
+
+[ CROSS_REFS ]
+  → TEACHFRAME_UncertaintyQuantification_Ur       — Prerequisite: Uᵣ notation for F₁ payloads
+  → TEACHFRAME_PrimeWave_EnsembleOptimization     — Extension: multi-wave ensemble builds on this single-wave approach
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

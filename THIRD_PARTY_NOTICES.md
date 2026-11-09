@@ -7,6 +7,8 @@ This candidate uses the repository's existing Windows CPython 3.10.8 runtime rec
 | CPython 3.10.8, standard library and its binary extension dependencies | `runtime/LICENSE.txt` retains the Python distribution's complete supplied license and bundled notices, including Microsoft Distributable Code restrictions, OpenSSL/SSLeay, compression and other components. |
 | Jinja2 3.1.6 | `runtime/Lib/site-packages/jinja2-3.1.6.dist-info/licenses/LICENSE.txt`: Copyright 2007 Pallets; BSD 3-Clause terms. |
 | MarkupSafe 2.1.3 | `runtime/Lib/site-packages/MarkupSafe-2.1.3.dist-info/LICENSE.rst`: Copyright 2010 Pallets; BSD 3-Clause terms. |
+| pypdf 6.21.2 | `runtime/Lib/site-packages/pypdf-6.21.2.dist-info/licenses/LICENSE`: BSD 3-Clause terms. |
+| typing_extensions 4.15.0 | `runtime/Lib/site-packages/typing_extensions-4.15.0.dist-info/licenses/LICENSE`: Python Software Foundation license terms. |
 | SQLite 3.37.2 | Supplied with the Python runtime; SQLite is dedicated to the public domain. |
 
 The bundled Python terms state: This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/). They also retain the original SSLeay terms and attribution to Eric Young.

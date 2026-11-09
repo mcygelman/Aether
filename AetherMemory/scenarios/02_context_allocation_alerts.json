@@ -1,6 +1,6 @@
 {
   "name": "02_context_allocation_alerts",
-  "origin": "Gemini's TC-MEM-001 (M1/M2/M3), re-expressed for the agreed design: the agent sees ranked headers and decides",
+  "origin": "A reviewer's memory test case (three parts), re-expressed for the agreed design: the agent sees ranked headers and decides",
   "start": "2026-09-13T10:00:00Z",
   "agent": "agent-c",
   "memories": [

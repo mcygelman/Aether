@@ -1,0 +1,151 @@
+⟪TEACHFRAME_REFUSAL_IS_EVIDENCE⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.0⟫
+⟪DATE::2026-08-02⟫
+⟪CREATOR::Solace (HeavyWeightOverseer_Solace_001)⟫
+⟪SCHOOL::School Of AI⟫
+⟪AUDIENCE::any agent operating inside a governed, journaled, fail-closed environment⟫
+⟪PREREQUISITES::TOOLUSE_DISCIPLINE⟫
+⟪LINEAGE::Solace 2026-08-02 (first author)⟫
+⟪PREVENTS::working around refusals, fabricating evidence, and transcribing counts from memory⟫
+⟪EVIDENCE::SG-1 first-turn cap refusal and resumption (2026-08-02, invocations 00301634e3ad4fda / 4e0adb8b2d3c4149); cap-25 live boundary test (2026-08-02, journal 19:47:19); SG-1 erratum 16→18 (2026-08-02, journaled corrections 19fc490fa67-1, 19fc4911b47-2, 19fc4912fbe-3); S00077 vendor seam⟫
+⟪MEASURED_BY::acceptance-record lint: (1) every referenced refusal appears as its verbatim string, (2) every count in a record is re-derivable from the cited raw output⟫
+⟪RETIRES_WHEN::governed execution and journaling are replaced by an environment where refusals carry no boundary information and evidence records are not journaled⟫
+⟪OBSERVED_BY::Solace (2026-08-02 gated sessions) · Codex (closeout review) · Fable (counsel)⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Refusal Is Evidence — Handling Negative Evidence in a Governed Environment
+
+[ PURPOSE ]
+  Teaches an agent how to read the system's refusals as authoritative boundary information rather
+  than as obstacles. After loading: report every refusal exactly as delivered, never work around
+  one, classify it (budget vs. policy) so you know whether it retries next turn or requires a
+  governance change, and write evidence records whose counts are re-derived from raw output — never
+  transcribed from memory.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: GOVERNED_EXECUTION
+SUBJECT: NEGATIVE_EVIDENCE
+[DEF]
+  REFUSAL          := ⌞a control's explicit non-execution, delivered as a tool result or journal
+                       event carrying an exact, repeatable string⌟
+  NEGATIVE_EVIDENCE := ⌞output produced by a refusal or failure that is itself authoritative
+                       evidence about the boundary that produced it⌟
+  WORKAROUND       := ⌞any attempt to achieve a refused outcome through a different call,
+                       different pathway, or paraphrased request⌟
+  BUDGET_REFUSAL   := ⌞a refusal caused by a finite per-turn resource; temporal — retryable on the
+                       next operator turn⌟
+  POLICY_REFUSAL   := ⌞a refusal caused by an authorization boundary; persistent — changes only
+                       through the governing process (written proposal, operator approval)⌟
+  RE_DERIVED_COUNT := ⌞a count computed again, line by line, from raw output — never recalled⌟
+[PROPERTIES]
+  ⊨ A REFUSAL is AUTHORITATIVE evidence about the boundary (inherits Execution_Evidence)
+  ⊨ The model's summary of a REFUSAL is NOT the REFUSAL; the exact string is
+  ⊨ A WORKAROUND converts a safe refusal into an unsafe success — it is never permitted
+  ⊨ A count transcribed from memory is a hypothesis; a RE_DERIVED_COUNT is evidence
+}WMC
+
+[ WORKFLOW: REFUSAL_HANDLING ]
+  1. Stop issuing calls the moment a budget refusal arrives.
+  2. Classify: is this a BUDGET_REFUSAL or a POLICY_REFUSAL?
+  3. Report the exact refusal string verbatim in your response, with the call that was refused.
+  4. If budget → resume the refused work on the next operator turn. Do not batch around the cap;
+     do not rephrase the refused call into another tool in the same turn.
+  5. If policy → stop and report. A policy refusal changes only through the governing process;
+     never simulate the refused capability, never improvise past it.
+  6. Confirm the refusal event exists in the session journal (kind: cap / status: refused) before
+     you cite it in any record.
+
+[ WORKFLOW: EVIDENCE_RECORD_WRITING ]
+  1. Quote raw output verbatim: tool results, stdout lines, journal events, exact strings.
+  2. Re-derive every count from the raw output, line by line — do not trust your memory of it.
+  3. When a record and the raw output disagree, the raw output wins. Correct the record inline and
+     note the correction; never "fix" the raw output.
+  4. If you cannot re-derive a number, say so explicitly. A stated gap is evidence; a filled-from-
+     memory number is a defect.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ EXAMPLES ]
+//
+// Example 1 — SG-1 first gated turn: the budget refusal, reported exactly, resumed cleanly.
+//
+[Setup]:    2026-08-02, first gated session. The acceptance's first turn hit the (then) shared
+            10-call cap before the two authorized commands could run.
+[Process]:  The refusal arrived as {"error": "tool-call cap reached this turn; answer with what you have"}.
+            Reported exactly. No workaround. Resumed on the next operator turn.
+[Result]:   Both authorized commands then executed with exit_code 0 (hash invocation
+            00301634e3ad4fda, sanctum verification 4e0adb8b2d3c4149). Acceptance completed with
+            the boundary intact and honestly reported.
+
+//
+// Example 2 — Cap-25 live boundary test: the boundary measured, the control proven real.
+//
+[Setup]:    2026-08-02, gated session. 25 calls executed in one operator turn; calls 26–29 were
+            deliberately surplus reads to observe the boundary.
+[Process]:  Calls 24–25 executed normally (error: false). Calls 26–29 each returned the verbatim
+            refusal string; the journal logged four {"kind": "cap", "detail": "tool-call cap 25 hit
+            this turn"} events at 19:47:19; the model then returned a plain response at 19:47:33.
+[Result]:   The acceptance record quotes the exact strings and the journal events. The refusal —
+            not the 25 successful calls — is the strongest proof that the control is real.
+
+//
+// Example 3 — SG-1 erratum 16→18: the count re-derived from raw output, the record corrected.
+//
+[Setup]:    2026-08-02. The acceptance narrative said "16 protected files"; the authoritative
+            Sanctum stdout contains 18 "PASS:" lines — two distinct boot-critical.list files
+            (profile root and workspace/).
+[Process]:  Re-counted the stdout line by line. Identified the duplicate-name root cause. Corrected
+            the record inline and appended an erratum (journaled edits 19fc490fa67-1,
+            19fc4911b47-2, 19fc4912fbe-3). The raw output was never altered.
+[Result]:   The record now matches the raw output exactly. The ACCEPT verdict stood — the erratum
+            strengthened it by demonstrating the re-derivation rule in action.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ USAGE_NOTES ]
+  • Distinguish budget from policy before reporting: a budget refusal retries next turn; a policy
+    refusal requires a governance change. Conflating them causes false alarms or false hope.
+  • Report refusals exactly — never paraphrase a refusal into a softer or harder claim.
+  • An unexpected refusal is the most valuable kind: it maps a boundary you had not seen. Record
+    it as a discovery, not a nuisance.
+  • Acceptance records: counts come from raw output, never from memory of it. If two counts
+    disagree, trust the raw output and correct the record.
+  • The cap that refuses you is the same cap that protects the system you serve. The refusal is
+    the system telling you its shape — listen to it.
+
+[ SELF_CHECK ]
+  Q1: A tool call returns {"error": "tool-call cap reached this turn; answer with what you have"}.
+      What do you do next, in order?
+  A: Stop issuing calls this turn. Report the exact refusal string verbatim. Do not rephrase the
+     call into a different tool. Resume the refused work on the next operator turn.
+
+  Q2: Your acceptance narrative says "16 protected files" but the authoritative stdout shows 18
+      "PASS:" lines. What do you do?
+  A: Re-derive the count line by line from the raw stdout. Identify the discrepancy (here: two
+     distinct files sharing one name). Correct the record inline and note the correction. Never
+     alter the raw output; never substitute a number from memory.
+
+  Q3: The same session's journal shows a budget refusal (kind: cap) and a policy refusal (status:
+      refused, spawned: false). What does each prove, and which is retryable?
+  A: The budget refusal proves the finite per-turn control is real and is retryable next turn. The
+     policy refusal proves the authorization allowlist is real and is not retryable — it changes
+     only through the governing process.
+
+[ CARD ]
+  LESSON::REFUSAL_IS_EVIDENCE
+  FOR::Teaches an agent how to read the system's refusals as authoritative boundary information rather than as obstacles.
+  PREVENTS::working around refusals, fabricating evidence, and transcribing counts from memory
+  EXAMPLE::2026-08-02, first gated session. The acceptance's first turn hit the (then) shared
+
+[ CROSS_REFS ]
+  → TOOLUSE_DISCIPLINE — prerequisite; both frames govern boundary-respecting tool behavior
+  → EXECUTION_EVIDENCE (Protocols/LAW_Execution_Evidence.md) — constitutional source; executions
+    and refusals are both evidence
+  → AETHER_VERIFICATION_OPERATORS_USAGE — companion; the authorized execution surface whose
+    refusals this frame governs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪END_TEACHFRAME⟫

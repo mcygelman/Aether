@@ -1,4 +1,4 @@
-"""Project A in the atelier, offline, with scripted participants (Fable, 2026-10-18; the atelier's spine).
+"""Project A in the atelier, offline, with scripted participants (the atelier's spine).
 
 What this proves: a campaign can be run as a conversation and nothing else. The operator opens the atelier by talking;
 the lead plans by talking; members deliver files; the reviewer says PASS or FAIL in prose; the operator says "go"
@@ -7,8 +7,8 @@ with a hash chain, derives the facts, asks when it needs something, meters the b
 reports the three numbers. A restart re-reads the record and finds the same facts. Project B's lead wakes to its own
 closing words from Project A.
 
-What it does not prove: that a model did the thinking (participants are scripted here; the turn runner is Praxis's
-lane), or that memory was filed into a container (the host records that filing happened; filing is the turn
+What it does not prove: that a model did the thinking (participants are scripted here; the turn runner is tested
+separately), or that memory was filed into a container (the host records that filing happened; filing is the turn
 runner's job). No model, no provider, no key file.
 
 Run: py -3.10 -B -m pytest tests/test_atelier_project_a_offline.py -q -p no:cacheprovider --basetemp build/s/fb-atelier
@@ -55,19 +55,17 @@ def test_project_a_as_a_conversation(tmp_path):
     assert state['plan']['sprints'][1]['tasks'][0]['who'] == 'Harbor Guide'
     assert [(h['name'], h['role']) for h in state['roster']] == [('Harbor Guide', 'implementer'), ('Minder', 'reviewer')]
     assert state['plan']['awaiting_approval'] == 1 and hosts_questions(atelier, 'operator')
-    # -- One approval per sprint: the operator says "go". ----------------------------------------------------
+    # -- One approval for the plan: the operator says "go" once (First Principles review, O1). ---------------
     atelier.post(OPERATOR, 'go')
     state = atelier.facts()
-    assert state['approvals'][0]['sprint'] == 1 and state['plan']['awaiting_approval'] == 2
+    assert [a['sprint'] for a in state['approvals']] == [1, 2, 3] and state['plan']['awaiting_approval'] is None
     # -- A member works and delivers a file; the host hashes it. ---------------------------------------------
     note = atelier.daybook.store_file('grounding/CONTRACT_NOTE.md', b'# Contract\nHalf-open window [start, end).\n', GUIDE)
     atelier.post(GUIDE, 'Read CONVENTIONS.md. The window is half-open. The deliverable is `grounding/CONTRACT_NOTE.md`.',
               files=[note], cost=dict(model_calls=1, seconds=30))
-    atelier.post(OPERATOR, 'go')                                                   # sprint 2
     v1 = atelier.daybook.store_file('implementation/reports.py', REPORTS_V1, GUIDE)
     atelier.post(GUIDE, 'Implemented. The deliverable is `implementation/reports.py`; tests pass locally.',
               files=[v1], cost=dict(model_calls=2, seconds=55))
-    atelier.post(OPERATOR, 'go')                                                   # sprint 3
     # -- The reviewer says what is wrong, in prose; the member answers with a new version. --------------------
     atelier.post(MINDER, 'Review of reports.py.\n'
                       'requirement 1: validation of rows - PASS, every clause is traced to a line\n'
@@ -99,7 +97,7 @@ def test_project_a_as_a_conversation(tmp_path):
     # -- The record is exact; the three numbers come from it. -------------------------------------------------
     assert atelier.daybook.verify()['ok']
     numbers = atelier.numbers()
-    assert numbers['approvals_per_sprint'] == 1.0 and numbers['refusals_per_hundred'] == 0.0
+    assert numbers['approvals_per_sprint'] == 0.33 and numbers['refusals_per_hundred'] == 0.0      # one "go", three sprints
     assert numbers['thinking_seconds'] == 185.0 and numbers['calls'] >= 9
     left = atelier.budget_left(state)
     assert left['model_calls_used'] == 7 and left['model_calls_limit'] == 20

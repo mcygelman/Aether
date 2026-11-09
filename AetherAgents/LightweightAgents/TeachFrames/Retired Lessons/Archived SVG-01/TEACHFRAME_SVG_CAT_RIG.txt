@@ -1,0 +1,152 @@
+⟪TEACHFRAME_SVG_CAT_RIG⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.5⟫
+⟪DATE::2026-11-04⟫
+⟪CREATOR::Praxis through Codex, at Michel's request⟫
+⟪SCHOOL::School Of Coding⟫
+⟪AUDIENCE::CatAnimator, SVGAnimator; a model drawing or animating an SVG cat⟫
+⟪PREREQUISITES::SVG_ATTACHMENT⟫
+⟪LINEAGE::SVG_ATTACHMENT v1.3; supplied local AI guides A and B; Michel's modularization request⟫
+⟪PREVENTS::detached features, unreadable faces, hidden legs and sliding or unsupported walking⟫
+⟪EVIDENCE::TeachFrames/School Of Coding/SVG_LESSONS_PROVENANCE.json records original sources and the stopped cat baseline; no rig efficacy score⟫
+⟪MEASURED_BY::source inspection and sampled Edge renders; geometry rules are synthesis, not measured teaching improvement⟫
+⟪RETIRES_WHEN::a checked character rig enforces geometry, articulation and contact⟫
+⟪OBSERVED_BY::Michel and Praxis, with guide histories attributed to their unnamed authors⟫
+
+[ TITLE ]
+Draw and Animate an Attached, Readable SVG Cat
+
+[ PURPOSE ]
+Repair contours by replacement, not accidental compound-path append; verify solid fill and attachment.
+
+STATUS: PILOT MODULE, generated CARD; one stopped attempt, no measured teaching improvement. This module owns character geometry
+and articulation. It does not require a background, move the whole cat across the screen or scroll
+the scenery. Use a separate travel module when needed; a walk-cycle asset may remain in place.
+
+[ VALIDATION_AND_RECOVERY ]
+Read SVG_ATTACHMENT v1.10's RECOVERY_CHECKPOINT before drawing or reviewing. Use plain XML comments
+such as <!-- HEAD -->. Parse the skeleton and each rewritten cat.svg itself before trusting
+kinematic calculations; a valid formula cannot make malformed XML render. Following a failed
+Tasker command, use read_file to inspect and write_file to correct your own active output,
+then rerun the failed check with retry=true within the documented bound, or task_block.
+Do not run an unrelated diagnostic command to clear a pending error. Preserve prior attempts.
+Every later failure creates a new correction episode: put the Boolean "retry": true beside argv
+in the OUTER tool JSON for its corrected execution. Useful PASS output before a crash is not
+success. A Python error is an executed-program failure, not malformed tool-call JSON. The lead's
+compact briefcase checkpoint applies during reviews and owner memory closure as well as drawing.
+Reuse supplied checked evidence and run small targeted diagnostics for unresolved claims.
+
+
+[ RECENT_EVIDENCE ]
+Historical observed lesson: a syntax-recovered cat rendered a hollow tail after six tail paths
+retained an old closed contour and appended another subpath. In S-20261104-svg-tail-fill a targeted
+restoration of the six solid-baseline d values repaired the regression while preserving all other
+elements/attributes. Eight paused-time renders matched the old solid-tail crop pixel-for-pixel.
+This is a successful regression repair, not a new organic design or general teaching-efficacy proof.
+Review must cover all current-task wakes, distinguish reference/counting scopes, and hash final raw
+file bytes. Correct command paths from the reported cwd; read_file may have a different root.
+Lesson copies/cards and checkpoint directives are reinjected at ordinary wake construction. Updates
+after a wake loads do not enter its in-flight context. Check actual transcripts, preserve prior
+editions and stopped runs, and carry late lessons to the next authorized wake rather than claiming
+delivery or sending unnecessary paid messages. Owners author only their own closure and reflection.
+
+[ FACE_REFERENCE_AND_BLINK ]
+When the operator selects a face mockup, preserve that choice instead of substituting a different
+head direction. In the 2026-11-04 approved mockup, a compact eye pair toward the right-facing muzzle
+worked better than moving the muzzle. Keep complete eye shapes, pupils and glints together, and
+apply the same per-eye offsets to the corresponding closed lids. A correct open pose does not
+certify the blink. Inspect open, transition and closed frames under the unchanged blink clock.
+Offsets and overlap are reference-specific, not universal anatomy rules. A text-only worker should
+attribute a supplied visual interpretation and must not claim it viewed a PNG.
+
+[ ALGORITHM ]
+1. Establish a silhouette and coordinate table: torso bounds, head center/radius or outline, facing
+   direction, hip/shoulder joints, knee/ankle joints if used, paw shapes and tail/ear anchors.
+   Rear/front names describe anatomy; far/near names describe depth. They are not interchangeable.
+   Place rear joints in the torso's rear region and front joints near the chest; do not copy absolute
+   coordinates or one ellipse's proportions as anatomy rules for every style.
+
+2. Derive facial features from the head geometry. For a circular head, candidate crown points can
+   use x=cx+r*cos(theta), y=cy-r*sin(theta), with theta measured counterclockwise from right in this
+   formula. Inset ear base points into the silhouette for robust overlap. This is a useful sufficient
+   construction, not the only connected triangle. Check the actual ellipse/path, not only its box.
+   Place eyes relative to the face direction and intended perspective. No universal far-eye scale
+   ratio or requirement that both eyes lie in one half of the head. Check at intended display size.
+
+3. Choose depth deliberately. A useful side-view order is far limbs/tail, torso, near limbs, head
+   details, with exceptions for the desired pose. An upper far leg can be covered while its lower
+   leg remains readable. Drawing every leg after the body is one stylized solution, not a law.
+   Check ear bases, tail root, neck and all hips both at rest and at motion extremes.
+
+4. Parent each joint to its support. Default construction:
+   <g transform="translate(hipX hipY)">
+     <g><animateTransform attributeName="transform" type="rotate"
+       values="-15;15;-15" dur="0.9s" repeatCount="indefinite"/>
+       <!-- leg drawn about local joint 0,0 -->
+     </g>
+   </g>
+   Knees can repeat this structure. Use one named anchor per articulated part. Explicit
+   animateTransform rotate values with cx/cy, or additive="sum" with understood transform order,
+   are valid alternatives. CSS transform-origin is not forbidden; set its reference box and pivot
+   deliberately. Never accidentally replace the placement transform or double-apply world offsets.
+
+5. Define the gait before decorative bob: identify each of four legs, its phase offset, stance
+   interval and swing interval. A hinge or hip/knee rig can work; complexity is not proof of quality.
+   Alternating angles or four different begin times alone do not establish a particular biological
+   gait. Name the intended stylized walk and inspect its footfall order.
+
+6. Solve contact from the transformed paw boundary. For an unrotated, unscaled, filled paw ellipse,
+   local lowest y = hip_y + paw_cy + paw_ry. Include other ancestors, bob, rotation and stroke when
+   applicable. Translation_y = support_y - local_lowest_y only holds for that simplified pose.
+   A center coordinate is not the contact boundary. In 3D-looking art, state a visible top-surface
+   depth band; do not silently equate it to the rail's front face.
+
+   During stance, the foot velocity relative to the support should be near zero. In screen
+   coordinates: v_root + v_foot_relative_to_root ~= v_support. During swing, the foot lifts and
+   advances. Do not force every foot to touch at every frame. Coordinate bob and joint motion so
+   all feet do not float or sink together. Choose and record a style-appropriate tolerance.
+
+7. Sample one full stride, both extreme poses, stance transitions and the repeat boundary.
+   Inspect joints and paws at enlarged scale, then the whole cat at normal display size. A readable
+   face, color contrast and a coherent silhouette matter as well as source correctness. Add blinks,
+   ear flicks, tail motion and small bob only after the primary walk is readable.
+
+[ EXAMPLES ]
+[Setup]: Paw center y=21, radius=3, hip y=5; the intended support line is y=280.
+[Process]: In the unrotated zero-bob pose, the local paw bottom is 29, so root translation is 251.
+[Result]: Using 257 instead places the bottom at 286. This calculation illustrates Guide A's missing
+radius/ancestor terms; it is not a repair instruction for every phase of its supplied animation.
+
+[ SELF_CHECK ]
+Q1: A head and ear share a group but have a visible gap. What changes?
+A1: The drawn geometry; parenting alone cannot fix that gap.
+Q2: Are dark far legs behind the body automatically wrong?
+A2: No. Inspect their attachment and readable portions over the gait.
+Q3: Does sinusoidal bob prove walking?
+A3: No. Verify distinct limb phases, footfalls and support contact.
+Q4: The kinematic calculation passes, but the actual cat.svg fails XML parsing. Is it delivered?
+A4: No. Correct the file in your active task and rerun that failed parser check with the host's
+required retry protocol. Report visual quality unverified until actual rendering is inspected.
+
+[ CARD ]
+  LESSON::SVG_CAT_RIG
+  FOR::Repair contours by replacement, not accidental compound-path append; verify solid fill and attachment.
+  PREVENTS::detached features, unreadable faces, hidden legs and sliding or unsupported walking
+  EXAMPLE::Paw center y=21, radius=3, hip y=5; the intended support line is y=280.
+
+[ CROSS_REFS ]
+  SVG_ATTACHMENT for shared checks; SVG_FIGURE_CROSSING or SVG_BACKGROUND_SCROLL for scene motion.
+⟪TEACHFRAME_END⟫
+
+[ CHANGE_LOG ]
+v1.1: Apply shared XML/recovery lesson from the first stopped cat attempt; preserve v1.0.
+No new gait rule or demonstrated improvement is claimed.
+
+v1.2: Apply shared per-command checkpoint and concrete envelope lesson to drawing AND review;
+prior v1.1 retained. Reliable model adherence remains unproven; no new paid trial in this revision.
+
+v1.3: Michel authorized the hollow-tail repair and continuing lesson refresh. Preserve prior bytes in SVG_TAIL_FILL_REPAIR_20261104/teachframes-before. Adds compound-contour regression and cross-wake reporting evidence; no general efficacy claim.
+
+v1.4: Post-run evidence distilled after successful tail repair; no paid wake consumed this edition. Preserve prior copies, next authorized briefing must select current catalog text.
+
+v1.5: Michel selected the eyes-forward mockup; teach reference fidelity and whole-eye/blink alignment. Prior1.4 preserved; no efficacy claim before the new run.

@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agents · Aether</title>
+<html lang="en" data-aether-surface="agent-insights"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent notes &amp; memory · Aether</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3;
   --panel:#172630;--line:#39505e;--accent:#a5d7ce;--link:#a9ddd4;--muted:#adc0cb;--warn:#ffe39b;--bad:#f2a7a0;--good:#9fdca0}
@@ -37,9 +37,13 @@ select{font:inherit;padding:.45rem;background:#101820;color:inherit;border:1px s
 /* Detail */
 #detail{display:none;gap:24px;align-items:flex-start}#detail.open{display:flex}
 #detail>.side{flex:none}#detail>.main{flex:1;min-width:0}
-[role=tablist]{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:1rem}
-[role=tab]{background:transparent;color:var(--muted);border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:0}
-[role=tab][aria-selected=true]{color:#e3edf3;border-color:var(--line);background:var(--panel)}
+[role=tablist]{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin-bottom:1rem}
+[role=tab]{background:transparent;color:var(--muted);border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:3px solid transparent;padding:.55rem 1.1rem}
+[role=tab]:hover{color:#e3edf3;background:#1c2e39}
+[role=tab][aria-selected=true]{color:#e3edf3;border-color:var(--line);border-bottom-color:var(--accent);background:var(--panel);font-weight:700}
+[role=tab]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-weight:600;color:var(--accent);margin:1rem 0 .2rem}
+.lead{margin:0 0 .8rem}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
 #tab-memory .panel,#tab-record .panel{margin-bottom:12px}
@@ -56,28 +60,32 @@ dialog{max-width:760px;width:90%;background:var(--panel);color:inherit;border:1p
 dialog::backdrop{background:#000a}
 @media (max-width:800px){#detail.open{flex-direction:column}.card.big{width:100%}}
 </style></head><body>
-<nav><a href="/">Mission Control</a> · Agents</nav>
-<h1>Agents</h1>
-<p class="muted">Each card is the agent's own: its name, the title it wrote for itself, the avatar it chose, and a level earned only from outcomes someone else verified. Select a card to see its current Welcome Dashboard with the selected session's continuity context. This is a live view, not a saved hydration snapshot. Viewing never changes an agent's memory.</p>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<nav data-local-nav><a href="/">Mission Control</a> · Agents</nav>
+<main>
+<h1>Agent notes &amp; memory</h1>
+<p class="muted">Each card is the agent's own: its name, the title it wrote for itself, the avatar it chose, and a level earned only from outcomes someone else verified. Viewing never changes an agent's memory.</p>
 <div class="bar"><button id="reload">Refresh</button><span id="listed" class="muted"></span></div>
 <p id="notice" role="status" aria-live="polite"></p>
+<p id="choose" class="hint">Choose an agent card to see its notes to self, its memory and its track record.</p>
 <section id="roster" aria-label="Agent cards"></section>
 <section id="detail" aria-live="polite">
   <div class="side" id="bigcard"></div>
   <div class="main">
     <div role="tablist" aria-label="Agent views">
-      <button role="tab" aria-selected="true" data-tab="welcome">Welcome Dashboard</button>
-      <button role="tab" aria-selected="false" data-tab="memory">Memory</button>
-      <button role="tab" aria-selected="false" data-tab="record">Record</button>
+      <button role="tab" id="tab-btn-welcome" aria-controls="tab-welcome" aria-selected="true" data-tab="welcome">Notes to Self</button>
+      <button role="tab" id="tab-btn-memory" aria-controls="tab-memory" aria-selected="false" tabindex="-1" data-tab="memory">Memory</button>
+      <button role="tab" id="tab-btn-record" aria-controls="tab-record" aria-selected="false" tabindex="-1" data-tab="record">Track record</button>
     </div>
-    <div id="tab-welcome">
+    <div id="tab-welcome" role="tabpanel" aria-labelledby="tab-btn-welcome">
+      <p id="welcome-lead" class="lead"></p>
       <div class="bar"><label for="session">Session</label><select id="session"></select>
         <button id="refresh">Refresh</button><button id="history-open" class="quiet">Full session history</button></div>
       <p id="viewing" class="muted"></p>
       <div class="grid" id="elements"></div>
     </div>
-    <div id="tab-memory" hidden></div>
-    <div id="tab-record" hidden></div>
+    <div id="tab-memory" role="tabpanel" aria-labelledby="tab-btn-memory" hidden></div>
+    <div id="tab-record" role="tabpanel" aria-labelledby="tab-btn-record" hidden></div>
   </div>
 </section>
 <dialog id="note"><h2 id="note-title"></h2><p id="note-meta" class="muted"></p><div id="note-body" class="prose"></div>
@@ -86,8 +94,11 @@ dialog::backdrop{background:#000a}
   <p class="muted">Newest first. Missing closure information is advisory; normal work may continue.</p>
   <p id="history-status" role="status"></p><div id="history-events"></div>
   <p><button id="history-more">Load older events</button> <button id="history-close">Close</button></p></dialog>
+</main>
 <script>
 "use strict";
+/* Owner: read-only agent dashboard and memory-viewer presentation.
+ * Must never: edit identities, write memory, or infer consent from a view. */
 // Every value from a memory is data: inserted with textContent, never parsed as HTML.
 const $ = (id) => document.getElementById(id);
 function el(tag, attrs = {}, ...kids) {
@@ -136,9 +147,11 @@ function sigil(seed, letter) {
   svg.append(ring, shape, text); return svg;
 }
 function cardFace(a, big) {
+  if(a.technical){const face=el("a",{class:"card",href:"/workspace?view=technical-learning&agent="+encodeURIComponent(a.agent_id)});face.append(el("h2",{text:a.name}),el("p",{text:"Technical Learning"}),el("p",{text:a.lessons+" lessons · "+a.paths+" paths"}));return face;}
+
   const level = (a.rank && a.rank.level) || 0;
   const face = el(big ? "div" : "button", {class: `card tier-${tier(level)}` + (big ? " big" : ""), "data-key": a.key});
-  if (!big) { face.setAttribute("aria-pressed", String(current === a.key)); face.addEventListener("click", () => select(a.key)); }
+  if (!big) { face.setAttribute("aria-pressed", String(current === a.key)); face.addEventListener("click", () => select(a.key, true)); }
   face.append(el("div", {class: "rank", title: a.rank ? a.rank.basis : "", text: level ? String(level) : "–"}));
   face.append(el("div", {class: "source", title: a.source, text: a.source}));
   const portrait = el("div", {class: "portrait"});
@@ -165,20 +178,35 @@ async function loadRoster() {
     $("listed").textContent = `${agents.length} agent${agents.length === 1 ? "" : "s"} · retrieved ${data.retrieved_at}`;
     $("roster").replaceChildren(...agents.map((a) => cardFace(a, false)));
     if (!agents.length) $("roster").append(el("p", {class: "muted", text: "No agent homes were found in the configured folders."}));
+    const people = agents.filter((a) => !a.technical);
     if (current && agents.some((a) => a.key === current)) select(current);
     else if (current) { invalidateDetail(); current = null; $("detail").classList.remove("open"); }
+    // With one agent there is nothing to choose: open it, so the views are visible at once.
+    if (!current && people.length === 1) select(people[0].key);
+    choosePrompt();
   } catch (e) { if (request === rosterRequest) $("notice").textContent = "Agents unavailable: " + e.message; }
+}
+function choosePrompt() {
+  const a = agents.find((x) => x.key === current), many = agents.length > 1;
+  $("choose").hidden = !agents.length || (!!a && !many);
+  $("choose").textContent = a ? `Showing ${a.name} below. Choose another card to switch.`
+    : "Choose an agent card to see its notes to self, its memory and its track record.";
 }
 
 // -- detail -------------------------------------------------------------------------------
-async function select(key) {
+async function select(key, chosen = false) {
   invalidateDetail();
   const version = selectionVersion;
   current = key;
   for (const face of document.querySelectorAll("#roster .card")) face.setAttribute("aria-pressed", String(face.dataset.key === key));
   const a = agents.find((x) => x.key === key);
+  if(a.technical){location.href="/workspace?view=technical-learning&agent="+encodeURIComponent(a.agent_id);return;}
   $("bigcard").replaceChildren(cardFace(a, true));
   $("detail").classList.add("open");
+  $("welcome-lead").textContent = `What ${a.name} reads when it wakes: the note it left for its next self, its open work and its recent memories. Choose a session to see an earlier wake.`;
+  choosePrompt();
+  // The views open below the cards; bring them into sight when a person picked a card.
+  if (chosen) $("detail").scrollIntoView({block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
   renderRecord(a); renderMemory(a);
   $("history-open").disabled = a.status !== "ok";
   $("refresh").disabled = a.status !== "ok";
@@ -316,11 +344,12 @@ function renderMemory(a) {
   if (a.status !== "ok") { box.replaceChildren(el("p", {class: "st-unavailable", text: a.reason})); return; }
   const include = el("input", {type: "checkbox", id: "proprietary"});
   box.replaceChildren(el("div", {class: "panel"},
-    el("h2", {text: "Memory Fabric"}),
-    el("p", {text: `${a.memory.notes} memories · ${a.memory.links} weighted links · ${a.memory.active_alerts} active alerts · revision ${a.revision}`}),
-    el("p", {class: "muted", text: "The full viewer shows the weighted graph, strengths over time, every memory and the settings. It opens read-only in a new tab."}),
-    el("p", {}, include, el("label", {for: "proprietary", text: " Include proprietary memories"})),
-    el("button", {text: "Open the Memory Fabric viewer", onclick: () => window.open("/api/agents/memory?" + q({agent: a.key, proprietary: include.checked ? "1" : "0"}), "_blank", "noopener")})));
+    el("h2", {text: `${a.name}'s Memory Fabric`}),
+    el("div", {class: "bar"},
+      el("button", {class: "primary", text: "Open the Memory Fabric viewer", onclick: () => window.open("/api/agents/memory?" + q({agent: a.key, proprietary: include.checked ? "1" : "0"}), "_blank", "noopener")}),
+      el("span", {}, include, el("label", {for: "proprietary", text: " Include proprietary memories"}))),
+    el("p", {class: "muted", text: "The viewer opens read-only in a new tab: the weighted graph, strengths over time, every memory and the settings."}),
+    el("p", {text: `${a.memory.notes} memories · ${a.memory.links} weighted links · ${a.memory.active_alerts} active alerts · revision ${a.revision}`})));
 }
 function renderRecord(a) {
   const box = $("tab-record");
@@ -339,9 +368,25 @@ function renderRecord(a) {
       el("p", {text: a.last_session ? `Latest session opened ${a.last_session.occurred_at} (${a.last_session.source_system})` : "No session recorded yet."}),
       el("p", {text: a.last_project ? `Last project: ${a.last_project.title} · ${a.last_project.occurred_at}` : "No project activity recorded yet."})));
 }
-for (const tab of document.querySelectorAll("[role=tab]")) tab.addEventListener("click", () => {
-  for (const t of document.querySelectorAll("[role=tab]")) { t.setAttribute("aria-selected", String(t === tab)); $("tab-" + t.dataset.tab).hidden = t !== tab; }
-});
+const tabs = [...document.querySelectorAll("[role=tab]")];
+function showTab(tab, focus = false) {
+  for (const t of tabs) {
+    const on = t === tab;
+    t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; $("tab-" + t.dataset.tab).hidden = !on;
+  }
+  if (focus) tab.focus();
+}
+for (const tab of tabs) {
+  tab.addEventListener("click", () => showTab(tab));
+  // The standard tab keys: arrows move between views, Home and End jump to the ends.
+  tab.addEventListener("keydown", (e) => {
+    const i = tabs.indexOf(tab), next = {ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1}[e.key];
+    if (next === undefined) return;
+    e.preventDefault(); showTab(tabs[(next + tabs.length) % tabs.length], true);
+  });
+}
+const view = new URLSearchParams(location.search).get("view");
+if (view === "memory" || view === "record") showTab(document.querySelector(`[data-tab="${view}"]`));
 $("reload").addEventListener("click", loadRoster);
 $("refresh").addEventListener("click", loadDashboard);
 $("session").addEventListener("change", loadDashboard);

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project · Aether Mission Control</title>
+<!-- The Atelier edition's project page (the full edition keeps atelier.html). A project is one atelier
+     commission; its roadmap is the lead's plan of sprints and tasks. The API and its words underneath are unchanged. -->
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101820;color:#e3edf3}body{max-width:1100px;margin:0 auto;padding:0 1rem 3rem}
+a{color:#a9ddd4}h1{font-size:1.7rem;margin:.2rem 0 .2rem;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;overflow-wrap:anywhere}h2{font-size:1.1rem;margin:0 0 .6rem;display:flex;align-items:center}p{line-height:1.5}.muted{color:#adc0cb}
+.panel{border:1px solid #39505e;background:#172630;border-radius:10px;padding:1rem 1.1rem;margin:0 0 1rem}
+.cols{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:1rem;align-items:start}@media(max-width:860px){.cols{grid-template-columns:1fr}}
+select,textarea,input{font:inherit;background:#101820;color:inherit;border:1px solid #6e8c9a;border-radius:6px;padding:.55rem;box-sizing:border-box;width:100%;max-width:100%}
+label{display:block;margin:.8rem 0 .3rem;color:#c5d3da}textarea{min-height:6rem}
+button{font:inherit;margin:.6rem .5rem 0 0;padding:.55rem .95rem;border:1px solid #6e8c9a;border-radius:6px;background:transparent;color:inherit;cursor:pointer;max-width:100%}
+button.primary{background:#a5d7ce;color:#102820;border-color:#a5d7ce;font-weight:600}button:disabled{opacity:.5;cursor:not-allowed}
+.chip{font-size:.85rem;font-weight:500;border:1px solid #4d646d;border-radius:999px;padding:.05rem .65rem;color:#d9e6e3}.chip.you{border-color:#d9b46a;color:#ffd28a}.chip.done{border-color:#4f8f7a;color:#a9ddd4}
+ol.stages{display:flex;flex-wrap:wrap;gap:.3rem;list-style:none;padding:0;margin:.2rem 0 .8rem}ol.stages li{padding:.15rem .6rem;border:1px solid #2c4352;border-radius:6px;font-size:.85rem;color:#8fa6b3}
+ol.stages li.past{color:#a9ddd4;border-color:#35574d}ol.stages li[aria-current]{border-color:#97dbbd;color:#edf5f4;font-weight:700}
+#next-line{font-size:1.1rem;font-weight:600;margin:.2rem 0}#next-text{margin:.3rem 0 0}
+.sprint{border-top:1px solid #2c4352;padding:.55rem 0}.sprint:first-of-type{border-top:0}.sprint .st{font-size:.78rem;margin-left:.4rem}.sprint ul{margin:.3rem 0 0;padding-left:1.1rem}.sprint li{margin:.2rem 0;color:#c5d3da}.who-task{color:#8fa6b3}
+article{border-bottom:1px solid #2c4352;padding:.6rem 0;overflow-wrap:anywhere}article.host{color:#c5d3da;border-left:3px solid #4d646d;padding-left:.8rem;font-size:.95rem}article.operator{background:#1b2e38;padding:.6rem .8rem;border-radius:6px;margin:.4rem 0;border-bottom:0}article.turn_failed{border-left:3px solid #f5a97f;padding-left:.8rem;color:#f5a97f}
+.who{font-weight:700;color:#c7ece5}.role{color:#8fa6b3;font-size:.85rem;margin-left:.35rem}.when{color:#8fa6b3;font-size:.8rem;margin-left:.5rem}.words{white-space:pre-wrap;overflow-wrap:anywhere;margin:.3rem 0}
+.files a,.files span{margin-right:1rem;font-size:.9rem;overflow-wrap:anywhere}.cost{color:#8fa6b3;font-size:.8rem;margin:0}#notice{min-height:1.3em;color:#ffe39b}
+#thread{max-height:70vh;overflow-y:auto}.person{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.3rem;padding:.35rem 0;border-top:1px solid #2c4352}.person:first-child{border-top:0}.person button{margin:0;padding:.3rem .7rem;font-size:.88rem}
+progress{width:100%;height:.6rem}dl{display:grid;grid-template-columns:1fr auto;gap:.2rem .8rem;margin:.6rem 0 0;font-size:.9rem}dt{color:#adc0cb}dd{margin:0}
+button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid #a9ddd4;outline-offset:3px}
+</style></head><body>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<main>
+<section id="create" hidden>
+<h1>New project</h1>
+<p><a href="/roadmaps">Start a sprint from a roadmap</a> · checked outputs, explicit budget and bound review.</p>
+<p class="muted">Describe the work in a short brief. The lead replies with a roadmap of sprints and tasks for you to approve.</p>
+<form class="panel" id="create-form">
+<label for="campaign">Mission</label><select id="campaign"></select>
+<label for="pname">Project name</label><input id="pname" maxlength="120" placeholder="For example: Mission Control GUI revamp">
+<label for="kind">Kind of work</label><select id="kind"><option value="project">A project for a team (lead, developers, reviewer)</option><option value="library">A question for the librarian</option></select>
+<label for="brief" data-help="brief">Project brief</label>
+<textarea id="brief" rows="7" placeholder="What to deliver, why it matters, anything that helps, and the budget (for example: Budget: 20 model calls)."></textarea>
+<label for="brief-files">Files for the team (optional)</label><input id="brief-files" type="file" multiple>
+<button class="primary" type="submit" id="create-go">Create project</button><a href="/missions" id="create-cancel">Cancel</a>
+<p id="create-notice" role="status" aria-live="polite"></p>
+</form></section>
+<section id="view" hidden>
+<h1><span id="title">Project</span><span class="chip" id="stage-chip"></span></h1>
+<p class="muted" id="subtitle"></p>
+<div class="cols">
+<div>
+<section class="panel" aria-labelledby="next-title"><h2 id="next-title" data-help="next-step">Next step</h2>
+<ol class="stages" id="stages" aria-label="Stages"></ol>
+<p id="next-line" role="status" aria-live="polite"></p><p id="next-text" class="muted"></p>
+<div id="next-actions"><button id="approve" class="primary" type="button" hidden>Approve sprint</button><button id="accept" class="primary" type="button" hidden>Accept result</button><button id="changes" type="button" hidden>Ask for changes</button></div>
+</section>
+<section class="panel" aria-labelledby="creations-title"><h2 id="creations-title">Creations</h2>
+<p class="muted">Artifacts linked to this project from the shared workspace.</p>
+<div id="project-creations" aria-live="polite">Loading creations…</div>
+<p><a id="creations-link" href="#">View all project creations</a> · <a id="creation-new" href="#" hidden>New creation</a></p>
+<button id="creations-refresh" type="button">Refresh creations</button>
+<p class="muted">Linking an artifact does not send it to the team. Use a message to introduce work you want agents to review.</p>
+</section>
+<section class="panel" aria-labelledby="thread-title"><h2 id="thread-title" data-help="conversation">Conversation</h2><div id="thread"></div><p id="empty" class="muted">No messages yet.</p></section>
+<section class="panel" aria-labelledby="write-title"><h2 id="write-title" data-help="message">Message to the team</h2>
+<label for="text" class="muted" style="margin-top:0">Your message</label><textarea id="text" aria-describedby="send-keys" placeholder="Write to the team: a question, a change, extra material."></textarea><small id="send-keys" class="muted">Ctrl+Enter sends.</small>
+<label for="attach">Attach files (optional)</label><input id="attach" type="file" multiple>
+<button id="send" class="primary" type="button">Send</button>
+<p id="notice" role="status" aria-live="polite"></p></section>
+</div>
+<div>
+<section class="panel" aria-labelledby="roadmap-title"><h2 id="roadmap-title" data-help="roadmap">Roadmap</h2><div id="roadmap"></div><p><a id="roadmap-link" href="#">Roadmap and status</a></p></section>
+<section class="panel" aria-labelledby="team-title"><h2 id="team-title" data-help="team">Team</h2><div id="people"></div><p id="team-note" class="muted"></p><p><a id="team-link" href="#">Change the team</a></p></section>
+<section class="panel" aria-labelledby="usage-title"><h2 id="usage-title" data-help="usage">Budget</h2>
+<p style="margin:.2rem 0"><strong id="calls">–</strong> <span class="muted">model calls</span></p><progress id="calls-meter" max="1" value="0"></progress>
+<details><summary class="muted">More numbers</summary><dl>
+<dt>Turns that failed or were held back, per 100 calls</dt><dd id="refusals">–</dd>
+<dt>Your approvals per sprint</dt><dd id="approvals">–</dd>
+<dt>Agent thinking time per minute of waiting</dt><dd id="thinking">–</dd>
+<dt>Records</dt><dd id="chain">–</dd></dl></details></section>
+</div></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);const HEX=/^[0-9a-f]{64}$/;
+const params=new URLSearchParams(location.search);
+let project=params.get('commission')||params.get('project')||'',lastId=null,busy=false,info=null,view=null;
+const ROLE={lead:'Lead',member:'Developer',reviewer:'Reviewer',librarian:'Librarian',host:'Aether',operator:'You'};
+const STEPS=[['Plan','Planning'],['Sprint','In progress'],['Review','In review'],['Close','Closing'],['Closed','Done']];
+function text(parent,tag,value,cls){const e=document.createElement(tag);e.textContent=value==null?'':String(value);if(cls)e.className=cls;parent.append(e);return e;}
+function notice(value){$('notice').textContent=value||'';}
+async function call(url,body){const options={cache:'no-store',credentials:'same-origin'};
+ if(body!==undefined){options.method='POST';options.headers={'Content-Type':'application/json'};options.body=JSON.stringify(body);}
+ const r=await fetch(url,options);let v={};try{v=await r.json();}catch(e){v={error:'Unexpected response ('+r.status+')'};}
+ if(!r.ok&&r.status!==202)throw Error(v.error||('Request failed ('+r.status+')'));return v;}
+function name(p){if(!p)return '';const n=String(p.name||p.id||'');const k=n.toLowerCase();return n==='The master'?'Lead':ROLE[k]&&(k===p.id||k===p.kind||k==='operator')?ROLE[k]:n;}
+function base64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+32768));return btoa(s);}
+async function files(input){const out=[];for(const f of Array.from(input.files||[]))out.push({name:f.name,content_base64:base64(new Uint8Array(await f.arrayBuffer()))});return out;}
+
+// New project: brief, campaign, name.
+async function createView(){$('create').hidden=false;document.title='New project · Aether';
+ const c=globalThis.aetherNav?await globalThis.aetherNav.campaigns(true):await call('/api/campaigns');const select=$('campaign');
+ for(const k of c.campaigns||[]){const o=text(select,'option',k.name);o.value=k.id;}
+ text(select,'option','No mission').value='';
+ select.value=(c.campaigns||[]).some(m=>m.id===params.get('campaign'))?params.get('campaign'):'';
+ if(params.get('request')==='library')$('kind').value='library';
+ $('brief').focus();}
+$('create-form').onsubmit=async e=>{e.preventDefault();if(busy)return;const brief=$('brief').value;
+ const out=$('create-notice');out.textContent='';if(!brief.trim()){out.textContent='Write the brief first: what to deliver, why, and the budget.';$('brief').focus();return;}
+ busy=true;$('create-go').disabled=true;
+ try{const v=await call('/api/atelier/open',{text:brief,files:await files($('brief-files')),request_kind:$('kind').value});
+  const id=v.commission_id;const campaign=$('campaign').value,pname=$('pname').value.trim();
+  const issues=[];
+  if(campaign)try{await call('/api/campaigns',{action:'assign',project:id,campaign});}catch(err){issues.push('Mission assignment: '+err.message);}
+  if(pname)try{await call('/api/campaigns',{action:'name_project',project:id,name:pname});}catch(err){issues.push('Name “'+pname+'”: '+err.message);}
+  if(issues.length)try{sessionStorage.setItem('aether-project-setup-'+id,JSON.stringify(issues));}catch(_){}
+  location.href='/projects/atelier?commission='+encodeURIComponent(id)+(issues.length?'&setup_incomplete=1':'');}
+ catch(err){out.textContent=err.message;}finally{busy=false;$('create-go').disabled=false;}};
+
+// One project.
+function note(row){const a=document.createElement('article');const kind=row.sender&&row.sender.kind;
+ a.className=[kind,row.kind!=='message'?row.kind:''].filter(Boolean).join(' ');a.id='note-'+row.id;
+ const head=text(a,'div','');text(head,'span',name(row.sender),'who');if(ROLE[kind]&&kind!=='operator'&&kind!=='host')text(head,'span',ROLE[kind],'role');
+ if(row.to)text(head,'span',' → '+name(row.to)+(ROLE[row.to.kind]&&row.to.kind!=='operator'&&name(row.to)!==ROLE[row.to.kind]?' ('+ROLE[row.to.kind]+')':''));
+ text(head,'span',String(row.at||'').replace('T',' ').slice(0,19),'when');
+ text(a,'p',row.plain?row.plain.text:row.text,'words');
+ if(row.plain){const fix=text(a,'a',row.plain.fix.label);fix.href=row.plain.fix.href;const more=text(a,'details','');text(more,'summary','Details');text(more,'p',row.text,'words');}
+ if((row.files||[]).length){const box=text(a,'div','','files');
+  for(const f of row.files){if(HEX.test(f.sha256||'')){const l=text(box,'a',f.name+' ('+f.bytes+' bytes)');l.href='/api/atelier/file?commission='+encodeURIComponent(project)+'&sha256='+f.sha256;l.setAttribute('download',f.name);l.title='SHA-256 '+f.sha256;}
+   else text(box,'span',f.name+' (no stored version)');}}
+ const c=row.cost||{};if(c.model_calls||c.seconds)text(a,'p',(c.model_calls||0)+' model call'+(c.model_calls===1?'':'s')+' · '+(c.seconds||0)+' s','cost');
+ $('thread').append(a);}
+function stages(v){const ol=$('stages');ol.replaceChildren();const library=(v.facts&&v.facts.campaign||{}).request_kind==='library';
+ const steps=library?[['Plan','Asked'],['Review','Answered'],['Closed','Done']]:STEPS;const at=steps.findIndex(s=>s[0]===v.status.stage);
+ steps.forEach(([key,label],i)=>{const li=text(ol,'li',label);if(i<at)li.className='past';if(key===v.status.stage||(library&&v.status.stage==='Close'&&key==='Closed'))li.setAttribute('aria-current','step');});}
+function nextStep(v){const s=v.status||{},plan=(v.facts||{}).plan||{sprints:[]},library=(v.facts&&v.facts.campaign||{}).request_kind==='library';
+ const n=plan.awaiting_approval,waiting=plan.awaiting_sprints||(n!=null?[n]:[]);let line='',words='';
+ if(['Turn failed','Filing failed','Working'].includes(s.label)||(s.condition==='NEEDS_YOU'&&!s.can_approve&&!s.can_accept&&s.detail)){line=s.label;words=s.detail||'';}
+ else if(s.stage==='Closed'){line='Done';words='The project is finished and every closing note is filed.';}
+ else if(s.stage==='Close'){line='Closing';words='Accepted. The agents are writing their closing notes.';}
+ else if(library){line=s.can_accept?'The librarian answered':'Waiting for the librarian';words=s.can_accept?'Read the answer and any files, then accept it or ask for something else.':'The librarian will reply here. You can add a message at any time.';}
+ else if(s.can_approve&&n!=null&&waiting.length>1){line='The plan is ready for your approval';words='Sprints '+waiting.join(', ')+'. Approve the plan to let the team work through it at its own pace, or ask for changes.';}
+ else if(s.can_approve&&n!=null){const sp=plan.sprints.find(x=>x.number===n);line='Sprint '+n+' is ready for your approval';words=(sp?'“'+sp.title+'”. ':'')+'Approve it to let the team start, or ask for changes.';}
+ else if(!plan.sprints.length){line='Planning';words='The lead is writing the roadmap: the sprints, and the tasks in each.';}
+ else if(s.stage==='Review'){line='In review';words='The reviewer has written. Accept the result, or say what to change.';}
+ else {line='In progress';words='Every sprint is approved and the team is working. You can write to them at any time.';}
+ $('next-line').textContent=line;$('next-text').textContent=words;
+ if(s.fix){$('next-text').append(' ');const a=text($('next-text'),'a',s.fix.label);a.href=s.fix.href;}
+ $('approve').hidden=!s.can_approve;$('approve').textContent=waiting.length>1?'Approve the plan':'Approve sprint'+(n!=null?' '+n:'');
+ $('accept').hidden=!s.can_accept||!(library||plan.sprints.length);$('accept').textContent=library?'Accept answer':'Accept result';
+ $('changes').hidden=$('approve').hidden&&$('accept').hidden;
+ const chip=$('stage-chip');chip.textContent=line.startsWith('Sprint')?'Needs you':line;chip.className='chip'+(s.condition==='NEEDS_YOU'?' you':s.stage==='Closed'?' done':'');}
+function roadmap(v){const box=$('roadmap');box.replaceChildren();const plan=(v.facts||{}).plan||{sprints:[]};
+ const approved=new Set(((v.facts||{}).approvals||[]).map(a=>a.sprint));
+ if((v.facts&&v.facts.campaign||{}).request_kind==='library'){text(box,'p','A librarian question has no roadmap.','muted');return;}
+ if(!plan.sprints.length){text(box,'p','Not planned yet. The lead replies to the brief with sprints and tasks.','muted');return;}
+ for(const s of plan.sprints){const d=text(box,'div','','sprint');const h=text(d,'strong','Sprint '+s.number+': '+s.title);
+  const st=approved.has(s.number)?['Approved','chip done st']:plan.awaiting_approval===s.number?['Waiting for you','chip you st']:['Planned','chip st'];text(h,'span',st[0],st[1]);
+  const ul=text(d,'ul','');for(const t of s.tasks||[]){const li=text(ul,'li',t.title);if(t.who)text(li,'span',' — '+t.who,'who-task');}
+  if(!(s.tasks||[]).length)text(ul,'li','No tasks listed.');}}
+function people(v){const root=$('people');root.replaceChildren();const managed=v.places_managed;
+ for(const p of v.people||[]){const row=text(root,'div','','person');const who=text(row,'span','');text(who,'strong',name(p));text(who,'span',ROLE[p.kind]||p.kind,'role');
+  if(p.available_here===false){text(row,'span','Not available on this computer','muted');continue;}
+  if(!managed){const b=text(row,'button','Ask to take a turn');b.type='button';if((v.working||[]).includes(p.id)){b.disabled=true;b.textContent='Working…';}b.onclick=()=>wake(p);}
+  else if((v.working||[]).includes(p.id))text(row,'span','Working…','muted');}
+ if(!(v.people||[]).length)text(root,'p','No one is on the team yet. Add agents to work on this project.','muted');
+ $('team-link').textContent=(v.people||[]).length?'Change the team':'Add the team';
+ $('team-note').textContent=managed?'This computer is in a network: agents take their turns by themselves as messages arrive.':'This computer is not in a network, so agents take a turn only when you ask them.';}
+function usage(v){const b=v.budget||{},n=v.numbers||{};
+ $('calls').textContent=(b.model_calls_used??0)+(b.model_calls_limit!=null?' of '+b.model_calls_limit:'');
+ $('calls-meter').max=b.model_calls_limit||Math.max(b.model_calls_used||0,1);$('calls-meter').value=b.model_calls_used||0;
+ $('refusals').textContent=n.refusals_per_hundred??'–';$('approvals').textContent=n.approvals_per_sprint??'–';$('thinking').textContent=n.thinking_per_harness??'–';
+ $('chain').textContent=v.chain?(v.chain.ok?v.chain.messages+' messages, all check out':'a record does not check out: '+v.chain.first_problem):'–';}
+async function title(){const c=globalThis.aetherNav?await globalThis.aetherNav.campaigns():await call('/api/campaigns');
+ for(const k of c.campaigns||[]){const p=(k.projects||[]).find(x=>x.id===project);if(p){info={project:p,campaign:k};break;}}
+ if(!info){const p=(c.unfiled||[]).find(x=>x.id===project);info={project:p||null,campaign:null};}
+ const n=info.project?info.project.name:project;$('title').textContent=n;document.title=n+' · Aether';
+ $('subtitle').textContent=info.campaign?'Project in the mission “'+info.campaign.name+'”':'Project not in a mission yet';}
+async function creations(){
+ const box=$('project-creations');$('creations-refresh').disabled=true;
+ try{const doc=await call('/api/workspace'),all=(doc.artifacts||[]).filter(a=>a.project_id===project),rows=all.filter(a=>!a.archived).sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
+  box.replaceChildren();
+  if(!rows.length)text(box,'p','No current creations linked yet. Create one here, or edit an existing creation and choose this project.','muted');
+  for(const a of rows.slice(0,6)){const row=text(box,'article',''),anchor=text(row,'a',a.title);anchor.href='/workspace?view=creations&project='+encodeURIComponent(project)+'&artifact='+encodeURIComponent(a.id);
+   text(row,'div',({html:'HTML Page',svg:'SVG',teachframe:'Teach Frame',note:'Note',summary:'Summary',bullets:'Bullet Points',tasks:'Task List',aether:'To Aether'})[a.kind]+' · '+(a.stage==='ready'?'Published':'Draft'),'muted');}
+  if(rows.length>6)text(box,'p','Showing 6 of '+rows.length+' current creations. Open the full list to see all.','muted');
+  if(all.length>rows.length)text(box,'p',(all.length-rows.length)+' archived. Open the full list and select Archived to review them.','muted');
+ }catch(e){box.replaceChildren();text(box,'p','Creations could not be loaded. Use Refresh creations to try again.','muted');}
+ finally{$('creations-refresh').disabled=false;}
+}
+$('creations-refresh').onclick=creations;
+async function read(full){const v=await call('/api/atelier/read?commission='+encodeURIComponent(project)+(!full&&lastId?'&since='+encodeURIComponent(lastId):''));
+ if(full||!v.since_known)$('thread').replaceChildren();const box=$('thread'),stick=box.scrollTop+box.clientHeight>=box.scrollHeight-40;
+ for(const row of v.notes)note(row);lastId=v.last_id;$('empty').hidden=!!lastId;if(v.notes.length&&(stick||full))box.scrollTop=box.scrollHeight;
+ view=v;stages(v);nextStep(v);roadmap(v);people(v);usage(v);return v;}
+async function say(words){if(busy)return;busy=true;notice('');
+ try{const v=await call('/api/atelier/post',{commission:project,text:words,files:await files($('attach'))});$('attach').value='';await read(false);if(v.stop)notice('The project stopped for '+v.stop+': '+v.detail);return true;}
+ catch(e){notice(e.message);return false;}finally{busy=false;}}
+async function send(){const words=$('text').value;if(!words.trim()&&!($('attach').files||[]).length){notice('Write a message or attach a file.');return;}
+ $('send').disabled=true;if(await say(words))$('text').value='';$('send').disabled=false;}
+async function wake(p){notice('');try{const v=await call('/api/atelier/wake',{commission:project,participant:{id:p.id,kind:p.kind,name:p.name||p.id}});
+ notice(v.started?name(p)+' is taking a turn.':v.working?name(p)+' is already taking a turn.':'');await read(false);}catch(e){notice(e.message);}}
+$('send').onclick=send;$('text').onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&!e.isComposing){e.preventDefault();send();}};
+$('approve').onclick=()=>say('go');$('accept').onclick=()=>say('Accepted.');
+$('changes').onclick=()=>{$('text').focus();if(!$('text').value)$('text').placeholder='Say what to change, then Send.';};
+async function start(){
+ if(!project&&(params.has('new')||params.has('campaign')||params.get('request'))){await createView();return;}
+ if(!project){location.replace('/');return;}
+ $('view').hidden=false;const q=encodeURIComponent(project);
+ if(params.get('setup_incomplete')==='1'){
+  const box=document.createElement('section');box.className='panel';box.setAttribute('role','status');text(box,'h2','Project created — finish its details');
+  text(box,'p','The project was created, but its mission or name could not be saved. Keep this project and finish those details in Missions.');
+  try{const key='aether-project-setup-'+project,issues=JSON.parse(sessionStorage.getItem(key)||'[]');if(Array.isArray(issues))for(const issue of issues)if(typeof issue==='string')text(box,'p',issue);sessionStorage.removeItem(key);}catch(_){}
+  text(box,'a','Open Missions to finish setup').href='/missions';$('view').prepend(box);
+ }
+ $('roadmap-link').href='/projects/campaign?id='+q;$('team-link').href='/projects/roster?commission='+q;
+ $('creations-link').href='/workspace?view=creations&project='+q;$('creation-new').href='/workspace?view=creations&project='+q+'&new=1';
+ call('/api/access/session').then(s=>{$('creation-new').hidden=s.user?.role!=='admin';}).catch(()=>{});
+ creations();
+ if(globalThis.aetherNav)globalThis.aetherNav.project(project);
+ title().catch(()=>{$('title').textContent=project;});
+ try{await read(true);}catch(e){notice(e.message);$('next-line').textContent='Connection unavailable';}
+ setInterval(()=>{if(!busy)read(false).catch(e=>{notice(e.message);$('next-line').textContent='Connection unavailable — the messages shown are kept';});},3000);}
+start();
+</script></body></html>

@@ -1,4 +1,4 @@
-"""Interruption and restart on the real Atelier path (v0.1, Fable, 2026-10-22).
+"""Interruption and restart on the real Atelier path (v0.1).
 
 A separate place process dies at an exact point of a turn (aether/atelier/faults.py, no cleanup) and is started again.
 What must hold: accepted work, costs, the daybook chain and the files stay; nothing is answered or posted twice; a lost

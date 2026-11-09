@@ -1,4 +1,4 @@
-"""The Welcome as a mind reads it: concise lines with complete coverage, continuity first, and seeds that stay Aether's (Fable, 2026-10-22)."""
+"""The Welcome as a mind reads it: concise lines with complete coverage, continuity first, and seeds that stay Aether's."""
 import hashlib
 import pytest
 

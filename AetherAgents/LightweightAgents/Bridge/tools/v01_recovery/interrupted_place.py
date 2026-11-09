@@ -1,4 +1,4 @@
-"""Interrupt a real place mid-turn and restart it (v0.1 recovery evidence; Fable, 2026-10-22).
+"""Interrupt a real place mid-turn and restart it (v0.1 recovery evidence).
 
 The place runs as a separate process (`tools/atelier_place.py serve --once`) against a scripted model provider served
 over HTTP by this process, through the production adapter. The environment names a fault point (aether/atelier/faults.py)

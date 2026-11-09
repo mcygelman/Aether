@@ -30,7 +30,7 @@ def parse_json(raw):
         raise ContextConfigurationError(f'Invalid settings JSON: {exc}') from exc
 
 
-# -- Model text: exactly one fenced JSON block (lane F, 2026-10-10; Claude lead's ruling, Praxis to review) --
+# -- Model text: exactly one fenced JSON block (design decision, 2026-10-10) --
 # A model may wrap its whole JSON answer in ONE Markdown code fence. Accepted only when that single
 # fence encloses the ENTIRE output: only whitespace outside it, an absent or `json` language tag, and
 # no other fence inside. Anything else is returned unchanged and is refused by the strict parse
@@ -61,7 +61,7 @@ def unfence(raw):
     return (inner.encode('utf-8') if as_bytes else inner), True
 
 
-# -- Model citations: exact quotes, whitespace-tolerant (lane F, 2026-10-11; Claude lead's ruling, Praxis to review) --
+# -- Model citations: exact quotes, whitespace-tolerant (design decision, 2026-10-11) --
 # A quote matches when it occurs exactly, or after collapsing every run of whitespace (spaces, tabs, line breaks)
 # to one space on BOTH the quote and the source. Every other character must match exactly: look-alike symbols
 # (for example the corner brackets of Aether's lexicon) are never folded together.

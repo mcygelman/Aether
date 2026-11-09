@@ -119,7 +119,7 @@ ORDER = (UNRECOGNIZED,) + PRECEDENCE
 SUPERSEDABLE = {NEEDS_YOU, WAITING, DONE}
 NEVER_DROPPED = {UNCERTAIN, UNRECOGNIZED, INTERRUPTED, RUNNING, PAUSED}
 OPEN_RUN = {RUNNING, PAUSED, WAITING, INTERRUPTED}
-CLOSING_OPERATIONS = {"CLOSE", "CLOSE_REVIEW"}   # closure turns after the operator's decision (Fable, 10-12)
+CLOSING_OPERATIONS = {"CLOSE", "CLOSE_REVIEW"}   # closure turns after the operator's decision
 OPEN_EXECUTION = {"READY", "RUNNING", "PAUSED", "BLOCKED"}
 OPEN_GENERATION = {"generation_owned", "generation_frozen"}
 HELD_FOR_TASK_DECISION = {"CONTRIBUTION_EVIDENCE_HELD", "PUBLICATION_COMPLETE"}
@@ -252,7 +252,7 @@ def _signals(records: dict) -> List[dict]:
     for row in records.get("closure_packets") or ():
         signals.append(_signal("closure_packets", row.get("status"), row.get("source", "")))
     dialogue = list(records.get("closure_dialogue") or ())
-    # Closures after the decision (Fable, 10-12; closure-line-range-8): the lead's CLOSE and the reviewer's
+    # Closures after the decision (closure-line-range-8): the lead's CLOSE and the reviewer's
     # CLOSE_REVIEW follow the operator's ACCEPT. They are the expected end of the campaign, never an unanswered
     # dialogue: each is DONE at Closed when its evidence is held and valid, else Needs you at Close.
     closing = [r for r in dialogue if r.get("operation") in CLOSING_OPERATIONS]
@@ -286,7 +286,7 @@ def _signals(records: dict) -> List[dict]:
 
 
 def _amendment_signals(records: dict, signals: List[dict]) -> List[dict]:
-    """The Overseer conversation's latest completed Propose candidate and its fate (Praxis-Fable, 10-12). A
+    """The Overseer conversation's latest completed Propose candidate and its fate. A
     Sprint-boundary amendment goes through the pure sprint_amendments.projection hint (never authority): proposed is
     Needs you (rule on it); approved stays Needs you until a standing admission binds it through
     exact rebind, full staffing, or initial effective-plan staffing; refused is Refused. A Plan-stage conversation proposal has its
@@ -381,7 +381,7 @@ def _bound_admissions(records, ruling, amends):
 
 
 def _revision_answered(decision, histories) -> bool:
-    """True only when a LATER staffing history record pins this exact REQUEST_REVISION decision (Praxis F2):
+    """True only when a LATER staffing history record pins this exact REQUEST_REVISION decision:
     its revision_ref is exactly {version, sha256}, the int version and the 64-hex digest of this decision's
     record, and the referencing record's own version follows the history head the decision was taken on.
     Anything unestablished (missing, wrong, stale, boolean or untyped fields) leaves the decision standing."""
@@ -554,7 +554,7 @@ def _obligations(records: dict, signals: List[dict]) -> List[dict]:
     closing = [r for r in dialogue if r.get("operation") in CLOSING_OPERATIONS]
     dialogue = [r for r in dialogue if r.get("operation") not in CLOSING_OPERATIONS]   # closures after ACCEPT are expected
     if decisions and decisions[-1].get("decision") == "ACCEPT":
-        for row in closing:   # a held or invalid closure turn after ACCEPT: Closed, with this unfinished (Fable, 10-12)
+        for row in closing:   # a held or invalid closure turn after ACCEPT: Closed, with this unfinished
             if not (row.get("status") == "CLOSURE_EVIDENCE_HELD" and row.get("integrity") == "VALID_OUTPUT_HELD"):
                 found.append(_obligation("closure_after_decision_incomplete", NEEDS_YOU, row.get("status"),
                                          row.get("source", ""), f"{row.get('operation')} after ACCEPT is held or invalid; inspect it"))
@@ -594,7 +594,7 @@ def _obligations(records: dict, signals: List[dict]) -> List[dict]:
     return list(unique.values())
 
 
-# The hosts whose pool projection the campaign page may ask for (pooled_recovery.handle_pool_routes, Praxis 10-12):
+# The hosts whose pool projection the campaign page may ask for (pooled_recovery.handle_pool_routes):
 # store -> the host prefix; the query is the host's own inspect query. Only open runs are listed.
 POOL_HOSTS = {"native-staff-contributions": "/api/native-contribution-host/", "native-reviews": "/api/native-review-host/",
               "native-closure-runs": "/api/closure-dialogue/"}
@@ -628,7 +628,7 @@ def campaign_state(records: dict) -> Dict[str, object]:
     signals = _signals(records)
     frontier = max(_position(s) for s in signals)
     # An open Overseer plan change (proposed, approved but unbound, refused) is the operator's decision across
-    # stages: a stage-done record at the frontier never supersedes it (Fable, 10-12).
+    # stages: a stage-done record at the frontier never supersedes it.
     current = [s for s in signals if s["condition"] not in SUPERSEDABLE or s["family"] == AMENDMENT_FAMILY
                or not (any(t["family"] != s["family"] and _position(t) > _position(s) for t in signals)
                        or _entry_answered(s, signals))]

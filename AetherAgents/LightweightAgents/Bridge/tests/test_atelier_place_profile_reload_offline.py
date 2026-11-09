@@ -1,4 +1,4 @@
-"""A working mind keeps its client when its deployment profile cannot be read (Fable, 2026-10-22 night).
+"""A working mind keeps its client when its deployment profile cannot be read.
 
 The place re-reads runtime_profiles.json each pass so that an edit to the same profile takes effect without a
 restart. A profile renamed under a working mind, or a file caught half-written, must not turn that mind into a

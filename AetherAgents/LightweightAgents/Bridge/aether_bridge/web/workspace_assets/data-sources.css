@@ -1,0 +1,22 @@
+/* Own source/report layout; never encode permissions or application behavior. */
+.data-sources pre,.source-run pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:22rem;overflow:auto}
+.source-check{display:flex;align-items:center;gap:.6rem;margin:.6rem 0}
+.source-check input{width:auto!important}
+.source-guide{white-space:pre-wrap}
+.source-table-scroll{max-width:100%;overflow:auto;max-height:32rem;margin:1rem 0}
+.source-table-scroll table{width:100%;min-width:32rem;border-collapse:collapse}
+.data-sources>.ui-card{margin:1rem 0}
+.source-report button{margin-right:.4rem;margin-bottom:.4rem}
+.source-table-scroll th,.source-table-scroll td{padding:.5rem;border-bottom:1px solid var(--ae-line,#b8c7d4);text-align:left;vertical-align:top;max-width:28rem;overflow-wrap:anywhere}
+.source-table-scroll th{position:sticky;top:0;background:var(--ae-panel,#fff)}
+.source-table-scroll th button{white-space:nowrap}
+.source-results input[type=search]{width:100%}
+.source-bars{margin:1rem 0}
+.source-bars label{display:grid;grid-template-columns:minmax(6rem,1fr) 2fr auto;gap:.7rem;margin:.5rem 0;align-items:center}
+.source-bars meter{width:100%}
+.source-report,.source-job{padding:1rem 0;border-bottom:1px solid var(--ae-line,#b8c7d4)}
+.source-run{margin:1rem 0}
+.source-picker{max-width:38rem;width:calc(100% - 2rem);max-height:80vh;overflow:auto;color:inherit;background:var(--ae-panel,#fff);border:1px solid var(--ae-line,#b8c7d4);border-radius:.7rem;padding:1.2rem}
+.source-picker label{display:block;margin:.8rem 0}
+.source-picker .source-picker-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+@media(max-width:600px){.source-table-scroll{max-height:25rem}.source-bars label{grid-template-columns:1fr 1fr auto}.data-sources .actions{flex-wrap:wrap}.source-picker{padding:.8rem}}

@@ -1,18 +1,27 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Campaign</title>
 <style>body{font:16px system-ui;background:#101820;color:#eef5f5;max-width:1050px;margin:2rem auto;padding:1rem}a{color:#79d5cd}button{padding:.6rem;margin:.3rem}
-section{border:1px solid #567;padding:1rem;margin:1rem 0}label{display:block;margin:.6rem 0 .2rem}input{font:inherit;padding:.5rem;width:100%;max-width:36rem;box-sizing:border-box;background:#18242e;color:#eef5f5;border:1px solid #759393}
+section{background:#172630;border:1px solid #39505e;border-radius:10px;padding:1rem;margin:1rem 0}details#technical>summary{cursor:pointer;margin:1rem 0}label{display:block;margin:.6rem 0 .2rem}input{font:inherit;padding:.5rem;width:100%;max-width:36rem;box-sizing:border-box;background:#18242e;color:#eef5f5;border:1px solid #759393}
 table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.4rem .5rem;border-bottom:1px solid #345;vertical-align:top}caption{text-align:left;padding:.4rem 0}code{overflow-wrap:anywhere}
 #message{padding:1rem;border:1px solid #759393}#message:empty{display:none}:focus-visible{outline:3px solid #79d5cd;outline-offset:2px}li{margin:.5rem 0}.wrap{overflow-x:auto}
 .now{display:flex;flex-wrap:wrap;gap:1rem;align-items:baseline}.big{font-size:2rem;font-weight:700;margin:0}.label{color:#a9c4c4;font-size:.9rem;display:block}
 .condition{padding:.2rem .7rem;border:2px solid #79d5cd;border-radius:.4rem}.c-UNCERTAIN,.c-UNRECOGNIZED,.c-INTERRUPTED,.c-REFUSED{border-color:#f2a65a;color:#ffd0a0}.c-NEEDS_YOU{border-color:#f5e17a;color:#fff2b0}
 ol.stages{display:flex;flex-wrap:wrap;gap:.3rem;list-style:none;padding:0}ol.stages li{padding:.2rem .6rem;border:1px solid #345;margin:0}ol.stages li[aria-current]{border-color:#79d5cd;font-weight:700}</style>
-<nav aria-label="Mission Control"><a href="/">Mission Control</a> · <a href="/projects/roadmaps">Roadmaps</a></nav>
+<script src="/settings/models-context/atelier-nav.js"></script>
+<nav data-local-nav aria-label="Mission Control"><a href="/">Mission Control</a> · <a href="/projects/roadmaps">Roadmaps</a></nav>
 <main>
 <h1>Campaign</h1>
 <p>Where the selected campaign is, and what it needs now. This page only reads: it is computed from the campaign's own records, listed with their digests below, so you can check it.</p>
 <div id="message" role="alert" aria-live="assertive"></div>
 <p id="status" role="status" aria-live="polite">Loading…</p>
+<section id="plain" hidden aria-labelledby="plain-heading"><h2 id="roadmap-heading">Roadmap</h2><div id="plain-roadmap"></div>
+<h2 id="plain-heading">Where it stands</h2>
+<ol class="stages" id="plain-stages" aria-label="Stages"></ol><p id="plain-stage"></p>
+<h3>What is happening now</h3><p id="plain-now"></p>
+<h3>Waiting on</h3><ul id="plain-waiting"></ul>
+<h3>Team</h3><ul id="plain-team"></ul>
+<h3>Budget and pace</h3><ul id="plain-pace"></ul>
+<h3>Next</h3><ul id="plain-next"></ul></section>
 <section aria-labelledby="now-heading"><h2 id="now-heading">Now</h2>
 <div class="now"><div><span class="label">Campaign</span><p class="big" id="campaign">–</p></div>
 <div><span class="label">Stage</span><p class="big" id="stage">–</p></div>
@@ -72,7 +81,49 @@ function render(v){
   text(text(row,'td',''),'code',s.source||'');body.append(row);}
  const sources=$('sources');sources.replaceChildren();
  for(const s of v.sources){const li=document.createElement('li');text(li,'code',s.path);text(li,'span',' · sha256 ');text(li,'code',s.sha256);sources.append(li);}
- if(!v.sources.length)text(sources,'li','No record file was read.');}
+ if(!v.sources.length)text(sources,'li','No record file was read.');
+ if(v.source==='atelier')plain(v);}
+// An Atelier campaign in plain words; the records stay one click away, unchanged.
+const STAGE_WORDS={Plan:'Planning: the lead is writing the roadmap.',Sprint:'In progress: you approve each sprint and the team works on it.',Review:'In review: the reviewer has written; accept the result or ask for changes.',Close:'Closing: accepted, and the agents are writing their closing notes.',Closed:'Done.'};
+const STAGE_NAMES={Plan:'Planning',Sprint:'In progress',Review:'In review',Close:'Closing',Closed:'Done'};
+const ROLE_WORDS={lead:'Lead',member:'Developer',reviewer:'Reviewer',librarian:'Librarian'};
+// The Atelier edition calls this tab Roadmap; a project's roadmap is its lead's sprints and tasks.
+async function roadmapOf(id){const box=$('plain-roadmap');box.replaceChildren();
+ try{const v=await call('/api/atelier/read?commission='+encodeURIComponent(id));const plan=(v.facts||{}).plan||{sprints:[]};
+  const approved=new Set(((v.facts||{}).approvals||[]).map(a=>a.sprint));
+  if(!plan.sprints.length){text(box,'p',((v.facts||{}).campaign||{}).request_kind==='library'?'A librarian question has no roadmap.':'Not planned yet: the lead replies to the brief with sprints and tasks.');return;}
+  const ol=document.createElement('ol');box.append(ol);
+  for(const s of plan.sprints){const li=document.createElement('li');ol.append(li);text(li,'strong',s.title);
+   text(li,'span',' — '+(approved.has(s.number)?'approved':plan.awaiting_approval===s.number?'waiting for your approval':'planned'));
+   const ul=document.createElement('ul');li.append(ul);for(const t of s.tasks||[])text(ul,'li',t.title+(t.who?' — '+t.who:''));}}
+ catch(e){text(box,'p','The roadmap could not be read: '+e.message);}}
+function link(parent,label,href){const a=text(parent,'a',label);a.href=href;return a;}
+async function plain(v){const id=v.campaign_id,q=encodeURIComponent(id);
+ if(!$('technical')){const d=document.createElement('details');d.id='technical';text(d,'summary','Records and fingerprints (for checking)');
+  for(const h of ['now-heading','actions-heading','obligations-heading','signals-heading','sources-heading'])d.append($(h).closest('section'));$('plain').after(d);}
+ $('plain').hidden=false;document.querySelector('main>p').textContent='This project’s roadmap and where it stands. Everything here is read from its own records, which stay below for checking.';
+ const h1=document.querySelector('h1');if(h1&&h1.firstChild&&h1.firstChild.nodeType===3)h1.firstChild.nodeValue='Roadmap';document.title='Roadmap · Aether';
+ roadmapOf(id);
+ const ol=$('plain-stages');ol.replaceChildren();for(const s of v.stages||[]){const li=text(ol,'li',STAGE_NAMES[s]||s);if(s===v.stage)li.setAttribute('aria-current','step');}
+ $('plain-stage').textContent=STAGE_WORDS[v.stage]||'';
+ const now=$('plain-now');now.replaceChildren();text(now,'strong',(v.label||'')+'. ');text(now,'span',v.reason||'');if(v.fix){text(now,'span',' ');link(now,v.fix.label,v.fix.href);}
+ const w=$('plain-waiting');w.replaceChildren();
+ for(const item of v.waiting||[]){const li=document.createElement('li');text(li,item.you?'strong':'span',item.who);text(li,'span',' — '+item.what+'.');w.append(li);}
+ if(!(v.waiting||[]).length)text(w,'li','Nothing is waiting.');
+ const b=v.budget||{},n=v.numbers||{},pace=$('plain-pace');pace.replaceChildren();
+ text(pace,'li','Model calls: '+(b.model_calls_used??0)+(b.model_calls_limit!=null?' of '+b.model_calls_limit+' used':' used (no limit set)')+'.');
+ text(pace,'li','Turns that failed or were held back: '+(n.refusals_per_hundred??0)+' per 100 model calls.');
+ if(n.setup_failures)text(pace,'li','Turns that never reached a model (unreachable server or locked keys): '+n.setup_failures+'.');
+ if(n.capacity_failures)text(pace,'li','Turns stopped by the model’s window size: '+n.capacity_failures+'.');
+ text(pace,'li','Your “go” per planned sprint: '+(n.approvals_per_sprint??0)+'.');
+ if(n.thinking_per_harness!=null)text(pace,'li','Agent thinking time per minute of waiting: '+n.thinking_per_harness+'.');
+ const next=$('plain-next');next.replaceChildren();
+ for(const [label,href] of [['Open the conversation','/projects/atelier?commission='+q],['See or change the team','/projects/roster?commission='+q],['Records: every message and file with its fingerprint','/projects/campaign-receipts?id='+q]]){const li=document.createElement('li');link(li,label,href);next.append(li);}
+ const team=$('plain-team');team.replaceChildren();
+ try{const r=await call('/api/campaign-roster?commission='+q);
+  for(const m of r.members||[]){const li=document.createElement('li');text(li,'strong',m.name);text(li,'span',' — '+(ROLE_WORDS[m.role]||m.role)+' · '+m.model_profile+(m.available?'':' · not available on this computer'));team.append(li);}
+  if(!(r.members||[]).length){const li=text(team,'li','No one is on the team yet. ');link(li,'Add the team','/projects/roster?commission='+q);}}
+ catch(e){text(team,'li','The team could not be read: '+e.message);}}
 async function pool(queries){const box=$('pool');box.replaceChildren();
  for(const q of queries){const p=document.createElement('p');text(p,'strong','Runtime pool ('+q.store+'): ');box.append(p);
   try{const r=await fetch(q.prefix+'pool-inspect',{method:'POST',cache:'no-store',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(q.query)});
@@ -82,7 +133,7 @@ async function pool(queries){const box=$('pool');box.replaceChildren();
   catch(e){text(p,'span','unavailable: '+e.message);}}}
 async function load(){const id=new URLSearchParams(location.search).get('id');
  try{const v=await call('/api/campaign-state'+(id?('?id='+encodeURIComponent(id)):''));render(v);fail('');
-  $('status').textContent='Campaign '+v.campaign_id+': '+v.stage+', '+(WORDS[v.condition]||v.condition)+'.';}
+  $('status').textContent=v.source==='atelier'?'':'Campaign '+v.campaign_id+': '+v.stage+', '+(WORDS[v.condition]||v.condition)+'.';}
  catch(e){$('status').textContent='The campaign state could not be loaded.';fail(e.message);}}
 $('refresh').onclick=load;load();
 </script>

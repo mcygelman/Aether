@@ -1,4 +1,4 @@
-"""A fresh schema-4 commission with a lone master, through the real place loop (v0.1, Fable, 2026-10-22).
+"""A fresh schema-4 commission with a lone master, through the real place loop (v0.1).
 
 One authored mind, a new cartridge at the current schema, one commission: the master delivers, the operator accepts,
 the atelier asks for closing words, the master writes them, they are filed into its own cartridge as written, the

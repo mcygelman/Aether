@@ -11,12 +11,23 @@ import socket
 import subprocess
 import sys
 from urllib.error import URLError
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 import pytest
 
 import v01_public_support as support
 from aether.operations import launcher
+
+
+def signed_in(base):
+    """Create the first account (it becomes the Admin) and return an opener carrying its session."""
+    account = dict(username="launch-admin", name="Launch Admin", password="launch-test-pass-1",
+                   confirmation="launch-test-pass-1")
+    request = Request(base + "/api/access/register", data=json.dumps(account).encode("utf-8"),
+                      headers={"Content-Type": "application/json", "Origin": base})
+    with urlopen(request, timeout=10) as response:
+        cookie = response.headers["Set-Cookie"].split(";", 1)[0]
+    return lambda path: urlopen(Request(base + path, headers={"Cookie": cookie}), timeout=10)
 
 
 @pytest.mark.parametrize("argv, environment, edition", [
@@ -92,11 +103,17 @@ def test_the_launch_command_starts_and_stops_the_atelier_edition_in_a_fresh_fold
             health = json.load(response)
         assert health["edition"] == "atelier"
         assert json.loads((control / "instance.json").read_text(encoding="utf-8"))["instance_id"] == health["instance_id"]
-        with urlopen(base + "/", timeout=10) as response:
-            assert b'href="/agents"' in response.read()
-        with urlopen(base + "/api/agents", timeout=10) as response:
+        with urlopen(base + "/", timeout=10) as response:       # signed out: the sign-in page
+            assert response.url.startswith(base + "/login") and b'account-form' in response.read()
+        open_page = signed_in(base)
+        with open_page("/") as response:                  # signed in: Chat, with the shared navigation
+            home = response.read()
+            assert b'<title>Chat' in home and b'atelier-nav.js' in home
+        with urlopen(base + '/settings/models-context/atelier-nav.js', timeout=10) as response:
+            assert b'/agents' in response.read()
+        with open_page("/api/agents") as response:
             assert "agents" in json.load(response)
-        with urlopen(base + "/projects/atelier", timeout=10) as response:
+        with open_page("/projects/atelier") as response:
             assert response.status == 200
     finally:
         stop = subprocess.run(launcher + ["stop"], cwd=bridge, env=env, capture_output=True, text=True,

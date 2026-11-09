@@ -1,4 +1,4 @@
-"""Repair of a malformed saved settings registry from the Models & Context page (MVP-08 T01, case M2; Fable, 2026-10-12).
+"""Repair of a malformed saved settings registry from the Models & Context page (MVP-08 T01, case M2).
 
 Today a registry that no longer decodes (truncated, hand-edited, half-written) stops the settings page at
 "Loading profiles" with the decode error and no product path forward; the runbook calls it installation repair.

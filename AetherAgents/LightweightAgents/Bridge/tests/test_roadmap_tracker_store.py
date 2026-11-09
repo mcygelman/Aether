@@ -68,6 +68,23 @@ def store(tmp_path):
     return RoadmapStore(path)
 
 
+def test_closing_aborts_never_started_sprints_and_reopening_plans_again(store):
+    # The Roadmaps page's Close roadmap and Reopen roadmap change statuses only (Michel, 11-05).
+    data = sample_data()
+    data['sprints'][0]['status'] = 'Closed'
+    data['sprints'].append({'id': 'sprint-two', 'roadmapId': 'roadmap-one', 'name': 'Sprint Two',
+                            'description': 'Never started.', 'status': 'Planned', 'sequence': 2})
+    revision = store.write(data)
+    data['roadmaps'][0]['status'] = 'Completed'
+    with pytest.raises(DataValidationError):
+        store.write(data, revision)
+    data['sprints'][1]['status'] = 'Aborted'
+    revision = store.write(data, revision)
+    data['roadmaps'][0]['status'] = 'Planned'
+    store.write(data, revision)
+    assert [s['status'] for s in store.read()[0]['sprints']] == ['Closed', 'Aborted']
+
+
 def test_round_trip_is_pretty_printed_and_valid(store):
     data, revision = store.read()
     next_revision = store.write(data, revision)

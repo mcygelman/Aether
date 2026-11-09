@@ -4,7 +4,7 @@ Inputs:  an event the host observed (or the agent declared).
 Outputs: a TriggerAction: what to do (memory check, reform, nothing), who
          triggers it (host or agent), and why.
 
-Priority order agreed with Michel:
+Priority order:
   1. overseer planning              (agent-declared: only the agent knows)
   2. an agent starting its own task (host-detected)
   3. after an error or surprise     (host-detected for tool errors)

@@ -9,7 +9,7 @@ cartridge binding for integrity guards and ClosureMemoryWriter for closure memor
 context reformation building blocks (board: catalog and proposals; reform_plan: decision,
 new context, archive; document 08); legacy HW-08 loader until migration.
 Depends on: integrity, config, backends, models.
-Owner: Claude (Opus 5.5).
+Owner: Memory maintainers.
 
 The public interface is __all__: the submodules and names listed there. Everything
 else in this package is internal. Submodules load on first use (PEP 562), so
@@ -22,6 +22,12 @@ _NAMES = {'open_engine': 'fabric', 'open_owner_engine': 'fabric', 'gate_recall':
           'memory_fabric': 'fabric', 'WorkingMemory': 'working_context',
           'SessionMemory': 'session', 'read_pointer': 'session',
           'ClosureMemoryWriter': 'session', 'cartridge_binding': 'session'}
+
+# An export that leaves some submodules out (the public repository) lists only those it contains.
+_HERE = __import__("pathlib").Path(__file__).parent
+_PRESENT = lambda m: (_HERE / (m.replace(".", "/") + ".py")).is_file() or (_HERE / m.replace(".", "/") / "__init__.py").is_file()
+_SUBMODULES = tuple(m for m in _SUBMODULES if _PRESENT(m))
+_NAMES = {name: module for name, module in _NAMES.items() if _PRESENT(module)}
 
 __all__ = sorted(set(_SUBMODULES) | set(_NAMES))
 

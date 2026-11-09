@@ -230,7 +230,7 @@ def plan_import(profile_memory_dir: str) -> ImportPlan:
                 continue
             if "TEMPLATE" in stem.upper() and not _DATE.search(stem):
                 # Blank forms (EXPERIENCE_TEMPLATE.txt) carry no date; a dated record
-                # about templates is a real memory (three of Praxis's were, 2026-10-06).
+                # about templates is a real memory (three were, in a real import on 2026-10-06).
                 plan.skipped.append((relpath, "template (not a memory)"))
                 continue
             text, reason = _read(path)

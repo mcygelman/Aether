@@ -1,4 +1,4 @@
-"""Focused offline turn test for the atelier (Gemini Antigravity, 2026-10-18; updated 2026-10-19).
+"""Focused offline turn test for the atelier.
 
 Demonstrates:
 - One heavyweight lead and two staff members take turns in an atelier on a disposable fixture.

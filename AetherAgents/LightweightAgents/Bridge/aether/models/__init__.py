@@ -22,6 +22,12 @@ _SUBMODULES = ('budget', 'catalog', 'deployment_profiles', 'model_budget_presets
 _NAMES = {'ModelCatalog': 'catalog', 'ModelSpec': 'catalog', 'ModelCatalogError': 'catalog',
           'SettingsStore': 'settings_store'}
 
+# An export that leaves some submodules out (the public repository) lists only those it contains.
+_HERE = __import__("pathlib").Path(__file__).parent
+_PRESENT = lambda m: (_HERE / (m.replace(".", "/") + ".py")).is_file() or (_HERE / m.replace(".", "/") / "__init__.py").is_file()
+_SUBMODULES = tuple(m for m in _SUBMODULES if _PRESENT(m))
+_NAMES = {name: module for name, module in _NAMES.items() if _PRESENT(module)}
+
 __all__ = sorted(set(_SUBMODULES) | set(_NAMES))
 
 

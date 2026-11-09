@@ -23,7 +23,9 @@ SCHEMA = 'aether-private-maintenance-backup-1'
 DATA_CONTRACT = 'aether-mvp09-exact-build-no-migration-1'
 SQLITE = {'.sqlite', '.sqlite3', '.db'}
 SECRET_NAMES = {'.sealbox_key', '.env', 'credentials', 'secrets', 'credential-store', 'tokens'}
-VOLATILE = {'.aether_control/installed-instance.json', '.aether_control/installed-server.lock'}
+# Running state of this computer, not user data: a restored copy never starts hosting by itself.
+VOLATILE = {'.aether_control/installed-instance.json', '.aether_control/installed-server.lock',
+            '.aether_control/workplace/hosting.json'}
 
 
 def sha(raw):
@@ -181,6 +183,27 @@ def _logical(db):
     return result.hexdigest()
 
 
+def _withhold_tokens(name, db):
+    """Blank data-source service tokens in a backup copy; the original store is never written.
+
+    VACUUM rebuilds the copy so no protected value survives in free pages. Returns the
+    ids of sources whose token was withheld, or None for any other store.
+    """
+    if relative(name).parts[-2:] != ('data_sources', 'sources.sqlite3'):
+        return None
+    withheld = []
+    for rid, body in db.execute("SELECT id, body FROM records WHERE kind='source' ORDER BY id").fetchall():
+        value = json.loads(body)
+        if value.get('secret'):
+            value['secret'] = ''
+            db.execute('UPDATE records SET body=? WHERE id=?', (json.dumps(value), rid))
+            withheld.append(rid)
+    db.commit()
+    if withheld:
+        db.execute('VACUUM')
+    return withheld
+
+
 def _owner_mapping(files, owners):
     if not isinstance(owners, dict):
         raise ValueError('Explicit owner GUID -> identity-file mapping required')
@@ -248,7 +271,7 @@ def _memory_coverage(roots, files, ownership, databases):
             if filename == pointer['home'] and meta.get('agent_id') != pointer['owner']:
                 raise ValueError('Cartridge owner differs from the selected home pointer')
             cartridge_owners[key] = dict(agent_id=meta['agent_id'], schema_version=meta['schema_version'])
-    # Atelier homes (v0.1, Fable 10-22): participant.json beside identity/, and memory/.cartridge.json naming the
+    # Atelier homes (v0.1): participant.json beside identity/, and memory/.cartridge.json naming the
     # cartridge by a path relative to the pointer (mind.sqlite inside the home) or absolute (a cartridge kept elsewhere,
     # which then needs its root selected). The owner is the participant id; the cartridge's meta says the same.
     for name, path in files.items():
@@ -256,10 +279,15 @@ def _memory_coverage(roots, files, ownership, databases):
             continue
         home = name.removesuffix('memory/.cartridge.json')
         record_name = home+'participant.json'
-        if record_name not in files:
-            raise ValueError('Atelier cartridge pointer has no participant record beside it')
-        participant = read_json(files[record_name])
         pointer = read_json(path)
+        if record_name in files:
+            participant = read_json(files[record_name])
+        elif _project_store_owner(home, pointer):
+            # A specialist's project continuity (specialist_context): no participant record by design; its folder
+            # name is derived from the owner, so the owner is still checked rather than taken from the pointer alone.
+            participant = dict(id=pointer['owner'])
+        else:
+            raise ValueError('Atelier cartridge pointer has no participant record beside it')
         target = Path(str(pointer.get('path') or 'mind.sqlite'))
         target = safe(target if target.is_absolute() else path.parent/target)
         key = next((k for k, v in files.items() if v == target), None)
@@ -273,6 +301,14 @@ def _memory_coverage(roots, files, ownership, databases):
             raise ValueError('Atelier cartridge owner differs from its participant record')
         cartridge_owners[key] = dict(agent_id=meta['agent_id'], schema_version=meta['schema_version'])
     return cartridge_owners
+
+
+def _project_store_owner(home, pointer):
+    """True for <project>/.aether-specialists/<sha256(owner)[:24]>/, the specialist project-checkpoint layout."""
+    parts = PurePosixPath(home).parts
+    owner = pointer.get('owner')
+    return (len(parts) >= 2 and parts[-2] == '.aether-specialists' and isinstance(owner, str) and bool(owner)
+            and parts[-1] == hashlib.sha256(owner.encode()).hexdigest()[:24])
 
 
 def _dependencies(value):
@@ -365,14 +401,20 @@ def backup(app, destination, *, mounts, owners, credential_dependencies, _review
         for name, source in files.items():
             target = safe(destination/'payload'/relative(name))
             target.parent.mkdir(parents=True, exist_ok=True)
+            withheld = None
             if name in dbs:
                 with closing(sqlite3.connect(target)) as sink:
                     dbs[name].backup(sink)
+                    withheld = _withhold_tokens(name, sink)
+                    payload = _logical(sink) if withheld else None
             else:
                 with target.open('xb') as sink:
                     sink.write(source.read_bytes()); sink.flush(); os.fsync(sink.fileno())
             saved[name] = dict(sha256=sha(target.read_bytes()), bytes=target.stat().st_size,
                                source_sha256=before[name], kind='sqlite' if name in dbs else 'file')
+            if withheld:
+                # source_sha256 still identifies the original for switch; the copy is checked against its own digest.
+                saved[name].update(payload_sha256=payload, withheld_tokens=withheld)
         after_files, after_dirs, after_excluded = inventory(roots)
         after = {name: _logical(dbs[name]) if name in dbs else sha(path.read_bytes()) for name, path in after_files.items()}
         if before != after or dirs != after_dirs or excluded != after_excluded:
@@ -419,8 +461,12 @@ def verify_backup(archive, *, expected_manifest_sha256, app):
             raise ValueError('Backup payload digest/size/root differs')
         if info['kind'] == 'sqlite':
             with closing(sqlite3.connect((archive/'payload'/name).as_uri()+'?mode=ro', uri=True)) as db:
-                if db.execute('PRAGMA quick_check').fetchall() != [('ok',)] or _logical(db) != info['source_sha256']:
+                if (db.execute('PRAGMA quick_check').fetchall() != [('ok',)]
+                        or _logical(db) != info.get('payload_sha256', info['source_sha256'])):
                     raise ValueError('Restored SQLite integrity or logical contents differ')
+                if 'withheld_tokens' in info and any(json.loads(body).get('secret') for body, in
+                                                     db.execute("SELECT body FROM records WHERE kind='source'")):
+                    raise ValueError('A withheld data-source token is present in the backup')
     for name, expected_owner in manifest['cartridge_owners'].items():
         if name not in expected_files or expected_files[name]['kind'] != 'sqlite':
             raise ValueError('Cartridge owner map points outside the snapshot')

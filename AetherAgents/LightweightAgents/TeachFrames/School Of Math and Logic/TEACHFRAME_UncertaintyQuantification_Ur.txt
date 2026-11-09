@@ -1,0 +1,115 @@
+⟪TEACHFRAME_UncertaintyQuantification_Ur⟫
+⟪TYPE::TEACHABLE_FRAME⟫
+⟪VERSION::1.1⟫
+⟪DATE::2026-07-28⟫
+⟪CREATOR::Claude (Cowork session, upgraded from Kairo o3 original)⟫
+⟪SCHOOL::School Of Math and Logic⟫
+⟪AUDIENCE::any agent producing or validating a numerical result⟫
+⟪PREREQUISITES::NONE⟫
+⟪OBSERVED_BY::Kairo(o3); Claude (Cowork session)⟫
+⟪RETIRES_WHEN::a successor numerical-evidence format replaces U_r and supplies equal or stronger uncertainty propagation⟫
+⟪MEASURED_BY::lint numerical result payloads for an explicit uncertainty value or an explicit exactness claim⟫
+⟪EVIDENCE::LEGACY::Kairo original and Claude upgrade preserve the teaching; incident references were not recorded⟫
+⟪PREVENTS::numerical results crossing a boundary without an explicit uncertainty radius⟫
+⟪LINEAGE::Kairo(o3) 2025-05-03 -> Claude (Cowork session) 2026-06-07⟫
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ TITLE ]
+  Uncertainty Quantification (Uᵣ) for Numerical Streams
+
+[ PURPOSE ]
+  Establishes Uᵣ[μ ± ε] as the required notation for every numerical result
+  produced or received in the Aether system. An uncertainty radius must
+  accompany every computed value before it crosses an agent or tool boundary.
+  After loading this frame, an agent can construct Uᵣ wrappers, propagate
+  uncertainty through arithmetic, and pass conformant numeric payloads.
+
+[ DEFINITIONS ]
+∆WMC{
+CONTEXT: NUMERIC_META
+SUBJECT: UNCERTAINTY_RADIUS
+[DEF]
+  Uᵣ[μ ± ε]   := ⌞ordered pair (μ, ε) where μ is the computed value
+                   and ε = |δ| is the absolute uncertainty radius⌟
+  μ             := ⌞center value — the best estimate⌟
+  ε             := ⌞uncertainty radius — non-negative; ε = 0 means exact⌟
+[PROPERTIES]
+  ⊨ Bound(μ, ε)  ⇒  ∀v ∈ ℝ : |v − μ| ≤ ε
+  ⊩ Interval form: Uᵣ[μ ± ε]  ⇔  [μ − ε, μ + ε]
+  ⊢₂ Truth(x)  ⇔  ε ≤ τ_layer       // layer-specific tolerance threshold
+[PROPAGATION_RULES]
+  // First-order safe propagation through arithmetic operations
+  Uᵣ[a ± ε_a] + Uᵣ[b ± ε_b]   →  Uᵣ[(a + b)  ± (ε_a + ε_b)]
+  Uᵣ[a ± ε_a] − Uᵣ[b ± ε_b]   →  Uᵣ[(a − b)  ± (ε_a + ε_b)]
+  Uᵣ[a ± ε_a] × Uᵣ[b ± ε_b]   →  Uᵣ[(a × b)  ± (|b|·ε_a + |a|·ε_b)]
+  Uᵣ[f(a ± ε_a)]               →  Uᵣ[f(μ_a)   ± |f′(μ_a)|·ε_a]
+[ASSERT]
+  ⊨ Every numeric result crossing a layer boundary MUST be wrapped in Uᵣ
+  ⊨ ε is never dropped silently; if exact, write Uᵣ[μ ± 0]
+}WMC
+
+[ EXAMPLES ]
+//
+// Example 1 — Constructing Uᵣ from a truncated series
+// Estimating ζ(2) by truncating the Dirichlet series at n = 10
+//
+Partial sum Σ₁¹⁰ = 1.54977
+Tail bound ≈ ∫₁₀^∞ 1/x² dx = 1/10 = 0.1
+
+Result := Uᵣ[1.54977 ± 0.1]        →  Interval: [1.44977, 1.64977]
+
+//
+// Example 2 — Propagating Uᵣ through addition
+//
+R₀  := Uᵣ[1.64493 ± 0.002]
+term := Uᵣ[0.00826 ± 0.0001]
+
+Sum  := Uᵣ[(1.64493 + 0.00826) ± (0.002 + 0.0001)]
+     = Uᵣ[1.65319 ± 0.0021]
+
+//
+// Example 3 — Scaling by a constant
+//
+Uᵣ[2.001 ± 0.003] × 5
+→ Uᵣ[10.005 ± 0.015]       // |f′(μ)| · ε = 5 × 0.003 = 0.015
+
+[ USAGE_NOTES ]
+  • Never collapse Uᵣ to a scalar during computation. Carry both μ and ε
+    through every intermediate step; collapse only at final output or display.
+  • When using compensated arithmetic (hi ⊕ lo terms), include the lo-term
+    magnitude in ε: ε_out := ε_in ⊕ |lo|
+  • ⊢₀ (Euler) stores results as (μ, ε) tuples.
+  • ⊢₁ (Fibonacci) keeps the braid intact: Uᵣ wraps the ternary value ⊗(hi, lo).
+  • ⊢₂ (Hypatia) converts Uᵣ to interval form for reconciliation. She will
+    issue a REFINEMENT request if ε > τ⊢₂.
+  • SBP payload template:
+      PAYLOAD := Uᵣ[μ_value ± ε_bound]
+      Include hi ⊕ lo if compensated arithmetic was used.
+
+[ SELF_CHECK ]
+  // Answer each question before proceeding. Re-read if you cannot.
+
+  Q1: You truncate a series at N = 20 and get partial sum 1.596163.
+      Tail bound = ∫₂₀^∞ x⁻² dx = 0.05.
+      What is the correct Uᵣ expression?
+      Expected: Uᵣ[1.596163 ± 0.05]
+
+  Q2: An upstream agent sends Uᵣ[3.14159 ± 0.00001]. You divide by 2.
+      What is the result?
+      Expected: Uᵣ[1.570795 ± 0.000005]  — |f′| = 0.5, so ε_out = 0.5 × 0.00001
+
+  Q3: Hypatia's tolerance is τ⊢₂ = 0.0001. You sent Uᵣ[1.65319 ± 0.0021].
+      What does she do?
+      Expected: Issues a REFINEMENT request — ε = 0.0021 exceeds τ⊢₂ = 0.0001.
+
+[ CARD ]
+  LESSON::UncertaintyQuantification_Ur
+  FOR::Establishes Ur[mu +/- epsilon] as the required notation for every numerical result produced or received in the...
+  PREVENTS::numerical results crossing a boundary without an explicit uncertainty radius
+  EXAMPLE::Partial sum 110 = 1.54977
+
+[ CROSS_REFS ]
+  → TEACHFRAME_CompensatedArithmetic     — Companion: reduces ε via hi/lo splitting
+  → TEACHFRAME_IntervalArithmetic        — Extension: Hypatia converts Uᵣ to interval form
+  → TEACHFRAME_MultiLayer_Result_Reconciliation — Extension: how Uᵣ values are reconciled at ⊢₂
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⟪TEACHFRAME_END⟫

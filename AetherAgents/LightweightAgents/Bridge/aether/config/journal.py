@@ -1,7 +1,7 @@
 """Config journal box (MOD-04): every setting change recorded, and every change undoable.
 
-Michel, 2026-10-06: "it is the config changes that cause all the problems" (a 12-minute
-change cost him an evening). This box is the one front door for settings: it keeps
+Config changes cause most of the problems (one 12-minute change once cost an
+evening). This box is the one front door for settings: it keeps
 the current values in a JSON file and appends every change to a journal beside it.
 
 Inputs:  a settings file path; changes as (key, value, by, reason).

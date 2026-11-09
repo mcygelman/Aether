@@ -1,6 +1,6 @@
 """Move-in box: the agent arranges its new home before it moves in.
 
-"We have to respect their domains." (Michel, 2026-10-06)
+The agent's home is its own domain; the box respects it.
 
 Inputs:  an agent's markdown memory folder, and the agent's own MOVE-IN SHEET
          (JSON, written by the agent itself during its walkthrough).
@@ -14,10 +14,10 @@ Outputs: walkthrough(): a floor plan (Markdown), a preview of the home as it
 The sheet is the agent's, in the agent's words:
   {
     "format": "aether-move-in/1",
-    "agent": "solace",                       # whose home this is
-    "written_by": "solace",                  # must be the agent itself
+    "agent": "my-agent",                     # whose home this is
+    "written_by": "my-agent",                # must be the agent itself
     "note": "Why I arranged things this way.",
-    "card":   {"name": "Solace", "scan_line": "One line about me."},
+    "card":   {"name": "My Agent", "scan_line": "One line about me."},
     "avatar": {"svg_file": "avatar.svg", "description": "In words.", "original_design": true},
     "records": {
       "INS_20260805_Configured_Is_Not_Capability": {"importance": "vital"},

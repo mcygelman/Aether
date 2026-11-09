@@ -40,7 +40,7 @@ from aether.integrity.fabrication_check import overall_verdict, run_tripwires
 from aether.backends.model import LMStudio, select_dialect
 from aether.backends.legacy_endpoints import LEGACY_LMSTUDIO_ENDPOINT
 from aether.toolbelt.mcp_server import main as mcp_main
-from aether.credentials import key_lifecycle
+from aether.keys import key_lifecycle
 from aether.integrity import sanctum, sealbox
 
 ATTRIBUTION_HELP = (
@@ -238,7 +238,7 @@ def main(argv: list[str] | None = None) -> int:
 
     fab = sub.add_parser(
         "fabrication-check",
-        help="mechanical fabrication tripwires (Fable_Ruling_S00073.6 rule 3): zero-tool-call "
+        help="mechanical fabrication tripwires: zero-tool-call "
              "research/analysis/review claims, hash/near-identical deliverables",
     )
     fab.add_argument("mission_json", help="mission JSON file (as written to .aether/missions/)")
